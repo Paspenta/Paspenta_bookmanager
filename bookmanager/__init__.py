@@ -22,5 +22,8 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    from . import manager
+    app.register_blueprint(manager.bp)
     
     return app
