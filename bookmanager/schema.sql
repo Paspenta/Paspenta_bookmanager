@@ -14,6 +14,7 @@ CREATE TABLE book (
     site_id INTEGER NOT NULL,
     volume INTEGER NOT NULL,
     publication_date TEXT NOT NULL,
+    isbn INTEGER,
     title TEXT NOT NULL,
     FOREIGN KEY (outer_id) REFERENCES outer_name(id),
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
