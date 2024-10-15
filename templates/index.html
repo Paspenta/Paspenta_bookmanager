@@ -4,7 +4,7 @@
     <h1> {% block title %} index {% endblock %}</h1>
 {% endblock %}
 
-{% block sidefillter %}
+{% block content %}
     <ul class="side">
         <li><input type="search" name="search"></li>
         <li><input type="submit" name="submit" value="検索"></li>
@@ -36,8 +36,6 @@
             <button type="button">新規登録</button>
         </a>
     </ul>
-{% endblock %}
-{% block booklist %}
     <table>
         <tr>
             {% for col in cols %}
