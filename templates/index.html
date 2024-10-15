@@ -57,4 +57,10 @@
             </tr>
         {% endfor %}
     </table>
+    <a href="{{ url_for('index' page=-1) }}">
+        <button type="button">prev</button>
+    </a>
+    <a href="{{ url_for('index' page=1) }}"
+        <button type="button">next</button>
+    </a>
 {% endblock %}
