@@ -52,7 +52,8 @@ def index(page):
     books = db.fetchall()
 
     return render_template("index.html",
-                            outers,
-                            Publishers,
-                            have_sites,
-                            books)
+                            title="index",
+                            outers=outers,
+                            Publishers=Publishers,
+                            have_sites=have_sites,
+                            books=books)
