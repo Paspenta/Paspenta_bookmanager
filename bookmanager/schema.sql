@@ -10,25 +10,7 @@ DROP TABLE IF EXISTS have_site;
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     namename TEXT UNIQUE NOT NULL,
-    password TEX NOT NULL
-);
-
-CREATE TABLE book (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    outer_id INTEGER NOT NULL,
-    publisher_id INTEGER NOT NULL,
-    series_id INTEGER,
-    site_id INTEGER NOT NULL,
-    volume INTEGER,
-    publication_date TEXT,
-    isbn INTEGER,
-    title TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (outer_id) REFERENCES outer_name(id),
-    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
-    FOREIGN KEY (series_id) REFERENCES series(id),
-    FOREIGN KEY (site_id) REFERENCES have_site(id)
+    password TEXT NOT NULL
 );
 
 CREATE TABLE outer_name (
@@ -50,11 +32,29 @@ CREATE TABLE series (
     series_name TEXT NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
-)
+);
 
 CREATE TABLE have_site (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     site_name TEXT NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
-)
+);
+
+CREATE TABLE book (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    outer_id INTEGER NOT NULL,
+    publisher_id INTEGER NOT NULL,
+    series_id INTEGER,
+    site_id INTEGER NOT NULL,
+    volume INTEGER,
+    publication_date TEXT,
+    isbn INTEGER,
+    title TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (outer_id) REFERENCES outer_name(id),
+    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
+    FOREIGN KEY (series_id) REFERENCES series(id),
+    FOREIGN KEY (site_id) REFERENCES have_site(id)
+);
