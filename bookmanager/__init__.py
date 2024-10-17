@@ -23,6 +23,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     from . import manager
     app.register_blueprint(manager.bp)
     
