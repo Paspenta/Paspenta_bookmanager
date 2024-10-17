@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS have_site;
 
 CREATE TABLE user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    namename TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL
 );
 
