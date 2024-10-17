@@ -5,8 +5,8 @@ from bookmanager.db import get_db
 
 bp = Blueprint("manager", __name__, url_prefix="/index")
 
-@bp.route("/index/<page>")
-def index(page):
+@bp.route("/")
+def index():
     db = get_db()
     db.execute(
         """
