@@ -9,6 +9,36 @@
 {% endblock %}
 
 {% block content %}
+    {% if books %}
+        <table class="table">
+            <thed>
+                <tr>
+                    <th class="w-auto" scope="col">タイトル</th>
+                    <th class="w-auto" scope="col">著者</th>
+                    <th class="w-auto" scope="col">巻数</th>
+                    <th class="w-auto" scope="col">出版社</th>
+                    <th class="w-auto" scope="col">出版日</th>
+                    <th class="w-auto" scope="col">所有</th>
+                    <th class="w-auto" scope="col">#</th>
+                </tr>
+            </thed>
+            <tbody>
+            {% for book in books %}
+                <tr>
+                    <td class="w-auto">{{ book["title"] }}</td>
+                    <td class="w-auto">{{ book["author"] }}</td>
+                    <td class="w-auto">{{ book["volume"] }}</td>
+                    <td class="w-auto">{{ book["publisher"] }}</td>
+                    <td class="w-auto">{{ book["have_site"] }}</td>
+                    <td class="w-auto">{{ book["publication_date"] }}</td>
+                    <td class="w-auto"><a href="{{ url_for(manager.edit, id=book.id) }}">編集</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h1> Book not found </h1>
+    {% endif%}
 {% endblock %}
 
 {% block script %}
