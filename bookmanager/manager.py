@@ -49,4 +49,13 @@ def index():
         """, (user_id, title, author, publisher, have_site, page*15)
     ).fetchall()
 
+    parms = request.args
+    minus_parms = parms
+    minus_parms["page"] = page-1
+    plus_parms = parms
+    plus_parms["page"] = page+1
 
+    return render_template("index.html",
+                           minus_parms=minus_parms,
+                           plus_parms=plus_parms,
+                           books=books)
