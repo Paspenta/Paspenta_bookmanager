@@ -38,8 +38,8 @@
         </table>
         <div class="container w-100">
             <div class="row center-block">
-                <a class="btn btn-primary col-4" href="{{ url_for(manager.index, **minus_parms) }}">prev</a>
-                <a class="btn btn-primary col-4" href="{{ url_for(manager.index, **plus_parms) }}">next</a>
+                <a class="btn btn-primary col-auto me-3" href="{{ url_for(manager.index, **minus_parms) }}">prev</a>
+                <a class="btn btn-primary col-auto me-3" href="{{ url_for(manager.index, **plus_parms) }}">next</a>
             </div>
         </div>
     {% else %}
