@@ -2,7 +2,7 @@ PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS book;
-DROP TABLE IF EXISTS outer_name;
+DROP TABLE IF EXISTS author_name;
 DROP TABLE IF EXISTS publisher;
 DROP TABLE IF EXISTS series;
 DROP TABLE IF EXISTS have_site;
@@ -13,9 +13,9 @@ CREATE TABLE user (
     password TEXT NOT NULL
 );
 
-CREATE TABLE outer_name (
+CREATE TABLE author_name (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    outer_name TEXT NOT NULL,
+    author_name TEXT NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
@@ -44,7 +44,7 @@ CREATE TABLE have_site (
 CREATE TABLE book (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    outer_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
     publisher_id INTEGER NOT NULL,
     series_id INTEGER,
     site_id INTEGER NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE book (
     isbn INTEGER,
     title TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (outer_id) REFERENCES outer_name(id),
+    FOREIGN KEY (author_id) REFERENCES author_name(id),
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
     FOREIGN KEY (series_id) REFERENCES series(id),
     FOREIGN KEY (site_id) REFERENCES have_site(id)
