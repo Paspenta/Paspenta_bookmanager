@@ -2,61 +2,21 @@
 
 {% set title = "index" %}
 
+{% block header %}
+    <input type="text" id="book_title" class="form-controll">
+    <button onclick="search()">検索</button>
+    <a href="{{ url_for(manager.advanced)}}">詳細検索</a>
+{% endblock %}
+
 {% block content %}
-    <ul class="side">
-        <li><input type="search" name="search"></li>
-        <li><input type="submit" name="submit" value="検索"></li>
-        <li>
-            <p>著者名</p>
-            <ul>
-            {% for outer in outers %}
-                <li><input type="checkbox" value=" {{ outer.id }}"> {{ outer.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>
-            <p>出版社</p>
-            <ul>
-            {% for Publisher in Publishers %}
-                <li><input type="checkbox" value=" {{ Publisher.id }}"> {{ Publisher.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <li>
-            <p>サイト</p>
-            <ul>
-            {% for have_site in have_sites %}
-                <li><input type="checkbox" value=" {{ have_site.id }}"> {{ have_site.name }}</li>
-            {% endfor %}
-            </ul>
-        </li>
-        <a href="{{ url_for('registration')}}">
-            <button type="button">新規登録</button>
-        </a>
-    </ul>
-    <table>
-        <tr>
-            {% for col in cols %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-        {% for book in books %}
-            <tr>
-                {% for cell in book %}
-                    <td>{{ cell }}</td>
-                {% endfor%}
-                <td>
-                    <a href="{{ url_for('edit', id=book.id) }}">
-                        <button type="button">編集</button>
-                    </a>
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
-    <a href="{{ url_for('index' page=-1) }}">
-        <button type="button">prev</button>
-    </a>
-    <a href="{{ url_for('index' page=1) }}">
-        <button type="button">next</button>
-    </a>
+{% endblock %}
+
+{% block script %}
+    <script>
+    function search() {
+        let book_title = document.getElementById("book_title");
+        let url = "{{ url_for('manager.index')}}?book_title=" + encodeURIComponent(book_title);
+        window.location.href = url;
+    }
+    </script>
 {% endblock %}
