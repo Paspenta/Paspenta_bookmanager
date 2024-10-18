@@ -27,9 +27,9 @@ CREATE TABLE publisher (
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
-CREATE TABLE series (
+CREATE TABLE title (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    series_name TEXT NOT NULL,
+    title TEXT NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
@@ -46,12 +46,11 @@ CREATE TABLE book (
     user_id INTEGER NOT NULL,
     author_id INTEGER NOT NULL,
     publisher_id INTEGER NOT NULL,
-    series_id INTEGER,
+    series_id INTEGER NOT NULL,
     site_id INTEGER NOT NULL,
-    volume INTEGER,
+    volume INTEGER DEFAULT 1,
     publication_date TEXT,
     isbn INTEGER,
-    title TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (author_id) REFERENCES author_name(id),
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
