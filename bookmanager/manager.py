@@ -42,10 +42,11 @@ def index():
             user_id = ?
             AND `title` = ?
             AND `author` = ?
+            AND `publisher` = ?
             AND `have_site` = ?
         GROUP BY title_id
         LIMIT 15 OFFSET ?;
-        """, (user_id, title, author, have_site, page*15)
+        """, (user_id, title, author, publisher, have_site, page*15)
     ).fetchall()
 
-    
+
