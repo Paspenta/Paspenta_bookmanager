@@ -46,7 +46,7 @@ CREATE TABLE book (
     user_id INTEGER NOT NULL,
     author_id INTEGER NOT NULL,
     publisher_id INTEGER NOT NULL,
-    series_id INTEGER NOT NULL,
+    title_id INTEGER NOT NULL,
     site_id INTEGER NOT NULL,
     volume INTEGER DEFAULT 1,
     publication_date TEXT,
@@ -54,6 +54,6 @@ CREATE TABLE book (
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (author_id) REFERENCES author_name(id),
     FOREIGN KEY (publisher_id) REFERENCES publisher(id),
-    FOREIGN KEY (series_id) REFERENCES series(id),
+    FOREIGN KEY (title_id) REFERENCES title(id),
     FOREIGN KEY (site_id) REFERENCES have_site(id)
 );
