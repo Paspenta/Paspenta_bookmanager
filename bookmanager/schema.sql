@@ -30,7 +30,11 @@ CREATE TABLE publisher (
 CREATE TABLE title (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
+    author_id INTEGER NOT NULL,
+    publisher_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES author_name(id),
+    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
@@ -44,16 +48,12 @@ CREATE TABLE have_site (
 CREATE TABLE book (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    author_id INTEGER NOT NULL,
-    publisher_id INTEGER NOT NULL,
     title_id INTEGER NOT NULL,
     site_id INTEGER NOT NULL,
     volume INTEGER DEFAULT 1,
     publication_date TEXT,
     isbn INTEGER,
     FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (author_id) REFERENCES author_name(id),
-    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
     FOREIGN KEY (title_id) REFERENCES title(id),
     FOREIGN KEY (site_id) REFERENCES have_site(id)
 );
