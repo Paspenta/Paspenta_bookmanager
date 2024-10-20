@@ -92,10 +92,12 @@ def edit():
                     id,
                     volume,
                     publication_date,
+                    have_site.site_name AS have_site
                     isbn
                 FROM book
+                JOIN have_site ON site_id = have_site.id
                 WHERE title_id = ?
-                """
+                """, (title_id,)
             ).fetchall()
         else:
             books = []
