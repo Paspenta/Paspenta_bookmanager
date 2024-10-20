@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% set title = "編集"%}
+
+{% block content %}
+    <div class="container">
+        {% if series %}
+        <form method="post" class="w-50">
+            <div class="mb-3">
+                <label for="series" class="form-label">タイトル</label>
+                <input name="series" id="series" class="form-control" value="{{ series.get('title') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="autor" class="form-label">タイトル</label>
+                <input name="author" id="autthor" class="form-control" value="{{ series.get('author_name') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="publisher_name" class="form-label">タイトル</label>
+                <input name="publisher_name" id="publisher_name" class="form-control" value="{{ series.get('publisher_name') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="---" class="form-label">タイトル</label>
+                <input name="---" id="---" class="form-control" value="{{ series.get('---') }}" required>
+            </div>
+        </form>
+    </div>
