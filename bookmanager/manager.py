@@ -37,7 +37,8 @@ def index():
             COALESCE(publication_date, "") AS publication_date
         FROM book
         JOIN title ON title_id = title.id
-        JOIN publisher ON publisher_id = publisher.id
+        JOIN author_name ON title.author_id = author_name.id
+        JOIN publisher ON title.publisher_id = publisher.id
         JOIN have_site ON site_id = have_site.id
         WHERE
             user_id = ?
@@ -77,8 +78,9 @@ def edit():
                 publisher_id,
                 publisher.publisher_name AS publisher_name
                 FROM book
-                JOIN author_name ON author_id = author_name.id
-                JOIN publisher ON publisher_id = publisher.publisher_name
+                JOIN title ON title_id = title.id
+                JOIN author_name ON title.author_id = author_name.id
+                JOIN publisher ON title.publisher_id = publisher.publisher_name
                 WHERE
                     title_id = ?
                     AND user_id = ?
