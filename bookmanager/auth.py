@@ -14,14 +14,14 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def register():
     # アカウント登録view
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        UserName = request.form["UserName"]
+        Password= request.form["Password"]
         db = get_db()
         error = None
 
-        if not username:
+        if not UserName:
             error = "ユーザー名が入力されていません。"
-        elif not password:
+        elif not Password:
             error = "パスワードが入力されていません。"
         
         if error is None:
@@ -29,13 +29,13 @@ def register():
                 # プレースホルダーでusernameとパスワードを登録
                 print("execute sql")
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password))
+                    "INSERT INTO user (UserName, Password) VALUES (?, ?)",
+                    (UserName, generate_password_hash(Password))
                 )
                 db.commit()
             except db.IntegrityError:
                 # usernameが既に登録されている場合の処理
-                error = f"ユーザー名 {username} は既に使われています。"
+                error = f"ユーザー名 {UserName} は既に使われています。"
             else:
                 # usernameが登録されていなかった場合
                 return redirect(url_for("auth.login"))
@@ -48,22 +48,22 @@ def register():
 @bp.route("/login", methods=("GET", "POST"))
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        UserName = request.form["UserName"]
+        Password = request.form["Password"]
         db = get_db()
         error = None
         user = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
+            "SELECT * FROM Users WHERE UserName = ?", (UserName,)
         ).fetchone() # username, はタプルにするため
 
         if user is None:
             error = "ユーザー名をが違います。"
-        elif not check_password_hash(user["password"], password):
+        elif not check_password_hash(user["Password"], Password):
             error = "パスワードが違います。"
         
         if error is None:
             session.clear()
-            session["user_id"] = user["id"]
+            session["UserID"] = user["UserID"]
             return redirect(url_for("manager.index"))
         
         flash(error)
@@ -73,13 +73,13 @@ def login():
 @bp.before_app_request
 def load_logged_in_user():
     # アカウント確認
-    user_id = session.get("user_id")
+    UserID = session.get("UserID")
 
-    if user_id is None:
+    if UserID is None:
         g.user = None
     else:
         g.user = get_db().execute(
-            "SELECT * FROM user WHERE id = ?", (user_id,)
+            "SELECT * FROM Users WHERE UserID = ?", (UserID,)
         ).fetchone()
 
 @bp.route("/logout")
