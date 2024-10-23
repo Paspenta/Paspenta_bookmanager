@@ -1,59 +1,67 @@
 PRAGMA foreign_keys = ON;
 
-DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS book;
-DROP TABLE IF EXISTS author_name;
-DROP TABLE IF EXISTS publisher;
-DROP TABLE IF EXISTS series;
-DROP TABLE IF EXISTS have_site;
+DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Publishers;
+DROP TABLE IF EXISTS Series;
+DROP TABLE IF EXISTS Authors;
+DROP TABLE IF EXISTS Locations;
+DROP TABLE IF EXISTS Books;
+DROP TABLE IF EXISTS BookAuthors;
 
-CREATE TABLE user (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+CREATE TABLE Users (
+    UserID INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserName TEXT UNIQUE NOT NULL,
+    Password TEXT NOT NULL
 );
 
-CREATE TABLE author_name (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    author_name TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+CREATE TABLE Publishers (
+    PublisherID INTEGER PRIMARY KEY AUTOINCREMENT,
+    PublisherName TEXT NOT NULL,
+    UserID INTEGER NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-CREATE TABLE publisher (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    publisher_name TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+CREATE TABLE Series (
+    SeriesID INTEGER PRIMARY KEY AUTOINCREMENT,
+    SeriesName TEXT NOT NULL,
+    UserID INTEGER NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-CREATE TABLE title (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    author_id INTEGER NOT NULL,
-    publisher_id INTEGER NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (author_id) REFERENCES author_name(id),
-    FOREIGN KEY (publisher_id) REFERENCES publisher(id),
-    FOREIGN KEY (user_id) REFERENCES user(id)
+CREATE TABLE Authors (
+    AuthorID INTEGER PRIMARY KEY AUTOINCREMENT,
+    AuthorName TEXT NOT NULL,
+    UserID INTEGER NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-CREATE TABLE have_site (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    site_name TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(id)
+CREATE TABLE Locations (
+    LocationID INTEGER PRIMARY KEY AUTOINCREMENT,
+    LocationName TEXT NOT NULL,
+    UserID INTEGER NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
-CREATE TABLE book (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    title_id INTEGER NOT NULL,
-    site_id INTEGER NOT NULL,
-    volume INTEGER DEFAULT 1,
-    publication_date TEXT,
-    isbn INTEGER,
-    FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (title_id) REFERENCES title(id),
-    FOREIGN KEY (site_id) REFERENCES have_site(id)
+CREATE TABLE Books (
+    BookID INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserID INTEGER NOT NULL,
+    LocationID INTEGER NOT NULL,
+    PublisherID INTEGER,
+    SeriesID INTEGER,
+    Title TEXT NOT NULL,
+    PublicationDate TEXT,
+    ISBN13 TEXT,
+    ISBN10 TEXT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (LocationID) REFERENCES Locations(LocationID),
+    FOREIGN KEY (PublisherID) REFERENCES Publishers(PublisherID),
+    FOREIGN KEY (SeriesID) REFERENCES Series(SeriesID)
+);
+
+CREATE TABLE BookAuthors (
+    BookID INTEGER NOT NULL,
+    AuthorID INTEGER NOT NULL,
+    PRIMARY KEY (BookID, AuthorID),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
