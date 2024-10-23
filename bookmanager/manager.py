@@ -11,100 +11,99 @@ bp = Blueprint("manager", __name__)
 @bp.route("/")
 @login_required
 def index():
-
     db = get_db()
-    title = request.args.get("book_title", "%")
-    author = request.args.get("author", "%")
-    have_site = request.args.get("have_site", "%")
-    publisher = request.args.get("publisher", "%")
-    page = request.args.get("page", 0)
-    user_id = g.user["id"]
+    title = request.args.get("Title", None)
+    author = request.args.get("AuthorName", None)
+    publisher = request.args("PublisherName", None)
+    Location = request.args("LocationName", None)
+    page = request.args("Page", "0")
+    user_id = g.user["UserID"]
 
     try:
         page = int(page)
-    except:
+        if page < 0:
+            page = 0
+    except ValueError:
         page = 0
     
-    books = db.execute(
+    if publisher is None:
+        publisher_where = ""
+        place_holder = (author, Location, user_id, title, page)
+    else:
+        publisher_where = "AND `PublisherName` = ?"
+        place_holder = (author, Location, user_id, title, publisher, page)
+    
+    Seriess = db.execute(
         """
+        WITH AuthorFilter AS (
+            SELECT SeriesID
+            FROM BookAuthors
+            WHERE AuthorID IN (
+                SELECT AuthorsID
+                FROM Authors
+                WHERE AuthorsName = ?
+            )
+        )
+        WITH LocationsFilter AS (
+            SELECT *
+            FROM Books
+            WHERE LocationID = (
+                SELECT LocationName
+                FROM Locations
+                WHERE = ?)
+            )
         SELECT
-            title.id AS id
-            title.title AS title
-            author_name.author_name AS author,
-            MAX(volume) AS volume,
-            publisher.publisher_name AS publisher,
-            have_site.site_name AS have_site,
-            COALESCE(publication_date, "") AS publication_date
-        FROM book
-        JOIN title ON title_id = title.id
-        JOIN author_name ON title.author_id = author_name.id
-        JOIN publisher ON title.publisher_id = publisher.id
-        JOIN have_site ON site_id = have_site.id
+            SeriesID,
+            Series.SeriesName AS SeriesName
+            Publishers.PublisherName AS PublisherName
+        FROM LocationFilter
+        JOIN Series ON SeriesID = Series.SeriesID
         WHERE
-            user_id = ?
-            AND `title` = ?
-            AND `author` = ?
-            AND `publisher` = ?
-            AND `have_site` = ?
-        GROUP BY title_id
-        LIMIT 15 OFFSET ?;
-        """, (user_id, title, author, publisher, have_site, page*15)
+            UserID = ?
+            AND `SeriesName` = ?
+            {}
+            AND SeriesID IN (
+                SELECT SeriesID
+                FROM AuthorFilter)
+        GROUP BY SeriesID
+        LIMIT 15 OFFSET ?
+        """.format(publisher_where), place_holder
     ).fetchall()
-
-    parms = request.args
-    minus_parms = parms
-    minus_parms["page"] = page-1
-    plus_parms = parms
-    plus_parms["page"] = page+1
-
-    return render_template("index.html",
-                           minus_parms=minus_parms,
-                           plus_parms=plus_parms,
-                           books=books)
+    for i in range(len(Seriess)):
+        authors = db.execute(
+            """
+            WITH SeriesAuthors AS (
+                SELECT AuthorID
+                FROM BookAuthors
+                WHERE SeriesID = ?
+            )
+            SELECT AuthorName
+            FROM Authors
+            WHERE AuthorID IN SeriesAuthors;
+            """, (Seriess[i]["SeriesID"],)
+        ).fetchall()
+        Seriess[i]["Authors"] = [author["AuthorName"] for author in authors]
+        Seriess[i]["volumes"] = db.execute(
+            """
+            SELECT
+                BookID,
+                Title,
+                PublicationDate,
+                Locations.LocationName AS LocationName
+                JOIN Locations ON LocationID = Locations.LocationID
+                WHERE seriesID = ?
+                ORDER BY Title;
+            """, (Seriess[i]["SeriesID"],)
+        ).fetchall()
+    
+    return render_template("index.html", Seriess)
 
 @bp.route("/edit")
 @login_required
 def edit():
-    title_id = request.args.get("id", False)
-    if title_id:
-        db = get_db()
-        user_id = g.user["id"]
-        series = db.execute(
-            """
-            SELECT
-                title.title AS title
-                author_id,
-                author_name.author_name AS author_name,
-                publisher_id,
-                publisher.publisher_name AS publisher_name
-                FROM book
-                JOIN title ON title_id = title.id
-                JOIN author_name ON title.author_id = author_name.id
-                JOIN publisher ON title.publisher_id = publisher.publisher_name
-                WHERE
-                    title_id = ?
-                    AND user_id = ?
-                LIMIT 1
-                """, (title_id, user_id)
-        ).fetchone()
-        if series:
-            books = db.execute(
-                """
-                SELECT
-                    id,
-                    volume,
-                    publication_date,
-                    have_site.site_name AS have_site
-                    isbn
-                FROM book
-                JOIN have_site ON site_id = have_site.id
-                WHERE title_id = ?
-                """, (title_id,)
-            ).fetchall()
-        else:
-            books = []
-    else:
-        series = []
-        books = []
+    pass
 
-    return render_template("edit.html", series, books)
+@bp.route("/book_del",methods=("POST",))
+@login_required
+def book_del():
+    pass
