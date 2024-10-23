@@ -24,6 +24,7 @@ CREATE TABLE Publishers (
 CREATE TABLE Series (
     SeriesID INTEGER PRIMARY KEY AUTOINCREMENT,
     SeriesName TEXT NOT NULL,
+    PublisherID INTEGER,
     UserID INTEGER NOT NULL,
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
@@ -46,8 +47,7 @@ CREATE TABLE Books (
     BookID INTEGER PRIMARY KEY AUTOINCREMENT,
     UserID INTEGER NOT NULL,
     LocationID INTEGER NOT NULL,
-    PublisherID INTEGER,
-    SeriesID INTEGER,
+    SeriesID INTEGER NOT NULL,
     Title TEXT NOT NULL,
     PublicationDate TEXT,
     ISBN13 TEXT,
@@ -59,7 +59,7 @@ CREATE TABLE Books (
 );
 
 CREATE TABLE BookAuthors (
-    BookID INTEGER NOT NULL,
+    SeriesID INTEGER NOT NULL,
     AuthorID INTEGER NOT NULL,
     PRIMARY KEY (BookID, AuthorID),
     FOREIGN KEY (BookID) REFERENCES Books(BookID),
