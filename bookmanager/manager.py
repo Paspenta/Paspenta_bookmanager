@@ -5,8 +5,22 @@ from werkzeug.exceptions import abort
 
 from bookmanager.auth import login_required
 from bookmanager.db import get_db
+from bookmanager.get_books import get_books
 
 bp = Blueprint("manager", __name__)
+
+def get_page(page_str):
+    if page_str is None:
+        return 0
+    try:
+        ret = int(page_str)
+        if ret < 0:
+            ret = 0
+    except (ValueError, TypeError):
+        ret = 0
+    
+    return ret
+
 
 @bp.route("/")
 @login_required
@@ -19,12 +33,7 @@ def index():
     page = request.args("Page", "0")
     user_id = g.user["UserID"]
 
-    try:
-        page = int(page)
-        if page < 0:
-            page = 0
-    except ValueError:
-        page = 0
+    page = get_page(page)
     
     if publisher is None:
         publisher_where = ""
@@ -107,3 +116,18 @@ def edit():
 @login_required
 def book_del():
     pass
+
+@bp.route("/register_search")
+@login_required
+def register_search():
+    keyword = request.args.get("keyword", None)
+    title = request.args.get("title", None)
+    author = request.args.get("author", None)
+    isbn = request.args.get("isbn", None)
+    page = request.args.get("page", "0")
+
+    page = get_page(page)
+
+    books = get_books(q=keyword, intitle=title, author=author, isbn=isbn)
+
+    return render_template("register_search.html", books)
