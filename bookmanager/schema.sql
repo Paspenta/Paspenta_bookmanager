@@ -61,7 +61,7 @@ CREATE TABLE Books (
 CREATE TABLE BookAuthors (
     SeriesID INTEGER NOT NULL,
     AuthorID INTEGER NOT NULL,
-    PRIMARY KEY (BookID, AuthorID),
-    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    PRIMARY KEY (SeriesID, AuthorID),
+    FOREIGN KEY (SeriesID) REFERENCES Series(SeriesID),
     FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
 );
