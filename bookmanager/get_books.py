@@ -41,11 +41,14 @@ def parse_book(book):
     ret["publisher"] = volumeInfo.get("publisher", "")
     ret["publishe_date"] = volumeInfo.get("publishedDate", "")
     isbns = volumeInfo.get("industryIdentifiers", [])
-    isbn = None
+    isbn_10 = isbn_13 = None
     for i in isbns:
-        if i["type"] in ("ISBN_10", "ISBN_13"):
-            isbn = i["identifier"]
-    ret["isbn"] = isbn if isbn is not None else ""
+        if i["type"] == "ISBN_10":
+            isbn_10 = i["identifier"]
+        elif i["type"] == "ISBN_13":
+            isbn_13 = i["identifier"]
+    ret["isbn_10"] = isbn_10
+    ret["isbn_13"] = isbn_13
 
     return ret
 
