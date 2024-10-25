@@ -105,7 +105,7 @@ def index():
             """, (Seriess[i]["SeriesID"],)
         ).fetchall()
     
-    return render_template("index.html", Seriess)
+    return render_template("index.html", Seriess=Seriess)
 
 @bp.route("/edit")
 @login_required
@@ -116,6 +116,135 @@ def edit():
 @login_required
 def book_del():
     pass
+
+@bp.route("/register", medhods=("GET", "POST"))
+@login_required
+def book_register():
+    if request.method == "POST":
+        Title = request.form["Title"]
+        input_authors = request.form["Authors"]
+        Publiser = request.form["Publisher"]
+        PublicationDate = request.form["PulicationDate"]
+        Location = request.form["Location"]
+        Series = request.form["Series"]
+        user_id = g.user["UserID"]
+        ISBN13 = request.form["ISBN13"]
+        ISBN10 = request.form["ISBN10"]
+        db = get_db()
+        error = None
+
+        if not Title:
+            error = "タイトルが入力されていません"
+        elif not Location:
+            error = "本の場所が入力されていません"
+        
+        ins_template = """
+            INSERT INTO {table_name} ({col_name}, UserID)
+            SELECT ?, ?
+            WHERE NOT EXISTIS (
+                SELECT 1
+                FROM {table_name}
+                WHERE
+                    {col_name} = ?
+                    AND UserID = ?
+            );
+            SELECT {getIDName}
+            FROM {table_name}
+            WHERE
+                {col_name}= ?
+                AND UserID = ?;
+            """
+        
+        if error is None:
+            if not Series:
+                Series = Title
+            if Publiser:
+                PubliserID = db.execute(
+                    ins_template.format(
+                        table_name="Publishers",
+                        col_name="PublisherName",
+                        getIDname="PubliserID"
+                    ), tuple([Publiser, user_id] * 3)
+                ).fetchall()[0]
+            else:
+                PubliserID = None
+            authorsID = []            
+            for author in input_authors:
+                authorsID.append(
+                    db.execute(
+                        ins_template.format(
+                            table_name="Authors",
+                            col_name="AuthorName",
+                            getIDname="AuthorID"
+                        ), tuple([author, user_id] * 3)
+                    ).fetchone()
+                )
+            SeriesID = db.execute(
+                ins_template.format(
+                    table_name="Series",
+                    col_name="SeriesName",
+                    getIDname="SeriesID"
+                ), tuple([Series, user_id] * 3)
+            )
+            LocationID = db.execute(
+                ins_template.format(
+                    table_name="Locations",
+                    col_name="LocationName",
+                    getIDname="LocationID"
+                ), tuple([Location, user_id] * 3)
+            )
+            
+            db.execute(
+                """INSERT INTO Books (
+                    Title,
+                    UserID,
+                    LocationID,
+                    SeriesID,
+                    PublisherID,
+                    PublicationDate,
+                    ISBN13,
+                    ISBN10
+                ) VALUE (
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?
+                );
+                """, (
+                    Title,
+                    user_id,
+                    LocationID,
+                    PubliserID, 
+                    SeriesID,
+                    PublicationDate,
+                    ISBN13, ISBN10
+                )
+            )
+            for AuthorID in authorsID:
+                db.execute(
+                    """
+                    INSERT INTO BookAuthors (SeriesID, AuthorID)
+                    SELECT ?, ?
+                    WHERE NOT EXISTIS (
+                        SELECT 1
+                        FROM BookAuthors
+                        WHERE
+                            SeriesID = ?
+                            AND AuthorID = ?
+                    );
+                    """, tuple([SeriesID, AuthorID]*2)
+                )
+            db.commit()
+
+        else:
+            flash(error)
+    
+    return render_template("book_register.html", parms = request.args)
+
 
 @bp.route("/register_search")
 @login_required
