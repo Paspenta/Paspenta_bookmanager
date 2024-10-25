@@ -9,6 +9,23 @@ from bookmanager.get_books import get_books
 
 bp = Blueprint("manager", __name__)
 
+ins_template = """
+    INSERT INTO {table_name} ({col_name}, UserID)
+    SELECT ?, ?
+    WHERE NOT EXISTIS (
+        SELECT 1
+        FROM {table_name}
+        WHERE
+            {col_name} = ?
+            AND UserID = ?
+    );
+    SELECT {getIDName}
+    FROM {table_name}
+    WHERE
+        {col_name}= ?
+        AND UserID = ?;
+    """
+
 def get_page(page_str):
     if page_str is None:
         return 0
@@ -107,15 +124,58 @@ def index():
     
     return render_template("index.html", Seriess=Seriess)
 
-@bp.route("/edit")
+@bp.route("/volume_edit", medhods=("GET", "POST"))
 @login_required
 def edit():
-    pass
+    if request.method == "POST":
+        BookID = request.form["BookID"]
+        Title = request.form["Title"]
+        Location = request.form["LocaitonName"]
+        PublicationDate = request.form["PublicationDate"]
+        ISBN10 = request.form["ISBN13"]
+        ISBN13 = request.form["ISBN10"]
+        user_id = g.user["UserID"]
+        db = get_db()
 
-@bp.route("/book_del",methods=("POST",))
+        LocationID = db.execute(
+            ins_template.format(
+                table_name="Locations",
+                col_name="LocationName",
+                getIDname="LocationID"
+            ), tuple([Location, user_id] * 3)
+        ).fetchone()
+
+        db.execute(
+            """
+            UPDATE Books
+            SET
+                Title = ?,
+                LocationID = ?,
+                PublicationDate = ?,
+                ISBN10 = ?,
+                ISBN13 = ?
+            WHERE BookID = ?
+            """, (
+                Title,
+                LocationID,
+                PublicationDate,
+                ISBN10,
+                ISBN13,
+                BookID
+            )
+        )
+        db.commit()
+    
+    render_template("/volume_edit.html", parms=request.args)
+
+@bp.route("/volume_del",methods=("POST",))
 @login_required
 def book_del():
-    pass
+    if request.method == "POST":
+        BookID = request.form["BookID"]
+        db = get_db()
+        db.execute("DELETE FROM Books WHERE BookID = ?", (BookID,))
+
 
 @bp.route("/register", medhods=("GET", "POST"))
 @login_required
@@ -137,23 +197,6 @@ def book_register():
             error = "タイトルが入力されていません"
         elif not Location:
             error = "本の場所が入力されていません"
-        
-        ins_template = """
-            INSERT INTO {table_name} ({col_name}, UserID)
-            SELECT ?, ?
-            WHERE NOT EXISTIS (
-                SELECT 1
-                FROM {table_name}
-                WHERE
-                    {col_name} = ?
-                    AND UserID = ?
-            );
-            SELECT {getIDName}
-            FROM {table_name}
-            WHERE
-                {col_name}= ?
-                AND UserID = ?;
-            """
         
         if error is None:
             if not Series:
