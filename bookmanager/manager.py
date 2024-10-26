@@ -175,6 +175,18 @@ def book_del():
         BookID = request.form["BookID"]
         db = get_db()
         db.execute("DELETE FROM Books WHERE BookID = ?", (BookID,))
+        db.commit()
+
+@bp.route("/Series_del", methods=("POST",))
+@login_required
+def Series_del():
+    if request.method == "POST":
+        SeriesID = request.form["SeriesID"]
+        db = get_db()
+        db.execute("DELETE FROM Books WHERE SeriesID = ?", (SeriesID,))
+        db.execute("DELETE FROM Series WHERE SeriesID = ?", (SeriesID,))
+        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?")
+        db.commit()
 
 
 @bp.route("/register", medhods=("GET", "POST"))
