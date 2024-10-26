@@ -168,6 +168,75 @@ def edit():
     
     render_template("/volume_edit.html", parms=request.args)
 
+
+@bp.route("/series_edit", medhods=("GET", "POST"))
+@login_required
+def series_edit():
+    if request.method == "POST":
+        edit_series = request.get_json()
+        user_id = g.user["UserID"]
+        error = None
+        db = get_db()
+
+        if edit_series is None:
+            error = "jsonがありません"
+        else:
+            SeriesID = edit_series.get("SeriesID", None)
+            error = "SeriesIDがありません" if SeriesID is None else None
+        
+        if error is None:
+            PublisherName = edit_series.get("PublisherName", False)
+            SeriesName = edit_series.get("SeriesName", False)
+            if SeriesName:
+                db.execute(
+                    "UPDATE Series SET SeriesName = ? WHERE SeriesID = ?"
+                    (SeriesName, SeriesID))
+            if PublisherName:
+                PublisherID = db.execute(
+                    ins_template.format(
+                        table_name="Publishers",
+                        col_name="PublisherName",
+                        getIDname="PublisherID"
+                    ), tuple([PublisherName, user_id] * 3)
+                ).fetchone()
+                db.execute(
+                    "UPDATE Series SET PublisherID = ? WHERE BookID = ?",
+                    (PublisherID, SeriesID)
+                )
+            for AuthorID in edit_series.get("DeleteAuthors", []):
+                db.execute(
+                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;"
+                    (SeriesID, AuthorID)
+                )
+            for AuthorName in edit_series.get("AddAuthors", []):
+                AuthorID = db.execute(
+                    ins_template.format(
+                        table_name="Authors",
+                        col_name="AuthorName",
+                        getIDname="AuthorID"
+                    ), tuple([AuthorName, user_id] * 3)
+                )
+                db.execute(
+                    """
+                    INSERT INTO BookAuthors (SeriesID, AuthorID)
+                    SELECT ?, ?
+                    WHERE NOT EXISTIS (
+                        SELECT 1
+                        FROM BookAuthors
+                        WHERE
+                            SeriesID = ?
+                            AND AuthorID = ?
+                    );
+                    """, tuple([SeriesID, AuthorID]*2)
+                )
+        else:
+            flash(error)
+    
+    return render_template("Series_edit,html", parms=request.args)
+
+
+
+
 @bp.route("/volume_del",methods=("POST",))
 @login_required
 def book_del():
@@ -183,9 +252,9 @@ def Series_del():
     if request.method == "POST":
         SeriesID = request.form["SeriesID"]
         db = get_db()
-        db.execute("DELETE FROM Books WHERE SeriesID = ?", (SeriesID,))
-        db.execute("DELETE FROM Series WHERE SeriesID = ?", (SeriesID,))
-        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?")
+        db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
+        db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
+        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;")
         db.commit()
 
 
