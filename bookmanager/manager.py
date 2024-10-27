@@ -51,6 +51,11 @@ def index():
     user_id = g.user["UserID"]
 
     page = get_page(page)
+
+    plus_parms = request.args.deepcopy()
+    minus_parms = request.args.deepcopy()
+    plus_parms["page"] = page+1
+    minus_parms["page"] = page-1 if page>0 else 0
     
     if publisher is None:
         publisher_where = ""
@@ -122,7 +127,10 @@ def index():
             """, (Seriess[i]["SeriesID"],)
         ).fetchall()
     
-    return render_template("index.html", Seriess=Seriess)
+    return render_template("index.html",
+                            Seriess=Seriess,
+                            plus_parms=plus_parms,
+                            minus_parms=minus_parms)
 
 @bp.route("/volume_edit", medhods=("GET", "POST"))
 @login_required
@@ -273,6 +281,7 @@ def book_register():
         ISBN10 = request.form["ISBN10"]
         db = get_db()
         error = None
+        series = request.get_json()
 
         if not Title:
             error = "タイトルが入力されていません"
