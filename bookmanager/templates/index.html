@@ -14,33 +14,34 @@
             <button type="submit" class="btn bth-primary">検索</button>
         </form>
     </div>
-    {% if books %}
-        <table class="table w-100">
-            <thed>
-                <tr>
-                    <th class="w-auto" scope="col">タイトル</th>
-                    <th class="w-auto" scope="col">著者</th>
-                    <th class="w-auto" scope="col">巻数</th>
-                    <th class="w-auto" scope="col">出版社</th>
-                    <th class="w-auto" scope="col">出版日</th>
-                    <th class="w-auto" scope="col">所有</th>
-                    <th class="w-auto" scope="col">#</th>
-                </tr>
-            </thed>
-            <tbody>
-            {% for book in books %}
-                <tr>
-                    <td class="w-auto">{{ book["title"] }}</td>
-                    <td class="w-auto">{{ book["author"] }}</td>
-                    <td class="w-auto">{{ book["volume"] }}</td>
-                    <td class="w-auto">{{ book["publisher"] }}</td>
-                    <td class="w-auto">{{ book["have_site"] }}</td>
-                    <td class="w-auto">{{ book["publication_date"] }}</td>
-                    <td class="w-auto"><a href="{{ url_for(manager.edit, id=book.id) }}">編集</a></td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    {% if Seriess %}
+        {% for Series in Seriess %}
+            <div class="panel-group">
+                <div class="panel panel-heading">
+                    <div class="row">
+                        <a data-toggle="collapse" href="#Series{{ Series['SeriesID'] }}">
+                            <p class="col-auto">{{ Series["Title"] }}</p>
+                            <p class="col-auto">{{ Series["PublisherName"] }}</p>
+                            {% for author in Series["Authors"] %}
+                                <p class="col-auto">{{ author }}</p>
+                            {% endfor %}
+                        </a>
+                        <a href="{{ url_for(manager.series_edit, SeriesID=Series['SeriesID'])" class="btn btn-primary">編集</a>
+                    </div>
+                    <div id="Series{{ Series['SeriesID'] }}" class="panel-collapse collapse">
+                        <ul class="list-group">
+                            {% for volume in Series["volumes"] %}
+                                <li class="list-group-item row">
+                                    <p class="col-auto">{{ volume["Title"] }}</p>
+                                    <p class="col-auto">{{ volume["PublicationDate"] }}</p>
+                                    <p class="col-auto">{{ volume["LocationName"] }}</p>
+                                    <a href="{{ url_for(manager.volume_edit, SeriesID=Series['BookID'])" class="col-auto btn btn-primary">編集</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
         <div class="container w-100 fixed-bottom">
             <div class="row mx-auto">
                 <a class="btn btn-primary col-auto me-3" href="{{ url_for(manager.index, **minus_parms) }}">prev</a>
