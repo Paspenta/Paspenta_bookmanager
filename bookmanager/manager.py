@@ -173,8 +173,28 @@ def edit():
             )
         )
         db.commit()
-    
-    render_template("volume_edit.html", parms=request.args)
+    else:
+        BookID = request.args.get("BookID", None)
+        user_id = g.user["UserID"]
+        if BookID is None:
+            return 404
+        db = get_db()
+        Book = db.execute(
+            """
+            SELECT
+                Title,
+                Locations.LocationName AS LocationName,
+                PublicationDate,
+                ISBN10,
+                ISBN13
+            FROM Books
+            JOIN Locations ON Locations.LocationID = LocationID
+            WHERE BookID = ? AND UserID = ?;
+            """, (BookID, user_id)
+        ).fetchone()
+        if Book is None:
+            Book = []
+        return render_template("volume_edit.html", Book=Book)
 
 
 @bp.route("/series_edit", medhods=("GET", "POST"))
