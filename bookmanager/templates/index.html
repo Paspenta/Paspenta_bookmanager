@@ -52,13 +52,3 @@
         <h1> Book not found </h1>
     {% endif%}
 {% endblock %}
-
-{% block script %}
-    <script>
-    function search() {
-        let book_title = document.getElementById("book_title");
-        let url = "{{ url_for('manager.index')}}?book_title=" + encodeURIComponent(book_title);
-        window.location.href = url;
-    }
-    </script>
-{% endblock %}
