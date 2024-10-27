@@ -2,13 +2,18 @@
 
 {% set title = "index" %}
 
-{% block header %}
-    <input type="text" id="book_title" class="form-controll">
-    <button onclick="search()">検索</button>
-    <a href="{{ url_for(manager.advanced) }}">詳細検索</a>
-{% endblock %}
-
 {% block content %}
+    <div class="container">
+        <form action="{{ url_for(manager.index) }}" method="get" class="row">
+            {% for label in ["Title", "AuthorName", "PublisherName", "LocationName"] %}
+                <div class="col-auto">
+                    <label for="{{ label }}" class="form-label">{{ label }}</label>
+                    <input name="{{ label }}" id="{{ label }}" class="form-control">
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn bth-primary">検索</button>
+        </form>
+    </div>
     {% if books %}
         <table class="table w-100">
             <thed>
