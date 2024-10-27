@@ -174,7 +174,7 @@ def edit():
         )
         db.commit()
     
-    render_template("/volume_edit.html", parms=request.args)
+    render_template("volume_edit.html", parms=request.args)
 
 
 @bp.route("/series_edit", medhods=("GET", "POST"))
