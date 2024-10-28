@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% set title = "編集"%}
+
+{% block content %}
+    <div class="container">
+        <form method="post" class="w-50">
+            <input type="hidden" name="SeriesID" value="{{ SeriesDate.get('SeriesID') }}">
+            <div class="mb-3">
+                <label for="SeriesName" class="form-label">シリーズ名</label>
+                <input name="SeriesName" id="SeriesName" class="form-control" value="{{ SeriesData.get('SeriesName') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="PublisherName" class="form-label">出版社名</label>
+                <input name="PublisherName" id="PublisherName" class="form-control" value="{{ SeriesData.get('PublisherName') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="Author" class="form-label">シリーズ名</label>
+                <input name="Author" id="Author" class="form-control" value="{{ SeriesData.get('Author') }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">変更</button>
+        </form>
+    </div>
+{% endblock %}kkk

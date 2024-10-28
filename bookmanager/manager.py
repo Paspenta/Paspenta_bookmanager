@@ -103,14 +103,14 @@ def index():
     for i in range(len(Seriess)):
         authors = db.execute(
             """
-            WITH SeriesAuthors AS (
+            WITH BookAuthors AS (
                 SELECT AuthorID
                 FROM BookAuthors
                 WHERE SeriesID = ?
             )
             SELECT AuthorName
             FROM Authors
-            WHERE AuthorID IN SeriesAuthors;
+            WHERE AuthorID IN BookAuthors;
             """, (Seriess[i]["SeriesID"],)
         ).fetchall()
         Seriess[i]["Authors"] = [author["AuthorName"] for author in authors]
@@ -207,24 +207,27 @@ def edit():
 @login_required
 def series_edit():
     if request.method == "POST":
+        SeriesID = request.form["SeriesID"]
+        PublisherName = request.form["PublisherName"]
+        AuthorName = request.form["Authors"]
+        new_authors = set(AuthorName.split(","))
+        new_authors.discard("")
         edit_series = request.get_json()
         user_id = g.user["UserID"]
         error = None
         db = get_db()
 
-        if edit_series is None:
-            error = "jsonがありません"
-        else:
-            SeriesID = edit_series.get("SeriesID", None)
-            error = "SeriesIDがありません" if SeriesID is None else None
-        
+        series_existis = db.execute(
+            """
+            SELECT 1
+            FROM Series
+            WHERE UserID = ? AND SeriesID = ?
+            """, (user_id, SeriesID)
+        ).fetchone()
+        if series_existis is None:
+            error = "Not found Series"
+
         if error is None:
-            PublisherName = edit_series.get("PublisherName", False)
-            SeriesName = edit_series.get("SeriesName", False)
-            if SeriesName:
-                db.execute(
-                    "UPDATE Series SET SeriesName = ? WHERE SeriesID = ?"
-                    (SeriesName, SeriesID))
             if PublisherName:
                 PublisherID = db.execute(
                     ins_template.format(
@@ -234,22 +237,33 @@ def series_edit():
                     ), tuple([PublisherName, user_id] * 3)
                 ).fetchone()
                 db.execute(
-                    "UPDATE Series SET PublisherID = ? WHERE BookID = ?",
+                    "UPDATE Series SET PublisherID = ? WHERE SeriesID = ?",
                     (PublisherID, SeriesID)
                 )
-            for AuthorID in edit_series.get("DeleteAuthors", []):
-                db.execute(
-                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;"
-                    (SeriesID, AuthorID)
-                )
-            for AuthorName in edit_series.get("AddAuthors", []):
+            prev_authors = db.execute(
+                """
+                SELECT
+                    AuthorID,
+                    Authors.AuthorName AS AuthorName
+                FROM BookAuthors
+                JOIN Authors ON AuthorID = Authors.AuthorID
+                WHERE SeriesID = ?
+                """, (SeriesID,)
+            ).fetchall()
+            del_authors = set()
+            for author in prev_authors:
+                if author["AuthorName"] in new_authors:
+                    new_authors.discard(author["AuthorName"])
+                else:
+                    del_authors.add(author["AuthorID"])
+            for author in new_authors:
                 AuthorID = db.execute(
                     ins_template.format(
                         table_name="Authors",
                         col_name="AuthorName",
                         getIDname="AuthorID"
                     ), tuple([AuthorName, user_id] * 3)
-                )
+                ).fetchall()[0]
                 db.execute(
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
@@ -263,10 +277,44 @@ def series_edit():
                     );
                     """, tuple([SeriesID, AuthorID]*2)
                 )
+            for AuthorID in del_authors:
+                db.execute(
+                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;"
+                    (SeriesID, AuthorID)
+                )
+            
         else:
             flash(error)
+    else:
+        SeriesID = request.args.get("SeriesID", None)
+        if SeriesID is None:
+            return 404
+        db = get_db()
+        user_id = g.user["UserID"]
+        SeriesDate = db.execute(
+            """
+            SELECT
+                SeriesID,
+                SeriesName,
+                Publishers.PublisherName AS PublisherName,
+            FROM Series
+            JOIN Publishers ON Publishers.PublisherID = PublisherID
+            WHERE SeriesID = ? AND UserID = ?;
+            """, (SeriesID, user_id)
+        ).fetchone()
+        if SeriesDate is None:
+            return 404
+        Authors = db.execute(
+            """
+            SELECT Authors.AuthorName AS AuthorName
+            FROM BookAuthors
+            JOIN Authors ON AuthorID = BookAuthors.AuthorID
+            WHERE SeriesID = ?;
+            """, (SeriesID,)
+        ).fetchall()
+        SeriesDate["Author"] = ",".join([Author["AuthorName"] for Author in Authors])
     
-    return render_template("Series_edit,html", parms=request.args)
+        return render_template("Series_edit,html", SeriesDate=SeriesDate)
 
 
 
