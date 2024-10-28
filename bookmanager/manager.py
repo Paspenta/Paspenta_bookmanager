@@ -193,7 +193,13 @@ def edit():
             """, (BookID, user_id)
         ).fetchone()
         if Book is None:
-            Book = []
+            return 404
+        if Book["PublicationDate"] is None:
+            Book["PublicationDate"] = ""
+        if Book["ISBN10"] is None:
+            Book["ISBN10"] = ""
+        if Book["ISBN13"] is None:
+            Book["ISBN13"] = ""
         return render_template("volume_edit.html", Book=Book)
 
 
