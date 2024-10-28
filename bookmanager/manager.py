@@ -297,14 +297,14 @@ def Series_del():
 def book_register():
     if request.method == "POST":
         Title = request.form["Title"]
+        Series = request.form["Series"]
+        Location = request.form["Location"]
         input_authors = request.form["Authors"]
         Publiser = request.form["Publisher"]
         PublicationDate = request.form["PulicationDate"]
-        Location = request.form["Location"]
-        Series = request.form["Series"]
-        user_id = g.user["UserID"]
         ISBN13 = request.form["ISBN13"]
         ISBN10 = request.form["ISBN10"]
+        user_id = g.user["UserID"]
         db = get_db()
         error = None
         series = request.get_json()
@@ -327,17 +327,18 @@ def book_register():
                 ).fetchall()[0]
             else:
                 PubliserID = None
-            authorsID = []            
-            for author in input_authors:
-                authorsID.append(
-                    db.execute(
-                        ins_template.format(
-                            table_name="Authors",
-                            col_name="AuthorName",
-                            getIDname="AuthorID"
-                        ), tuple([author, user_id] * 3)
-                    ).fetchone()
-                )
+            authorsID = []
+            if input_authors:
+                for author in input_authors.split(","):
+                    authorsID.append(
+                        db.execute(
+                            ins_template.format(
+                                table_name="Authors",
+                                col_name="AuthorName",
+                                getIDname="AuthorID"
+                            ), tuple([author, user_id] * 3)
+                        ).fetchone()
+                    )
             SeriesID = db.execute(
                 ins_template.format(
                     table_name="Series",
@@ -401,8 +402,17 @@ def book_register():
 
         else:
             flash(error)
+    else:
+        Book = dict()
+        Book["Title"] = request.args.get("title", "")
+        Book["Series"] = Book["Title"]
+        Book["author"] = request.args.get("author", "")
+        Book["Publisher"] = request.args.get("publisher", "")
+        Book["PublicationDate"] = request.args.get("publishe_date", "")
+        Book["ISBN13"] = request.args.get("IsBN13", "")
+        Book["ISBN10"] = request.args.get("IsBN10", "")
     
-    return render_template("book_register.html", parms = request.args)
+        return render_template("book_register.html", Book=Book)
 
 
 @bp.route("/register_search")

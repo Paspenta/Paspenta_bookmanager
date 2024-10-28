@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% set title = "登録"%}
+
+{% block content %}
+    <form method="post" class="w-50">
+        <div class="mb-3">
+            <label for="Title" class="form-label">タイトル</label>
+            <input name="Title" id="Title" class="form-control" value="{{ Book.get('Title') }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="Series" class="form-label">シリーズ</label>
+            <input name="Series" id="Series" class="form-control" value="{{ Book.get('Series') }}" >
+        </div>
+        <div class="mb-3">
+            <label for="Location" class="form-label">本の場所</label>
+            <input name="Location" id="Location" class="form-control" value="{{ Book.get('Location') }}" >
+        </div>
+        <div class="mb-3">
+            <label for="author" class="form-label">著者(コンマ区切り)</label>
+            <input name="author" id="author" class="form-control" value="{{ Book.get('author') }}">
+        </div>
+        <div class="mb-3">
+            <label for="Publisher" class="form-label">出版社</label>
+            <input name="Publisher" id="Publisher" class="form-control" value="{{ Book.get('Publisher') }}">
+        </div>
+        <div class="mb-3">
+            <label for="PublicationDate" class="form-label">出版日</label>
+            <input name="PublicationDate" id="PublicationDate" class="form-control" value="{{ Book.get('PublicationDate') }}">
+        </div>
+        <div class="mb-3">
+            <label for="ISBN10" class="form-label">ISBN10</label>
+            <input name="ISBN10" id="ISBN10" class="form-control" value="{{ Book.get('ISBN10') }}">
+        </div>
+        <div class="mb-3">
+            <label for="ISBN13" class="form-label">ISBN13</label>
+            <input name="ISBN13" id="ISBN13" class="form-control" value="{{ Book.get('ISBN13') }}">
+        </div>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </form>
+{% endblock %}
