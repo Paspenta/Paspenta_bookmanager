@@ -5,6 +5,7 @@
 {% block content %}
     <div class="container">
         <form method="post" class="w-50">
+            <input type="hidden" name="BookID" value="{{ book.get('BookID') }}">
             <div class="mb-3">
                 <label for="Title" class="form-label">タイトル</label>
                 <input name="Title" id="Title" class="form-control" value="{{ Book.get('Title') }}" required>

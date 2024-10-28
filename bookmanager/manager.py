@@ -134,7 +134,7 @@ def index():
 
 @bp.route("/volume_edit", medhods=("GET", "POST"))
 @login_required
-def edit():
+def volume_edit():
     if request.method == "POST":
         BookID = request.form["BookID"]
         Title = request.form["Title"]
@@ -182,6 +182,7 @@ def edit():
         Book = db.execute(
             """
             SELECT
+                BookID,
                 Title,
                 Locations.LocationName AS LocationName,
                 PublicationDate,
