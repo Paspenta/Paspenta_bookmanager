@@ -45,9 +45,9 @@ def index():
     db = get_db()
     title = request.args.get("Title", None)
     author = request.args.get("AuthorName", None)
-    publisher = request.args("PublisherName", None)
-    Location = request.args("LocationName", None)
-    page = request.args("Page", "0")
+    publisher = request.args.get("PublisherName", None)
+    Location = request.args.get("LocationName", None)
+    page = request.args.get("Page", "0")
     user_id = g.user["UserID"]
 
     page = get_page(page)
