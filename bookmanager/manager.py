@@ -132,7 +132,7 @@ def index():
                             plus_parms=plus_parms,
                             minus_parms=minus_parms)
 
-@bp.route("/volume_edit", medhods=("GET", "POST"))
+@bp.route("/volume_edit", methods=("GET", "POST"))
 @login_required
 def volume_edit():
     if request.method == "POST":
@@ -204,7 +204,7 @@ def volume_edit():
         return render_template("volume_edit.html", Book=Book)
 
 
-@bp.route("/series_edit", medhods=("GET", "POST"))
+@bp.route("/series_edit", methods=("GET", "POST"))
 @login_required
 def series_edit():
     if request.method == "POST":
@@ -341,7 +341,7 @@ def Series_del():
         db.commit()
 
 
-@bp.route("/register", medhods=("GET", "POST"))
+@bp.route("/register", methods=("GET", "POST"))
 @login_required
 def book_register():
     if request.method == "POST":
