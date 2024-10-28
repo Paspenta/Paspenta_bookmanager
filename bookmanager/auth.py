@@ -29,7 +29,7 @@ def register():
                 # プレースホルダーでusernameとパスワードを登録
                 print("execute sql")
                 db.execute(
-                    "INSERT INTO user (UserName, Password) VALUES (?, ?)",
+                    "INSERT INTO Users (UserName, Password) VALUES (?, ?)",
                     (UserName, generate_password_hash(Password))
                 )
                 db.commit()
