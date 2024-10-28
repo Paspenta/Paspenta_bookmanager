@@ -54,7 +54,6 @@ CREATE TABLE Books (
     ISBN10 TEXT,
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (LocationID) REFERENCES Locations(LocationID),
-    FOREIGN KEY (PublisherID) REFERENCES Publishers(PublisherID),
     FOREIGN KEY (SeriesID) REFERENCES Series(SeriesID)
 );
 
