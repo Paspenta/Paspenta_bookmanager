@@ -10,11 +10,11 @@
         </div>
         <div class="mb-3">
             <label for="Series" class="form-label">シリーズ</label>
-            <input name="Series" id="Series" class="form-control" value="{{ Book.get('Series') }}" >
+            <input name="Series" id="Series" class="form-control" value="{{ Book.get('Title') }}" >
         </div>
         <div class="mb-3">
             <label for="Location" class="form-label">本の場所</label>
-            <input name="Location" id="Location" class="form-control" value="{{ Book.get('Location') }}" >
+            <input name="Location" id="Location" class="form-control" required>
         </div>
         <div class="mb-3">
             <label for="author" class="form-label">著者(コンマ区切り)</label>
@@ -22,19 +22,19 @@
         </div>
         <div class="mb-3">
             <label for="Publisher" class="form-label">出版社</label>
-            <input name="Publisher" id="Publisher" class="form-control" value="{{ Book.get('Publisher') }}">
+            <input name="Publisher" id="Publisher" class="form-control" value="{{ Book.get('publisher') }}">
         </div>
         <div class="mb-3">
             <label for="PublicationDate" class="form-label">出版日</label>
-            <input name="PublicationDate" id="PublicationDate" class="form-control" value="{{ Book.get('PublicationDate') }}">
+            <input name="PublicationDate" id="PublicationDate" class="form-control" value="{{ Book.get('publishe_date') }}">
         </div>
         <div class="mb-3">
             <label for="ISBN10" class="form-label">ISBN10</label>
-            <input name="ISBN10" id="ISBN10" class="form-control" value="{{ Book.get('ISBN10') }}">
+            <input name="ISBN10" id="ISBN10" class="form-control" value="{{ Book.get('isbn_10') }}">
         </div>
         <div class="mb-3">
             <label for="ISBN13" class="form-label">ISBN13</label>
-            <input name="ISBN13" id="ISBN13" class="form-control" value="{{ Book.get('ISBN13') }}">
+            <input name="ISBN13" id="ISBN13" class="form-control" value="{{ Book.get('isbn_13') }}">
         </div>
         <button type="submit" class="btn btn-primary">登録</button>
     </form>
