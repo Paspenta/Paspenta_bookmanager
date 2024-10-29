@@ -350,7 +350,7 @@ def register():
         Location = request.form["Location"]
         input_authors = request.form["author"]
         Publiser = request.form["Publisher"]
-        PublicationDate = request.form["PulicationDate"]
+        PublicationDate = request.form["PublicationDate"]
         ISBN13 = request.form["ISBN13"]
         ISBN10 = request.form["ISBN10"]
         user_id = g.user["UserID"]
