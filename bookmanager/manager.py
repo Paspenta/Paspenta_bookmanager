@@ -348,7 +348,7 @@ def register():
         Title = request.form["Title"]
         Series = request.form["Series"]
         Location = request.form["Location"]
-        input_authors = request.form["Authors"]
+        input_authors = request.form["author"]
         Publiser = request.form["Publisher"]
         PublicationDate = request.form["PulicationDate"]
         ISBN13 = request.form["ISBN13"]
