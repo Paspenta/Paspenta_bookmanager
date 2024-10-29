@@ -448,6 +448,7 @@ def register():
                     """, tuple([SeriesID, AuthorID]*2)
                 )
             db.commit()
+            return redirect(request.referrer)
 
         else:
             flash(error)
