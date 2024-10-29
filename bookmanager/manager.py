@@ -43,62 +43,62 @@ def get_page(page_str):
 @login_required
 def index():
     db = get_db()
-    title = request.args.get("Title", None)
-    author = request.args.get("AuthorName", None)
-    publisher = request.args.get("PublisherName", None)
-    Location = request.args.get("LocationName", None)
+    SeriesName = "%" + request.args.get("SeriesName", "") + "%"
+    AuthorName = "%" + request.args.get("AuthorName", "") + "%"
+    PublisherName = "%" + request.args.get("PublisherName", "") + "%"
+    LocationName = "%" + request.args.get("LocationName", "") + "%"
+
     page = request.args.get("Page", "0")
     user_id = g.user["UserID"]
 
     page = get_page(page)
 
-    plus_parms = request.args.deepcopy()
-    minus_parms = request.args.deepcopy()
+    plus_parms = {**request.args}
+    minus_parms = {**request.args}
     plus_parms["page"] = page+1
     minus_parms["page"] = page-1 if page>0 else 0
-    
-    if publisher is None:
-        publisher_where = ""
-        place_holder = (author, Location, user_id, title, page)
-    else:
-        publisher_where = "AND `PublisherName` = ?"
-        place_holder = (author, Location, user_id, title, publisher, page)
     
     Seriess = db.execute(
         """
         WITH AuthorFilter AS (
-            SELECT SeriesID
+            SELECT BookAuthors.SeriesID
             FROM BookAuthors
-            WHERE AuthorID IN (
-                SELECT AuthorsID
+            WHERE BookAuthors.AuthorID IN (
+                SELECT Authors.AuthorID
                 FROM Authors
-                WHERE AuthorsName = ?
+                WHERE 
+                    Authors.UserID = ?
+                    AND Authors.AuthorName LIKE ?
+            )
+        ),
+        LocationsFilter AS (
+            SELECT Books.SeriesID
+            FROM Books
+            WHERE Books.LocationID IN (
+                SELECT Locations.LocationID
+                FROM Locations
+                WHERE
+                    Locations.UserID = ?
+                    AND Locations.LocationName LIKE ?
             )
         )
-        WITH LocationsFilter AS (
-            SELECT *
-            FROM Books
-            WHERE LocationID = (
-                SELECT LocationName
-                FROM Locations
-                WHERE = ?)
-            )
         SELECT
-            SeriesID,
-            Series.SeriesName AS SeriesName
+            Series.SeriesID,
+            SeriesName,
             Publishers.PublisherName AS PublisherName
-        FROM LocationFilter
-        JOIN Series ON SeriesID = Series.SeriesID
+        FROM Series
+        JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
         WHERE
-            UserID = ?
-            AND `SeriesName` = ?
-            {}
-            AND SeriesID IN (
-                SELECT SeriesID
-                FROM AuthorFilter)
-        GROUP BY SeriesID
-        LIMIT 15 OFFSET ?
-        """.format(publisher_where), place_holder
+            Series.UserID = ?
+            AND SeriesName LIKE ?
+            AND `PublisherName` LIKE ?
+            AND Series.SeriesID IN (SELECT SeriesID FROM AuthorFilter)
+            AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
+        LIMIT 15 OFFSET ?;
+        """, (user_id, AuthorName,
+              user_id, LocationName,
+              user_id, SeriesName, PublisherName,
+              page)
     ).fetchall()
     for i in range(len(Seriess)):
         authors = db.execute(
@@ -343,7 +343,7 @@ def Series_del():
 
 @bp.route("/register", methods=("GET", "POST"))
 @login_required
-def book_register():
+def register():
     if request.method == "POST":
         Title = request.form["Title"]
         Series = request.form["Series"]

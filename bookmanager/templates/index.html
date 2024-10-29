@@ -2,16 +2,31 @@
 
 {% set title = "index" %}
 
+{% block header %}
+    <a class="nav-link col-auto me-3" href="{{ url_for('manager.register_search') }}">検索登録</a>
+    <a class="nav-link col-auto me-3" href="{{ url_for('manager.register') }}">手動登録</a>
+{% endblock %}
+
 {% block content %}
     <div class="container">
-        <form action="{{ url_for(manager.index) }}" method="get" class="row">
-            {% for label in ["Title", "AuthorName", "PublisherName", "LocationName"] %}
-                <div class="col-auto">
-                    <label for="{{ label }}" class="form-label">{{ label }}</label>
-                    <input name="{{ label }}" id="{{ label }}" class="form-control">
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn bth-primary">検索</button>
+        <form action="{{ url_for('manager.index') }}" method="get" class="row">
+            <div class="col-auto">
+                <label for="SeriesName" class="form-label">タイトル</label>
+                <input name="SeriesName" id="SeriesName" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="AuthorName" class="form-label">著者名</label>
+                <input name="AuthorName" id="AuthorName" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="PublisherName" class="form-label">出版社名</label>
+                <input name="PublisherName" id="PublisherName" class="form-control">
+            </div>
+            <div class="col-auto">
+                <label for="LocationName" class="form-label">本の場所</label>
+                <input name="LocationName" id="LocationName" class="form-control">
+            </div>
+            <button type="submit" class="btn bth-primary col-auto">検索</button>
         </form>
     </div>
     {% if Seriess %}
@@ -26,7 +41,7 @@
                                 <p class="col-auto">{{ author }}</p>
                             {% endfor %}
                         </a>
-                        <a href="{{ url_for(manager.series_edit, SeriesID=Series['SeriesID'])" class="btn btn-primary">編集</a>
+                        <a href="{{ url_for('manager.series_edit', SeriesID=Series['SeriesID'])}}" class="btn btn-primary">編集</a>
                     </div>
                     <div id="Series{{ Series['SeriesID'] }}" class="panel-collapse collapse">
                         <ul class="list-group">
@@ -35,20 +50,21 @@
                                     <p class="col-auto">{{ volume["Title"] }}</p>
                                     <p class="col-auto">{{ volume["PublicationDate"] }}</p>
                                     <p class="col-auto">{{ volume["LocationName"] }}</p>
-                                    <a href="{{ url_for(manager.volume_edit, SeriesID=Series['BookID'])" class="col-auto btn btn-primary">編集</a>
+                                    <a href="{{ url_for('manager.volume_edit', SeriesID=Series['BookID'])}}" class="col-auto btn btn-primary">編集</a>
                                 </li>
                             {% endfor %}
                         </ul>
                     </div>
                 </div>
             </div>
+        {% endfor %}
         <div class="container w-100 fixed-bottom">
             <div class="row mx-auto">
-                <a class="btn btn-primary col-auto me-3" href="{{ url_for(manager.index, **minus_parms) }}">prev</a>
-                <a class="btn btn-primary col-auto me-3" href="{{ url_for(manager.index, **plus_parms) }}">next</a>
+                <a class="btn btn-primary col-auto me-3" href="{{ url_for('manager.index', **minus_parms) }}">prev</a>
+                <a class="btn btn-primary col-auto me-3" href="{{ url_for('manager.index', **plus_parms) }}">next</a>
             </div>
         </div>
     {% else %}
         <h1> Book not found </h1>
-    {% endif%}
+    {% endif %}
 {% endblock %}
