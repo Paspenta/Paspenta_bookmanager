@@ -458,8 +458,8 @@ def register():
         Book["author"] = request.args.get("author", "")
         Book["Publisher"] = request.args.get("publisher", "")
         Book["PublicationDate"] = request.args.get("publishe_date", "")
-        Book["ISBN13"] = request.args.get("IsBN13", "")
-        Book["ISBN10"] = request.args.get("IsBN10", "")
+        Book["ISBN13"] = request.args.get("ISBN13", "")
+        Book["ISBN10"] = request.args.get("ISBN10", "")
     
         return render_template("book_register.html", Book=Book)
 
