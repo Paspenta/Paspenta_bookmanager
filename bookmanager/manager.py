@@ -280,7 +280,7 @@ def series_edit():
                 )
             for AuthorID in del_authors:
                 db.execute(
-                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;"
+                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;",
                     (SeriesID, AuthorID)
                 )
             
@@ -452,17 +452,16 @@ def register():
 
         else:
             flash(error)
-    else:
-        Book = dict()
-        Book["Title"] = request.args.get("title", "")
-        Book["Series"] = Book["Title"]
-        Book["author"] = request.args.get("author", "")
-        Book["Publisher"] = request.args.get("publisher", "")
-        Book["PublicationDate"] = request.args.get("publishe_date", "")
-        Book["ISBN13"] = request.args.get("ISBN13", "")
-        Book["ISBN10"] = request.args.get("ISBN10", "")
-    
-        return render_template("book_register.html", Book=Book)
+    Book = dict()
+    Book["Title"] = request.args.get("title", "")
+    Book["Series"] = Book["Title"]
+    Book["author"] = request.args.get("author", "")
+    Book["Publisher"] = request.args.get("publisher", "")
+    Book["PublicationDate"] = request.args.get("publishe_date", "")
+    Book["ISBN13"] = request.args.get("ISBN13", "")
+    Book["ISBN10"] = request.args.get("ISBN10", "")
+
+    return render_template("book_register.html", Book=Book)
 
 
 @bp.route("/register_search")
