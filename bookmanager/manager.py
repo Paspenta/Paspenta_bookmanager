@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
 from werkzeug.exceptions import abort
 
@@ -41,7 +41,7 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
         get_id_name=id_name,
         table_name=table_name,
         col_name=col_name
-    ), select_parms)
+    ), select_parms).fetchall()
     db.commit()
 
     return ret[0][id_name] if ret else None
@@ -120,17 +120,18 @@ def index():
               user_id, SeriesName, PublisherName,
               page)
     ).fetchall()
+    Seriess = [dict(row) for row in Seriess]
     for i in range(len(Seriess)):
         authors = db.execute(
             """
-            WITH BookAuthors AS (
+            WITH SeriesAuthors AS (
                 SELECT AuthorID
                 FROM BookAuthors
                 WHERE SeriesID = ?
             )
             SELECT AuthorName
             FROM Authors
-            WHERE AuthorID IN BookAuthors;
+            WHERE AuthorID IN SeriesAuthors;
             """, (Seriess[i]["SeriesID"],)
         ).fetchall()
         Seriess[i]["Authors"] = [author["AuthorName"] for author in authors]
@@ -141,9 +142,10 @@ def index():
                 Title,
                 PublicationDate,
                 Locations.LocationName AS LocationName
-                JOIN Locations ON LocationID = Locations.LocationID
-                WHERE seriesID = ?
-                ORDER BY Title;
+            FROM Books
+            JOIN Locations ON Books.LocationID = Locations.LocationID
+            WHERE SeriesID = ?
+            ORDER BY Title;
             """, (Seriess[i]["SeriesID"],)
         ).fetchall()
     
@@ -232,14 +234,14 @@ def series_edit():
         error = None
         db = get_db()
 
-        series_existis = db.execute(
+        series_EXISTS = db.execute(
             """
             SELECT 1
             FROM Series
             WHERE UserID = ? AND SeriesID = ?
             """, (user_id, SeriesID)
         ).fetchone()
-        if series_existis is None:
+        if series_EXISTS is None:
             error = "Not found Series"
 
         if error is None:
@@ -271,7 +273,7 @@ def series_edit():
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
                     SELECT ?, ?
-                    WHERE NOT EXISTIS (
+                    WHERE NOT EXISTS (
                         SELECT 1
                         FROM BookAuthors
                         WHERE
@@ -377,8 +379,31 @@ def register():
                     authorsID.append(
                         get_id(db, "Authors", "AuthorName", "AuthorID", author, user_id)
                     )
-            SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", Series, user_id)
-            LocationID = get_id(db, "Location", "LocationName", "LocationID", Location, user_id)
+            
+            db.execute(
+                """
+                INSERT INTO Series (SeriesName, PublisherID, UserID)
+                SELECT ?, ?, ?
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM Series
+                    WHERE
+                        SeriesName = ?
+                        AND UserID = ?
+                );
+                """, (Series, PublisherID, user_id, Series, user_id)
+            )
+            SeriesID = db.execute(
+                """
+                SELECT SeriesID
+                FROM Series
+                WHERE
+                    SeriesName = ?
+                    AND UserID = ?
+                """, (Series, user_id)
+            ).fetchone()["SeriesID"]
+
+            LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, user_id)
             
             db.execute(
                 """INSERT INTO Books (
@@ -386,12 +411,10 @@ def register():
                     UserID,
                     LocationID,
                     SeriesID,
-                    PublisherID,
                     PublicationDate,
                     ISBN13,
                     ISBN10
-                ) VALUE (
-                    ?,
+                ) VALUES (
                     ?,
                     ?,
                     ?,
@@ -404,7 +427,6 @@ def register():
                     Title,
                     user_id,
                     LocationID,
-                    PublisherID, 
                     SeriesID,
                     PublicationDate,
                     ISBN13, ISBN10
@@ -415,7 +437,7 @@ def register():
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
                     SELECT ?, ?
-                    WHERE NOT EXISTIS (
+                    WHERE NOT EXISTS (
                         SELECT 1
                         FROM BookAuthors
                         WHERE
@@ -425,6 +447,8 @@ def register():
                     """, tuple([SeriesID, AuthorID]*2)
                 )
             db.commit()
+            previous_url = session.get('previous_url', url_for('index'))
+            return redirect(previous_url)
             return redirect(request.referrer)
 
         else:
