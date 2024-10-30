@@ -9,22 +9,42 @@ from bookmanager.get_books import get_books
 
 bp = Blueprint("manager", __name__)
 
-ins_template = """
-    INSERT INTO {table_name} ({col_name}, UserID)
-    SELECT ?, ?
-    WHERE NOT EXISTIS (
-        SELECT 1
+
+def get_id(db, table_name, col_name, id_name, name, user_id):
+    insert_template = """
+        INSERT INTO {table_name} ({col_name}, UserID)
+        SELECT ?, ?
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM {table_name}
+            WHERE
+                {col_name} = ?
+                AND UserID = ?
+        );
+        """
+    select_template = """
+        SELECT {get_id_name}
         FROM {table_name}
         WHERE
-            {col_name} = ?
-            AND UserID = ?
-    );
-    SELECT {getIDName}
-    FROM {table_name}
-    WHERE
-        {col_name}= ?
-        AND UserID = ?;
-    """
+            {col_name}= ?
+            AND UserID = ?;
+        """
+    
+    insert_parms = (name, user_id, name, user_id)
+    db.execute(insert_template.format(
+        table_name=table_name,
+        col_name = col_name
+    ), insert_parms)
+
+    select_parms = (name, user_id)
+    ret = db.execute(select_template.format(
+        get_id_name=id_name,
+        table_name=table_name,
+        col_name=col_name
+    ), select_parms)
+    db.commit()
+
+    return ret[0][id_name] if ret else None
 
 def get_page(page_str):
     if page_str is None:
@@ -145,13 +165,7 @@ def volume_edit():
         user_id = g.user["UserID"]
         db = get_db()
 
-        LocationID = db.execute(
-            ins_template.format(
-                table_name="Locations",
-                col_name="LocationName",
-                getIDname="LocationID"
-            ), tuple([Location, user_id] * 3)
-        ).fetchone()
+        LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, user_id)
 
         db.execute(
             """
@@ -230,13 +244,7 @@ def series_edit():
 
         if error is None:
             if PublisherName:
-                PublisherID = db.execute(
-                    ins_template.format(
-                        table_name="Publishers",
-                        col_name="PublisherName",
-                        getIDname="PublisherID"
-                    ), tuple([PublisherName, user_id] * 3)
-                ).fetchone()
+                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, user_id)
                 db.execute(
                     "UPDATE Series SET PublisherID = ? WHERE SeriesID = ?",
                     (PublisherID, SeriesID)
@@ -258,13 +266,7 @@ def series_edit():
                 else:
                     del_authors.add(author["AuthorID"])
             for author in new_authors:
-                AuthorID = db.execute(
-                    ins_template.format(
-                        table_name="Authors",
-                        col_name="AuthorName",
-                        getIDname="AuthorID"
-                    ), tuple([AuthorName, user_id] * 3)
-                ).fetchall()[0]
+                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", AuthorName, user_id)
                 db.execute(
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
@@ -349,14 +351,13 @@ def register():
         Series = request.form["Series"]
         Location = request.form["Location"]
         input_authors = request.form["author"]
-        Publiser = request.form["Publisher"]
+        Publisher = request.form["Publisher"]
         PublicationDate = request.form["PublicationDate"]
         ISBN13 = request.form["ISBN13"]
         ISBN10 = request.form["ISBN10"]
         user_id = g.user["UserID"]
         db = get_db()
         error = None
-        series = request.get_json()
 
         if not Title:
             error = "タイトルが入力されていません"
@@ -366,42 +367,18 @@ def register():
         if error is None:
             if not Series:
                 Series = Title
-            if Publiser:
-                PubliserID = db.execute(
-                    ins_template.format(
-                        table_name="Publishers",
-                        col_name="PublisherName",
-                        getIDname="PubliserID"
-                    ), tuple([Publiser, user_id] * 3)
-                ).fetchall()[0]
+            if Publisher:
+                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, user_id)
             else:
-                PubliserID = None
+                PublisherID = None
             authorsID = []
             if input_authors:
                 for author in input_authors.split(","):
                     authorsID.append(
-                        db.execute(
-                            ins_template.format(
-                                table_name="Authors",
-                                col_name="AuthorName",
-                                getIDname="AuthorID"
-                            ), tuple([author, user_id] * 3)
-                        ).fetchone()
+                        get_id(db, "Authors", "AuthorName", "AuthorID", author, user_id)
                     )
-            SeriesID = db.execute(
-                ins_template.format(
-                    table_name="Series",
-                    col_name="SeriesName",
-                    getIDname="SeriesID"
-                ), tuple([Series, user_id] * 3)
-            )
-            LocationID = db.execute(
-                ins_template.format(
-                    table_name="Locations",
-                    col_name="LocationName",
-                    getIDname="LocationID"
-                ), tuple([Location, user_id] * 3)
-            )
+            SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", Series, user_id)
+            LocationID = get_id(db, "Location", "LocationName", "LocationID", Location, user_id)
             
             db.execute(
                 """INSERT INTO Books (
@@ -427,7 +404,7 @@ def register():
                     Title,
                     user_id,
                     LocationID,
-                    PubliserID, 
+                    PublisherID, 
                     SeriesID,
                     PublicationDate,
                     ISBN13, ISBN10
