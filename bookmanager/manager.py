@@ -476,6 +476,11 @@ def register_search():
 
     page = get_page(page)
 
+    plus_parms = {**request.args}
+    minus_parms = {**request.args}
+    plus_parms["page"] = page+1
+    minus_parms["page"] = page-1 if page>0 else 0
+
     books = get_books(q=keyword, intitle=title, inauthor=author, isbn=isbn)
 
-    return render_template("register_search.html", Books=books)
+    return render_template("register_search.html", Books=books, plus_parms=plus_parms, minus_parms=minus_parms)
