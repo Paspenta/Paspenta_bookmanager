@@ -40,7 +40,7 @@
                             data-bs-target="#Series{{ SeriesID }}"
                             aria-expanded="false"
                             aria-controls="#Series{{ SeriesID }}">
-                            {{ Series.get('SeriesName')}} | {{ ','.join(Series.get('Authors', []))}} | {{ Series.get('Publishers') }}
+                            {{ Series.get('SeriesName')}} | {{ ','.join(Series.get('Authors', []))}} | {{ Series.get('PublisherName') }}
                         </button>
                     </h2>
                     <div id="Series{{ SeriesID }}" class="accordion-collapse collapse">
