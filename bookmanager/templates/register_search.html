@@ -11,22 +11,40 @@
                     <input name="{{ label }}" id="{{ label }}" class="form-control">
                 </div>
             {% endfor %}
-            <button type="submit" class="btn bth-primary">検索</button>
+            <button type="submit" class="col-auto btn bth-primary">検索</button>
         </form>
     </div>
     {% if Books %}
-        {% for Book in Books %}
-            <div class="container">
-                <a href="{{ url_for('manager.register', **Book) }}">
-                    <div class="row">
-                        <p class="col-auto">{{ Book.get("title") }}</p>
-                        <p class="col-auto">{{ Book.get("author") }}</p>
-                        <p class="col-auto">{{ Book.get("publisher") }}</p>
-                        <p class="col-auto">{{ Book.get("publishe_date") }}</p>
-                    </div>
-                </a>
-            </div>
-        {% endfor %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">タイトル</th>
+                        <th scope="col">著者</th>
+                        <th scope="col">出版社</th>
+                        <th scope="col">出版日</th>
+                        <th scope="col">ISBN10</th>
+                        <th scope="col">ISBN13</th>
+                        <th scope="col">#<th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for Book in Books %}
+                        <tr>
+                            <td>{{ Book.get("title") }}</td>
+                            <td>{{ Book.get("author") }}</td>
+                            <td>{{ Book.get("publisher") }}</td>
+                            <td>{{ Book.get("publishe_date") }}</td>
+                            <td>{{ Book.get("isbn_10") }}</td>
+                            <td>{{ Book.get("isbn_13") }}</td>
+                            <td>
+                                <a href="{{ url_for('manager.register', **Book) }}" class="btn btn-primary">登録</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% elif request.args %}
         <h1>本が見つかりませんでした</h1>
     {% endif %}
