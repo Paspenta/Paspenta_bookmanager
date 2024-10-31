@@ -296,18 +296,18 @@ def series_edit():
             return 404
         db = get_db()
         user_id = g.user["UserID"]
-        SeriesDate = db.execute(
+        SeriesData = db.execute(
             """
             SELECT
                 SeriesID,
                 SeriesName,
-                Publishers.PublisherName AS PublisherName,
+                Publishers.PublisherName AS PublisherName
             FROM Series
-            JOIN Publishers ON Publishers.PublisherID = PublisherID
-            WHERE SeriesID = ? AND UserID = ?;
+            JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+            WHERE SeriesID = ? AND Series.UserID = ?;
             """, (SeriesID, user_id)
         ).fetchone()
-        if SeriesDate is None:
+        if SeriesData is None:
             return 404
         Authors = db.execute(
             """
@@ -317,9 +317,9 @@ def series_edit():
             WHERE SeriesID = ?;
             """, (SeriesID,)
         ).fetchall()
-        SeriesDate["Author"] = ",".join([Author["AuthorName"] for Author in Authors])
+        Authors = ",".join([Author["AuthorName"] for Author in Authors])
     
-        return render_template("Series_edit,html", SeriesDate=SeriesDate)
+        return render_template("Series_edit,html", SeriesData=SeriesData, Authors=Authors)
 
 
 
