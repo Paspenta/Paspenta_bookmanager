@@ -2,28 +2,28 @@ import requests
 
 def get_books(q=None, intitle=None, inauthor=None, isbn=None, page=0):
     URL = "https://www.googleapis.com/books/v1/volumes"
-    MAX_RESULT = 10
+    MAX_RESULT = 30
     parms = dict()
+    keyword = []
 
-    if q is not None:
+    if q is not None and q:
+        keyword.append(q)
+    if intitle is not None and intitle:
+        keyword.append(f"intitle:{intitle}")
+    if inauthor is not None and inauthor:
+        keyword.append(f"inauthor:{inauthor}")
+    if isbn is not None and isbn:
+        keyword.append(f"isbn:{isbn}")
+    if keyword:
+        q = "+".join(keyword)
         parms["q"] = q
     else:
-        keyword = []
-        if intitle is not None:
-            keyword.append(f"intitle:{intitle}")
-        if inauthor is not None:
-            keyword.append(f"inauthor:{inauthor}")
-        if isbn is not None:
-            keyword.append(f"isbn:{isbn}")
-        if keyword:
-            q = "+".join(keyword)
-            parms["q"] = q
-        else:
-            return []
+        return []
     parms["maxResults"] = MAX_RESULT
     parms["startIndex"] = MAX_RESULT * page
 
     response = requests.get(URL, params=parms)
+    print(response.url)
     books = response.json()
 
     ret = []
