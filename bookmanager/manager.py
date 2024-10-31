@@ -64,7 +64,8 @@ def get_page(page_str):
 def index():
     db = get_db()
     SeriesName = "%" + request.args.get("SeriesName", "") + "%"
-    AuthorName = "%" + request.args.get("AuthorName", "") + "%"
+    AuthorName = request.args.get("AuthorName", None)
+    AuthorName = "%" + AuthorName + "%" if AuthorName is not None else None
     PublisherName = "%" + request.args.get("PublisherName", "") + "%"
     LocationName = "%" + request.args.get("LocationName", "") + "%"
 
@@ -78,48 +79,80 @@ def index():
     plus_parms["page"] = page+1
     minus_parms["page"] = page-1 if page>0 else 0
     
-    Seriess = db.execute(
-        """
-        WITH AuthorFilter AS (
-            SELECT BookAuthors.SeriesID
-            FROM BookAuthors
-            WHERE BookAuthors.AuthorID IN (
-                SELECT Authors.AuthorID
-                FROM Authors
-                WHERE 
-                    Authors.UserID = ?
-                    AND Authors.AuthorName LIKE ?
+    if AuthorName is not None:
+        Seriess = db.execute(
+            """
+            WITH AuthorFilter AS (
+                SELECT BookAuthors.SeriesID
+                FROM BookAuthors
+                WHERE BookAuthors.AuthorID IN (
+                    SELECT Authors.AuthorID
+                    FROM Authors
+                    WHERE 
+                        Authors.UserID = ?
+                        AND Authors.AuthorName LIKE ?
+                )
+            ),
+            LocationsFilter AS (
+                SELECT Books.SeriesID
+                FROM Books
+                WHERE Books.LocationID IN (
+                    SELECT Locations.LocationID
+                    FROM Locations
+                    WHERE
+                        Locations.UserID = ?
+                        AND Locations.LocationName LIKE ?
+                )
             )
-        ),
-        LocationsFilter AS (
-            SELECT Books.SeriesID
-            FROM Books
-            WHERE Books.LocationID IN (
-                SELECT Locations.LocationID
-                FROM Locations
-                WHERE
-                    Locations.UserID = ?
-                    AND Locations.LocationName LIKE ?
+            SELECT
+                Series.SeriesID,
+                SeriesName,
+                Publishers.PublisherName AS PublisherName
+            FROM Series
+            JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+            WHERE
+                Series.UserID = ?
+                AND SeriesName LIKE ?
+                AND `PublisherName` LIKE ?
+                AND Series.SeriesID IN (SELECT SeriesID FROM AuthorFilter)
+                AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
+            LIMIT 15 OFFSET ?;
+            """, (user_id, AuthorName,
+                user_id, LocationName,
+                user_id, SeriesName, PublisherName,
+                page)
+        ).fetchall()
+    else:
+        Seriess = db.execute(
+            """
+            WITH LocationsFilter AS (
+                SELECT Books.SeriesID
+                FROM Books
+                WHERE Books.LocationID IN (
+                    SELECT Locations.LocationID
+                    FROM Locations
+                    WHERE
+                        Locations.UserID = ?
+                        AND Locations.LocationName LIKE ?
+                )
             )
-        )
-        SELECT
-            Series.SeriesID,
-            SeriesName,
-            Publishers.PublisherName AS PublisherName
-        FROM Series
-        JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
-        WHERE
-            Series.UserID = ?
-            AND SeriesName LIKE ?
-            AND `PublisherName` LIKE ?
-            AND Series.SeriesID IN (SELECT SeriesID FROM AuthorFilter)
-            AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
-        LIMIT 15 OFFSET ?;
-        """, (user_id, AuthorName,
-              user_id, LocationName,
-              user_id, SeriesName, PublisherName,
-              page)
-    ).fetchall()
+            SELECT
+                Series.SeriesID,
+                SeriesName,
+                Publishers.PublisherName AS PublisherName
+            FROM Series
+            JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+            WHERE
+                Series.UserID = ?
+                AND SeriesName LIKE ?
+                AND `PublisherName` LIKE ?
+                AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
+            LIMIT 15 OFFSET ?;
+            """, (user_id, LocationName,
+                user_id, SeriesName, PublisherName,
+                page)
+        ).fetchall()
+
     Seriess = [dict(row) for row in Seriess]
     for i in range(len(Seriess)):
         authors = db.execute(
@@ -224,27 +257,37 @@ def volume_edit():
 @login_required
 def series_edit():
     if request.method == "POST":
-        SeriesID = request.form["SeriesID"]
-        PublisherName = request.form["PublisherName"]
-        AuthorName = request.form["Authors"]
+        SeriesID = request.form.get("SeriesID", None)
+        newSeriesName = request.form.get("SeriesName", "")
+        PublisherName = request.form.get("PublisherName", None)
+        AuthorName = request.form.get("Authors", "")
         new_authors = set(AuthorName.split(","))
         new_authors.discard("")
-        edit_series = request.get_json()
         user_id = g.user["UserID"]
         error = None
         db = get_db()
 
-        series_EXISTS = db.execute(
-            """
-            SELECT 1
-            FROM Series
-            WHERE UserID = ? AND SeriesID = ?
-            """, (user_id, SeriesID)
-        ).fetchone()
-        if series_EXISTS is None:
-            error = "Not found Series"
+        if SeriesID is None and newSeriesName == "":
+            error = "Nothing Series"
+        else:
+            PrevSeriesName = db.execute(
+                """
+                SELECT SeriesName
+                FROM Series
+                WHERE UserID = ? AND SeriesID = ?
+                """, (user_id, SeriesID)
+            ).fetchone()
+            if PrevSeriesName is None:
+                error = "Not found Series"
+            else:
+                PrevSeriesName = PrevSeriesName["SeriesName"]
 
         if error is None:
+            if PrevSeriesName != newSeriesName:
+                db.execute(
+                    "UPDATE Series SET SeriesName = ? WHERE SeriesID = ?",
+                    (newSeriesName, PrevSeriesName)
+                )
             if PublisherName:
                 PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, user_id)
                 db.execute(
@@ -254,10 +297,10 @@ def series_edit():
             prev_authors = db.execute(
                 """
                 SELECT
-                    AuthorID,
+                    BookAuthors.AuthorID,
                     Authors.AuthorName AS AuthorName
                 FROM BookAuthors
-                JOIN Authors ON AuthorID = Authors.AuthorID
+                JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
                 WHERE SeriesID = ?
                 """, (SeriesID,)
             ).fetchall()
@@ -268,7 +311,7 @@ def series_edit():
                 else:
                     del_authors.add(author["AuthorID"])
             for author in new_authors:
-                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", AuthorName, user_id)
+                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, user_id)
                 db.execute(
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
@@ -287,39 +330,42 @@ def series_edit():
                     "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;",
                     (SeriesID, AuthorID)
                 )
+            db.commit()
+            
+            return redirect(url_for('index'))
             
         else:
             flash(error)
-    else:
-        SeriesID = request.args.get("SeriesID", None)
-        if SeriesID is None:
-            return 404
-        db = get_db()
-        user_id = g.user["UserID"]
-        SeriesData = db.execute(
-            """
-            SELECT
-                SeriesID,
-                SeriesName,
-                Publishers.PublisherName AS PublisherName
-            FROM Series
-            JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
-            WHERE SeriesID = ? AND Series.UserID = ?;
-            """, (SeriesID, user_id)
-        ).fetchone()
-        if SeriesData is None:
-            return 404
-        Authors = db.execute(
-            """
-            SELECT Authors.AuthorName AS AuthorName
-            FROM BookAuthors
-            JOIN Authors ON AuthorID = BookAuthors.AuthorID
-            WHERE SeriesID = ?;
-            """, (SeriesID,)
-        ).fetchall()
-        Authors = ",".join([Author["AuthorName"] for Author in Authors])
+
+    SeriesID = request.args.get("SeriesID", None)
+    if SeriesID is None:
+        return 404
+    db = get_db()
+    user_id = g.user["UserID"]
+    SeriesData = db.execute(
+        """
+        SELECT
+            SeriesID,
+            SeriesName,
+            Publishers.PublisherName AS PublisherName
+        FROM Series
+        JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+        WHERE SeriesID = ? AND Series.UserID = ?;
+        """, (SeriesID, user_id)
+    ).fetchone()
+    if SeriesData is None:
+        return 404
+    Authors = db.execute(
+        """
+        SELECT Authors.AuthorName AS AuthorName
+        FROM BookAuthors
+        JOIN Authors ON Authors.AuthorID = BookAuthors.AuthorID
+        WHERE SeriesID = ?;
+        """, (SeriesID,)
+    ).fetchall()
+    Authors = ",".join([Author["AuthorName"] for Author in Authors])
     
-        return render_template("Series_edit,html", SeriesData=SeriesData, Authors=Authors)
+    return render_template("series_edit.html", SeriesData=SeriesData, Authors=Authors)
 
 
 
@@ -449,7 +495,6 @@ def register():
             db.commit()
             previous_url = session.get('previous_url', url_for('index'))
             return redirect(previous_url)
-            return redirect(request.referrer)
 
         else:
             flash(error)
