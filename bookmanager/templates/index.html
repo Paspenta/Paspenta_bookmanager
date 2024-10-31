@@ -57,7 +57,7 @@
                                                 <p class="col-auto">{{ book['Title'] }}</p>
                                                 <p class="col-auto">{{ book['PublicationDate'] }}</p>
                                                 <p class="col-auto">{{ book['LocationName'] }}</p>
-                                                <a href="{{ url_for('manager.series_edit', BookID=book['BookID']) }}" class="col-auto btn-primary">編集</a>
+                                                <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}" class="col-auto btn-primary">編集</a>
                                             </div>
                                         </div>
                                     </li>
