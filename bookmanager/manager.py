@@ -476,6 +476,6 @@ def register_search():
 
     page = get_page(page)
 
-    books = get_books(q=keyword, intitle=title, author=author, isbn=isbn)
+    books = get_books(q=keyword, intitle=title, inauthor=author, isbn=isbn)
 
-    return render_template("register_search.html", books)
+    return render_template("register_search.html", Books=books)

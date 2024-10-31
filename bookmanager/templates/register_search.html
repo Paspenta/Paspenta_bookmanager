@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="container">
-        <form action="{{ url_for(manager.register_search) }}" method="get" class="row">
+        <form action="{{ url_for('manager.register_search') }}" method="get" class="row">
             {% for label in ["keyword", "Title", "author", "isbn"] %}
                 <div class="col-auto">
                     <label for="{{ label }}" class="form-label">{{ label }}</label>
@@ -14,16 +14,20 @@
             <button type="submit" class="btn bth-primary">検索</button>
         </form>
     </div>
-    {% for Book in Books %}
-        <div class="container">
-            <a href="{{ url_for(manager.register, **Book) }}">
-                <div class="row">
-                    <p class="col-auto">{{ Book.get("title") }}</p>
-                    <p class="col-auto">{{ Book.get("author") }}</p>
-                    <p class="col-auto">{{ Book.get("publisher") }}</p>
-                    <p class="col-auto">{{ Book.get("publishe_date") }}</p>
-                </div>
-            </a>
-        </div>
-    {% endfor %}
+    {% if Books %}
+        {% for Book in Books %}
+            <div class="container">
+                <a href="{{ url_for('manager.register', **Book) }}">
+                    <div class="row">
+                        <p class="col-auto">{{ Book.get("title") }}</p>
+                        <p class="col-auto">{{ Book.get("author") }}</p>
+                        <p class="col-auto">{{ Book.get("publisher") }}</p>
+                        <p class="col-auto">{{ Book.get("publishe_date") }}</p>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    {% elif request.args %}
+        <h1>本が見つかりませんでした</h1>
+    {% endif %}
 {% endblock %}
