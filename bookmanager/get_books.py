@@ -21,7 +21,7 @@ def get_books(q=None, intitle=None, inauthor=None, isbn=None, page=0):
         else:
             return []
     parms["maxResults"] = MAX_RESULT
-    parms["startIndex"] = page
+    parms["startIndex"] = MAX_RESULT * page
 
     response = requests.get(URL, params=parms)
     books = response.json()
