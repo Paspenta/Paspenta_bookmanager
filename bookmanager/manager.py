@@ -65,9 +65,7 @@ def index():
     db = get_db()
     SeriesName = "%" + request.args.get("SeriesName", "") + "%"
     AuthorName = request.args.get("AuthorName", None)
-    AuthorName = "%" + AuthorName + "%" if AuthorName is not None else None
     PublisherName = request.args.get("PublisherName", None)
-    PublisherName = "%" + PublisherName + "%" if PublisherName is not None else None
     LocationName = "%" + request.args.get("LocationName", "") + "%"
 
     page = request.args.get("Page", "0")
@@ -81,11 +79,13 @@ def index():
     minus_parms["page"] = page-1 if page>0 else 0
 
     if PublisherName is not None:
+        PublisherName = "%" + PublisherName + "%"
         where_publisher = "`PublisherName` = ?"
     else:
         where_publisher = "? IS NULL"
     
     if AuthorName is not None:
+        AuthorName = "%" + AuthorName + "%"
         where_authorname = "Authors.AuthorName LIKE ?"
         use_filter = "AND Series.SeriesID IN (SELECT SeriesID FROM AuthorFilter)"
     else:
@@ -383,7 +383,11 @@ def series_edit():
     
     return render_template("series_edit.html", SeriesData=SeriesData, Authors=Authors)
 
-
+@bp.route("/book_delete", methods=("POST",))
+@login_required
+def book_delete():
+    BookID = request.args.get("BookID")
+    SeriesID = request.args.get("SeriesID")
 
 
 @bp.route("/volume_del",methods=("POST",))
