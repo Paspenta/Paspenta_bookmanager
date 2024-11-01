@@ -67,16 +67,15 @@ def index():
     AuthorName = request.args.get("AuthorName", None)
     PublisherName = request.args.get("PublisherName", None)
     LocationName = "%" + request.args.get("LocationName", "") + "%"
-
-    page = request.args.get("Page", "0")
     user_id = g.user["UserID"]
 
+    page = request.args.get("Page", "0")
     page = get_page(page)
 
     plus_parms = {**request.args}
     minus_parms = {**request.args}
-    plus_parms["page"] = page+1
-    minus_parms["page"] = page-1 if page>0 else 0
+    plus_parms["Page"] = page+1
+    minus_parms["Page"] = page-1 if page>0 else 0
 
     if PublisherName is not None:
         PublisherName = "%" + PublisherName + "%"
