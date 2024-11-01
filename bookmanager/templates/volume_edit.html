@@ -30,7 +30,33 @@
                 <label for="ISBN13" class="form-label">ISBN13</label>
                 <input name="ISBN13" id="ISBN13" class="form-control" value="{{ Book.get('ISBN13') }}" >
             </div>
-            <button type="submit" class="btn btn-primary">変更</button>
+            <div class="container mt-5">
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary me-2">変更</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#DeleteConfirm">
+                        削除
+                    </button>
+                </div>
+            </div>
         </form>
+    </div>
+    <div class="modal fade" id="DeleteConfirm" tabindex="-1" aria-labelledby="DeleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="DeleteConfirmLabel">確認</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    本当に削除しますか?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="{{ url_for('manager.volume_del', BookID=Book.get('BookID')) }}" method="post">
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

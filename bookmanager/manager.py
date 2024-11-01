@@ -388,16 +388,46 @@ def series_edit():
 
 @bp.route("/volume_del",methods=("POST",))
 @login_required
-def book_del():
+def volume_del():
     if request.method == "POST":
-        BookID = request.form["BookID"]
+        BookID = request.args.get("BookID")
+        user_id = g.user["UserID"]
         db = get_db()
-        db.execute("DELETE FROM Books WHERE BookID = ?", (BookID,))
-        db.commit()
+        SeriesID = db.execute(
+            """
+            SELECT SeriesID
+            FROM Books
+            WHERE
+                BookID = ?
+                AND UserID = ?;
+            """, (BookID, user_id)
+        ).fetchone()
+        if SeriesID is not None:
+            SeriesID = SeriesID["SeriesID"]
+            db.execute(
+                "DELETE FROM Books WHERE BookID = ? AND UserID = ?",
+                (BookID, user_id)
+            )
+            db.execute(
+                """
+                DELETE FROM Series
+                WHERE 
+                    SeriesID = ?
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM Books
+                        WHERE
+                            SeriesID = ?
+                        )
+                """, (SeriesID, SeriesID)
+            )
+            db.commit()
+        
+        return redirect(url_for('index'))
 
-@bp.route("/Series_del", methods=("POST",))
+@bp.route("/series_del", methods=("POST",))
 @login_required
-def Series_del():
+def series_del():
     if request.method == "POST":
         SeriesID = request.form["SeriesID"]
         db = get_db()
