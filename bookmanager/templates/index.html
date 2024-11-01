@@ -29,9 +29,9 @@
             <button type="submit" class="btn bth-primary col-auto">検索</button>
         </form>
     </div>
-    {% if Seriess %}
+    {% if series_list %}
         <div class="accordion" id="accordion_Series">
-            {% for Series in Seriess %}
+            {% for Series in series_list %}
                 {% set SeriesID = Series.get('SeriesID') %}
                 <div class="accordion-item">
                     <h2 class="accordion-item">

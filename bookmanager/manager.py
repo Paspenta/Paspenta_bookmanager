@@ -90,7 +90,7 @@ def index():
     else:
         where_authorname = "? IS NULL"
         use_filter = ""
-    Seriess = db.execute(
+    series_list = db.execute(
         f"""
         WITH AuthorFilter AS (
             SELECT BookAuthors.SeriesID
@@ -133,8 +133,8 @@ def index():
             page)
     ).fetchall()
 
-    Seriess = [dict(row) for row in Seriess]
-    for i in range(len(Seriess)):
+    series_list = [dict(row) for row in series_list]
+    for i in range(len(series_list)):
         authors = db.execute(
             """
             WITH SeriesAuthors AS (
@@ -145,10 +145,10 @@ def index():
             SELECT AuthorName
             FROM Authors
             WHERE AuthorID IN SeriesAuthors;
-            """, (Seriess[i]["SeriesID"],)
+            """, (series_list[i]["SeriesID"],)
         ).fetchall()
-        Seriess[i]["Authors"] = [author["AuthorName"] for author in authors]
-        Seriess[i]["volumes"] = db.execute(
+        series_list[i]["Authors"] = [author["AuthorName"] for author in authors]
+        series_list[i]["volumes"] = db.execute(
             """
             SELECT
                 BookID,
@@ -159,11 +159,11 @@ def index():
             JOIN Locations ON Books.LocationID = Locations.LocationID
             WHERE SeriesID = ?
             ORDER BY Title;
-            """, (Seriess[i]["SeriesID"],)
+            """, (series_list[i]["SeriesID"],)
         ).fetchall()
     
     return render_template("index.html",
-                            Seriess=Seriess,
+                            series_list=series_list,
                             plus_parms=plus_parms,
                             minus_parms=minus_parms)
 
