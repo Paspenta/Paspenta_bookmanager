@@ -18,7 +18,31 @@
                 <label for="Authors" class="form-label">著者(カンマ区切り)</label>
                 <input name="Authors" id="Authors" class="form-control" value="{{ Authors }}" required>
             </div>
-            <button type="submit" class="btn btn-primary">変更</button>
+            <div class="container mt-5">
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary me-2">変更</button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#DeleteConfirm">
+                        削除
+                    </button>
+                </div>
+            </div>
         </form>
+    </div>
+    <div class="modal fade" id="DeleteConfirm" tabindex="-1" aria-labelledby="DeleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="DeleteConfirmLabel">確認</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    本当に削除しますか?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a class="btn btn-danger" href="{{ url_for('manager.series_del', SeriesID=SeriesData['SeriesID']) }}">削除</a>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
