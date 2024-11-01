@@ -10,6 +10,36 @@ bp = Blueprint("manager", __name__)
 
 
 def get_id(db, table_name, col_name, id_name, name, user_id):
+    """Overview
+
+    指定の名前とユーザーIDの組み合わせが、存在しなければIDをINSERTする。
+    作成したか、既存のIDを返す。
+
+    Parameters
+    ----------
+    db: sqlite3.Connection
+        データベース接続オブジェクト
+    table_name: str
+        挿入先及び取得先テーブル名
+    col_name: str
+        挿入・取得する基準となる名前の列名
+    id_name: str
+        挿入・取得するIDの列名
+    name: str
+        挿入・取得する基準となる名前
+    user_id: str
+        挿入・取得するIDをもつユーザーID
+    
+    Returns
+    -------
+    ret: str
+        取得したID
+    
+    Examples
+    --------
+    >>> get_id(db, 'Publishers', 'PublisherName', 'PublisherID', 'KADOKAWA', 1)
+    "2"
+    """
     insert_template = """
         INSERT INTO {table_name} ({col_name}, UserID)
         SELECT ?, ?
