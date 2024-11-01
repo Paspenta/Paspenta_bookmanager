@@ -40,7 +40,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <a class="btn btn-danger" href="{{ url_for('manager.series_del', SeriesID=SeriesData['SeriesID']) }}">削除</a>
+                    <form action="{{ url_for('manager.series_del', SeriesID=SeriesData['SeriesID']) }}" method="post">
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
                 </div>
             </div>
         </div>
