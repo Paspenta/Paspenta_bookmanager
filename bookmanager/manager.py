@@ -51,6 +51,8 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
                 AND UserID = ?
         );
         """
+    
+    # 挿入用テンプレート
     select_template = """
         SELECT {get_id_name}
         FROM {table_name}
@@ -59,12 +61,14 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
             AND UserID = ?;
         """
     
+    # 挿入
     insert_parms = (name, user_id, name, user_id)
     db.execute(insert_template.format(
         table_name=table_name,
         col_name = col_name
     ), insert_parms)
 
+    # 取得
     select_parms = (name, user_id)
     ret = db.execute(select_template.format(
         get_id_name=id_name,
@@ -99,12 +103,14 @@ def get_page(page_str):
     0
     """
     if page_str is None:
+        # Noneであれば0
         return 0
     try:
         ret = int(page_str)
         if ret < 0:
             ret = 0
     except (ValueError, TypeError):
+        # 数値ではないか、変換できない型の場合0
         ret = 0
     
     return ret
