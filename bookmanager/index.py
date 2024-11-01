@@ -14,6 +14,25 @@ from .manager import (
 @bp.route("/")
 @login_required
 def index():
+    """Overview
+    本を一覧表示
+
+    URL Parameters
+    ----------
+    SeriesName: str
+        シリーズ名から検索する
+    AuthorName: str
+        著者名で検索
+    PublisherName: str
+        出版社名で検索
+    LocationName: str
+        本がある場所で検索
+    
+    Returns
+    -------
+    検索条件がある場合、検索条件に一致する本を表示
+    検索条件がない場合、ユーザーが持つ本を表示
+    """
     db = get_db()
     SeriesName = "%" + request.args.get("SeriesName", "") + "%"
     AuthorName = request.args.get("AuthorName", None)
