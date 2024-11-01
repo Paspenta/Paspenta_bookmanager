@@ -5,10 +5,14 @@
 {% block content %}
     <div class="container">
         <form method="post" class="w-50">
-            <input type="hidden" name="BookID" value="{{ book.get('BookID') }}">
+            <input type="hidden" name="BookID" value="{{ Book.get('BookID') }}">
             <div class="mb-3">
                 <label for="Title" class="form-label">タイトル</label>
                 <input name="Title" id="Title" class="form-control" value="{{ Book.get('Title') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="SeriesName" class="form-label">シリーズ</label>
+                <input name="SeriesName" id="SeriesName" class="form-control" value="{{ Book.get('SeriesName') }}" required>
             </div>
             <div class="mb-3">
                 <label for="LocationName" class="form-label">場所</label>
