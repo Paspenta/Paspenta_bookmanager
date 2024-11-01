@@ -75,7 +75,29 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
 
     return ret[0][id_name] if ret else None
 
+
 def get_page(page_str):
+    """Overview
+    文字列として取得したページをintに変換する。
+
+    Parameters
+    ----------
+    page_str: str
+        ページ数(文字列)
+    
+    Returns
+    -------
+    ret: int
+        intに変換したページ数
+        intに変換できなければ0を返す
+    
+    Examples
+    --------
+    >>> get_page("2")
+    2
+    >>> get_page("a")
+    0
+    """
     if page_str is None:
         return 0
     try:
