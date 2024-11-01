@@ -429,12 +429,24 @@ def volume_del():
 @login_required
 def series_del():
     if request.method == "POST":
-        SeriesID = request.form["SeriesID"]
+        SeriesID = request.args.get("SeriesID")
+        user_id = g.user["UserID"]
         db = get_db()
-        db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
-        db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
-        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;")
-        db.commit()
+        flag = db.execute(
+            """
+            SELECT SeriesID
+            FROM Series
+            WHERE
+                SeriesID = ?
+                AND UserID = ?
+            """, (SeriesID, user_id)
+        ).fetchone()
+        if flag is not None:
+            db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
+            db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
+            db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;", (SeriesID,))
+            db.commit()
+        return redirect(url_for('index'))
 
 
 @bp.route("/register", methods=("GET", "POST"))
