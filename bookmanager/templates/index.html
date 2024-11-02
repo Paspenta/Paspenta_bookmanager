@@ -45,25 +45,21 @@
                     </h2>
                     <div id="Series{{ SeriesID }}" class="accordion-collapse collapse">
                         <div class="accordion-body">
-                            <div class="card">
-                                <div class="card-header">
-                                    <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    {% for book in Series.get('volumes') %}
-                                    <li class="list-group-item">
-                                        <div class=container>
-                                            <div class="row">
-                                                <p class="col-auto">{{ book['Title'] }}</p>
-                                                <p class="col-auto">{{ book['PublicationDate'] }}</p>
-                                                <p class="col-auto">{{ book['LocationName'] }}</p>
-                                                <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}" class="col-auto btn-primary">編集</a>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                            <div class="card-header">
+                                <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
                             </div>
+                            <ul class="list-group list-group-flush">
+                                {% for book in Series.get('volumes') %}
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <p class="col-auto mb-0">{{ book['Title'] }}</p>
+                                        <p class="col-auto mb-0">{{ book['PublicationDate'] }}</p>
+                                        <p class="col-auto mb-0">{{ book['LocationName'] }}</p>
+                                        <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}" class="col-auto mb-0 btn btn-primary">編集</a>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                 </div>
