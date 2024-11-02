@@ -21,7 +21,7 @@ def volume_edit():
         PublicationDate = request.form.get("PublicationDate")
         ISBN10 = request.form.get("ISBN13")
         ISBN13 = request.form.get("ISBN10")
-        user_id = g.user["UserID"]
+        UserID = g.user["UserID"]
         error = None
         db = get_db()
 
@@ -42,14 +42,14 @@ def volume_edit():
                 WHERE
                     BookID = ?
                     AND UserID = ?
-                """, (BookID, user_id)
+                """, (BookID, UserID)
             ).fetchone()
             if flag is None:
                 error = "Not found Book"
 
         if error is None:
-            LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, user_id)
-            SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", SeriesName, user_id)
+            LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, UserID)
+            SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", SeriesName, UserID)
 
             db.execute(
                 """
@@ -78,7 +78,7 @@ def volume_edit():
         else:
             flash(error)
     BookID = request.args.get("BookID", None)
-    user_id = g.user["UserID"]
+    UserID = g.user["UserID"]
     if BookID is None:
         return 404
     db = get_db()
@@ -96,7 +96,7 @@ def volume_edit():
         JOIN Locations ON Locations.LocationID = Books.LocationID
         JOIN Series ON Series.SeriesID = Books.SeriesID
         WHERE BookID = ? AND Books.UserID = ?;
-        """, (BookID, user_id)
+        """, (BookID, UserID)
     ).fetchone()
     if Book is None:
         return 404
@@ -121,7 +121,7 @@ def series_edit():
         AuthorName = request.form.get("Authors", "")
         new_authors = set(AuthorName.split(","))
         new_authors.discard("")
-        user_id = g.user["UserID"]
+        UserID = g.user["UserID"]
         error = None
         db = get_db()
 
@@ -133,7 +133,7 @@ def series_edit():
                 SELECT SeriesName
                 FROM Series
                 WHERE UserID = ? AND SeriesID = ?
-                """, (user_id, SeriesID)
+                """, (UserID, SeriesID)
             ).fetchone()
             if PrevSeriesName is None:
                 error = "Not found Series"
@@ -147,7 +147,7 @@ def series_edit():
                     (newSeriesName, PrevSeriesName)
                 )
             if PublisherName:
-                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, user_id)
+                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, UserID)
                 db.execute(
                     "UPDATE Series SET PublisherID = ? WHERE SeriesID = ?",
                     (PublisherID, SeriesID)
@@ -169,7 +169,7 @@ def series_edit():
                 else:
                     del_authors.add(author["AuthorID"])
             for author in new_authors:
-                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, user_id)
+                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
                 db.execute(
                     """
                     INSERT INTO BookAuthors (SeriesID, AuthorID)
@@ -199,7 +199,7 @@ def series_edit():
     if SeriesID is None:
         return "Nothing Series"
     db = get_db()
-    user_id = g.user["UserID"]
+    UserID = g.user["UserID"]
     SeriesData = db.execute(
         """
         SELECT
@@ -209,7 +209,7 @@ def series_edit():
         FROM Series
         LEFT JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
         WHERE SeriesID = ? AND Series.UserID = ?;
-        """, (SeriesID, user_id)
+        """, (SeriesID, UserID)
     ).fetchone()
     if SeriesData is None:
         return "Not found Series"

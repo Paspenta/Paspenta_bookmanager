@@ -9,7 +9,7 @@ from bookmanager.db import get_db
 bp = Blueprint("manager", __name__)
 
 
-def get_id(db, table_name, col_name, id_name, name, user_id):
+def get_id(db, table_name, col_name, id_name, name, UserID):
     """Overview
 
     指定の名前とユーザーIDの組み合わせが、存在しなければIDをINSERTする。
@@ -27,7 +27,7 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
         挿入・取得するIDの列名
     name: str
         挿入・取得する基準となる名前
-    user_id: str
+    UserID: str
         挿入・取得するIDをもつユーザーID
     
     Returns
@@ -62,14 +62,14 @@ def get_id(db, table_name, col_name, id_name, name, user_id):
         """
     
     # 挿入
-    insert_parms = (name, user_id, name, user_id)
+    insert_parms = (name, UserID, name, UserID)
     db.execute(insert_template.format(
         table_name=table_name,
         col_name = col_name
     ), insert_parms)
 
     # 取得
-    select_parms = (name, user_id)
+    select_parms = (name, UserID)
     ret = db.execute(select_template.format(
         get_id_name=id_name,
         table_name=table_name,

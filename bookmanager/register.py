@@ -24,7 +24,7 @@ def register():
         PublicationDate = request.form["PublicationDate"]
         ISBN13 = request.form["ISBN13"]
         ISBN10 = request.form["ISBN10"]
-        user_id = g.user["UserID"]
+        UserID = g.user["UserID"]
         db = get_db()
         error = None
 
@@ -37,14 +37,14 @@ def register():
             if not Series:
                 Series = Title
             if Publisher:
-                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, user_id)
+                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, UserID)
             else:
                 PublisherID = None
             authorsID = []
             if input_authors:
                 for author in input_authors.split(","):
                     authorsID.append(
-                        get_id(db, "Authors", "AuthorName", "AuthorID", author, user_id)
+                        get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
                     )
             
             db.execute(
@@ -58,7 +58,7 @@ def register():
                         SeriesName = ?
                         AND UserID = ?
                 );
-                """, (Series, PublisherID, user_id, Series, user_id)
+                """, (Series, PublisherID, UserID, Series, UserID)
             )
             SeriesID = db.execute(
                 """
@@ -67,10 +67,10 @@ def register():
                 WHERE
                     SeriesName = ?
                     AND UserID = ?
-                """, (Series, user_id)
+                """, (Series, UserID)
             ).fetchone()["SeriesID"]
 
-            LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, user_id)
+            LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, UserID)
             
             db.execute(
                 """INSERT INTO Books (
@@ -92,7 +92,7 @@ def register():
                 );
                 """, (
                     Title,
-                    user_id,
+                    UserID,
                     LocationID,
                     SeriesID,
                     PublicationDate,

@@ -38,7 +38,7 @@ def index():
     AuthorName = request.args.get("AuthorName", None)
     PublisherName = request.args.get("PublisherName", None)
     LocationName = "%" + request.args.get("LocationName", "") + "%"
-    user_id = g.user["UserID"]
+    UserID = g.user["UserID"]
 
     page = request.args.get("Page", "0")
     page = get_page(page)
@@ -98,9 +98,9 @@ def index():
             AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
             {use_filter}
         LIMIT 15 OFFSET ?;
-        """, (user_id, AuthorName,
-            user_id, LocationName,
-            user_id, SeriesName, PublisherName,
+        """, (UserID, AuthorName,
+            UserID, LocationName,
+            UserID, SeriesName, PublisherName,
             page)
     ).fetchall()
 

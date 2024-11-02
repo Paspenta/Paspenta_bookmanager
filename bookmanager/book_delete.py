@@ -15,7 +15,7 @@ from .manager import (
 def volume_del():
     if request.method == "POST":
         BookID = request.args.get("BookID")
-        user_id = g.user["UserID"]
+        UserID = g.user["UserID"]
         db = get_db()
         SeriesID = db.execute(
             """
@@ -24,13 +24,13 @@ def volume_del():
             WHERE
                 BookID = ?
                 AND UserID = ?;
-            """, (BookID, user_id)
+            """, (BookID, UserID)
         ).fetchone()
         if SeriesID is not None:
             SeriesID = SeriesID["SeriesID"]
             db.execute(
                 "DELETE FROM Books WHERE BookID = ? AND UserID = ?",
-                (BookID, user_id)
+                (BookID, UserID)
             )
             db.execute(
                 """
@@ -54,7 +54,7 @@ def volume_del():
 def series_del():
     if request.method == "POST":
         SeriesID = request.args.get("SeriesID")
-        user_id = g.user["UserID"]
+        UserID = g.user["UserID"]
         db = get_db()
         flag = db.execute(
             """
@@ -63,7 +63,7 @@ def series_del():
             WHERE
                 SeriesID = ?
                 AND UserID = ?
-            """, (SeriesID, user_id)
+            """, (SeriesID, UserID)
         ).fetchone()
         if flag is not None:
             db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
