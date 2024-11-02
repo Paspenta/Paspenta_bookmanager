@@ -46,7 +46,10 @@
                     <div id="Series{{ SeriesID }}" class="accordion-collapse collapse">
                         <div class="accordion-body">
                             <div class="card-header">
-                                <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
+                                <div class="btn-group" role="group" aria-label="edit_and_volume_register_buttons">
+                                    <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
+                                    <a href="{{ url_for('manager.register', series=Series.get('SeriesName')) }}" class="btn btn-success">追加</a>
+                                </div>
                             </div>
                             <ul class="list-group list-group-flush">
                                 {% for book in Series.get('volumes') %}
