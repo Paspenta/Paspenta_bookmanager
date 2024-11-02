@@ -104,8 +104,23 @@ def index():
             page)
     ).fetchall()
 
+    # series_listをsqlite.rowオブジェクトからdictに変換
     series_list = [dict(row) for row in series_list]
-    for i in range(len(series_list)):
+
+    for i in range(len(series_list)): # シリーズごとの情報
+        # 本がある場所を追加
+        series_list[i]["Locations"] = db.execute(
+            """
+            SELECT
+                Locations.LocationName AS LocationName,
+                COUNT(Books.LocationID) AS VolumeCount
+            FROM Books
+            JOIN Locations ON Books.LocationID = Locations.LocationID
+            WHERE SeriesID = ?
+            GROUP BY Books.LocationID
+            ORDER BY `VolumeCount` DESC;
+            """, (series_list[i]["SeriesID"],)
+        ).fetchall()
         authors = db.execute(
             """
             WITH SeriesAuthors AS (
