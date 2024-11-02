@@ -121,7 +121,7 @@ def register():
             flash(error)
     Book = dict()
     Book["Title"] = request.args.get("title", "")
-    Book["Series"] = Book["Title"]
+    Book["Series"] = request.args.get("series", Book["Title"])
     Book["author"] = request.args.get("author", "")
     Book["Publisher"] = request.args.get("publisher", "")
     Book["PublicationDate"] = request.args.get("publishe_date", "")
