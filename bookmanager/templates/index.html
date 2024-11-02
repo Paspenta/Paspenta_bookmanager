@@ -40,7 +40,10 @@
                             data-bs-target="#Series{{ SeriesID }}"
                             aria-expanded="false"
                             aria-controls="#Series{{ SeriesID }}">
-                            {{ Series.get('SeriesName')}} | {{ ','.join(Series.get('Authors', []))}} | {{ Series.get('PublisherName') }}
+                            {{ Series.get('SeriesName')}} | {{ ','.join(Series.get('Authors', []))}} | {{ Series.get('PublisherName') }} |
+                            {% for Location in Series.get("Locations") %}
+                                <span class="badge text-bg-info ms-2">{{ Location["LocationName"] }}<span class="badge text-bg-secondary ms-2">{{ Location["VolumeCount"] }}</span></span>
+                            {% endfor %}
                         </button>
                     </h2>
                     <div id="Series{{ SeriesID }}" class="accordion-collapse collapse">
