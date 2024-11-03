@@ -139,8 +139,9 @@ def index():
             SELECT
                 BookID,
                 Title,
-                PublicationDate,
-                Locations.LocationName AS LocationName
+                COALESCE(PublicationDate, "") AS PublicationDate,
+                Locations.LocationName AS LocationName,
+                COALESCE(ISBN13, ISBN10, "") AS ISBN
             FROM Books
             JOIN Locations ON Books.LocationID = Locations.LocationID
             WHERE SeriesID = ?
