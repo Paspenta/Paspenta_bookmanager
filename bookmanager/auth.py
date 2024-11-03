@@ -10,6 +10,42 @@ from bookmanager.db import get_db
 # 第二引数:bpの定義場所, url_prefix:bpに関連するURL
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+def password_check(db, UserName, Password):
+    """Overview
+    パスワードを照合, 
+    ユーザー名が存在しない、または、パスワードが異なる場合errorに文字列を格納
+
+    Parameters
+    ----------
+    db: sqlite3.Connection
+        データベース接続オブジェクト
+    UserName: str
+        formで入力されたUserName
+    Password: str
+        formで入力されたパスワード
+
+    Returns
+    -------
+    error: str or None
+        エラー内容を格納する
+    user: sqlite3.Row
+        ユーザー情報
+    """
+    error = None
+
+    user = db.execute(
+        "SELECT * FROM Users WHERE UserName = ?", (UserName,)
+    ).fetchone() # username, はタプルにするため
+
+    if user is None:
+        error = "ユーザー名をが違います。"
+    elif not check_password_hash(user["Password"], Password):
+        error = "パスワードが違います。"
+    
+    return error, user
+
+
+
 @bp.route("/register", methods=("GET", "POST"))
 def register():
     # アカウント登録view
@@ -27,7 +63,6 @@ def register():
         if error is None:
             try:
                 # プレースホルダーでusernameとパスワードを登録
-                print("execute sql")
                 db.execute(
                     "INSERT INTO Users (UserName, Password) VALUES (?, ?)",
                     (UserName, generate_password_hash(Password))
@@ -52,14 +87,8 @@ def login():
         Password = request.form["Password"]
         db = get_db()
         error = None
-        user = db.execute(
-            "SELECT * FROM Users WHERE UserName = ?", (UserName,)
-        ).fetchone() # username, はタプルにするため
 
-        if user is None:
-            error = "ユーザー名をが違います。"
-        elif not check_password_hash(user["Password"], Password):
-            error = "パスワードが違います。"
+        error, user = password_check(db, UserName, Password)
         
         if error is None:
             session.clear()
@@ -86,7 +115,7 @@ def load_logged_in_user():
 def logout():
     # ログアウト処理
     session.clear()
-    return redirect(url_for("index"))
+    return redirect(url_for("manager.index"))
 
 def login_required(view):
     @functools.wraps(view)
