@@ -56,11 +56,21 @@
                             </div>
                             <div class="table-responsive">
                                 <table class="table align-middle table-sm m-0 w-auto p-3">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">タイトル</th>
+                                            <th scope="col">出版日</th>
+                                            <th scope="col">ISBN</th>
+                                            <th scope="col">所有場所</th>
+                                            <th scope="col">#</th>
+                                        </tr>
+                                    </thead>
                                     <tbody>
                                         {% for book in Series.get('volumes') %}
                                             <tr>
                                                 <td>{{ book['Title'] }}</td>
                                                 <td>{{ book['PublicationDate'] }}</td>
+                                                <td>{{ book['ISBN'] }}</td>
                                                 <td>{{ book['LocationName'] }}</td>
                                                 <td>
                                                     <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}"
