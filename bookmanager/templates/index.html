@@ -54,21 +54,25 @@
                                     <a href="{{ url_for('manager.register', series=Series.get('SeriesName')) }}" class="btn btn-success">追加</a>
                                 </div>
                             </div>
-                            <ul class="list-group list-group-flush">
-                                {% for book in Series.get('volumes') %}
-                                <li class="list-group-item">
-                                    <div class="row">
-                                        <p class="col-auto mb-0 align-self-center">{{ book['Title'] }}</p>
-                                        <p class="col-auto mb-0 align-self-center">{{ book['PublicationDate'] }}</p>
-                                        <p class="col-auto mb-0 align-self-center">{{ book['LocationName'] }}</p>
-                                        <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}"
-                                            class="col-auto mb-0 btn btn-primary align-self-center">
-                                            編集
-                                        </a>
-                                    </div>
-                                </li>
-                                {% endfor %}
-                            </ul>
+                            <div class="table-responsive">
+                                <table class="table align-middle table-sm m-0 w-auto p-3">
+                                    <tbody>
+                                        {% for book in Series.get('volumes') %}
+                                            <tr>
+                                                <td>{{ book['Title'] }}</td>
+                                                <td>{{ book['PublicationDate'] }}</td>
+                                                <td>{{ book['LocationName'] }}</td>
+                                                <td>
+                                                    <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}"
+                                                        class="col-auto mb-0 btn btn-primary align-self-center">
+                                                        編集
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
