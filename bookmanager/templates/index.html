@@ -40,7 +40,7 @@
                             data-bs-target="#Series{{ SeriesID }}"
                             aria-expanded="false"
                             aria-controls="#Series{{ SeriesID }}">
-                            {{ Series.get('SeriesName')}} | {{ ','.join(Series.get('Authors', []))}} | {{ Series.get('PublisherName') }} |
+                            {{ Series.get('SeriesName')}} | {{ Series.get('Authors') }} | {{ Series.get('PublisherName') }} |
                             {% for Location in Series.get("Locations") %}
                                 <span class="badge text-bg-info ms-2">{{ Location["LocationName"] }}<span class="badge text-bg-secondary ms-2">{{ Location["VolumeCount"] }}</span></span>
                             {% endfor %}
@@ -51,7 +51,7 @@
                             <div class="card-header">
                                 <div class="btn-group" role="group" aria-label="edit_and_volume_register_buttons">
                                     <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
-                                    <a href="{{ url_for('manager.register', series=Series.get('SeriesName')) }}" class="btn btn-success">追加</a>
+                                    <a href="{{ Series.get('add_volume_url') }}" class="btn btn-success">追加</a>
                                 </div>
                             </div>
                             <div class="table-responsive">
