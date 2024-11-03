@@ -108,8 +108,10 @@ def index():
     series_list = [dict(row) for row in series_list]
 
     for i in range(len(series_list)): # シリーズごとの情報
+        series_data = series_list[i]
+        add_data = dict()
         # 本がある場所を追加
-        series_list[i]["Locations"] = db.execute(
+        add_data["Locations"] = db.execute(
             """
             SELECT
                 Locations.LocationName AS LocationName,
@@ -119,7 +121,7 @@ def index():
             WHERE SeriesID = ?
             GROUP BY Books.LocationID
             ORDER BY `VolumeCount` DESC;
-            """, (series_list[i]["SeriesID"],)
+            """, (series_data["SeriesID"],)
         ).fetchall()
         authors = db.execute(
             """
@@ -131,10 +133,11 @@ def index():
             SELECT AuthorName
             FROM Authors
             WHERE AuthorID IN SeriesAuthors;
-            """, (series_list[i]["SeriesID"],)
+            """, (series_data["SeriesID"],)
         ).fetchall()
-        series_list[i]["Authors"] = [author["AuthorName"] for author in authors]
-        series_list[i]["volumes"] = db.execute(
+        add_data["Authors"] = ",".join([author["AuthorName"] for author in authors])
+
+        add_data["volumes"] = db.execute(
             """
             SELECT
                 BookID,
@@ -148,6 +151,17 @@ def index():
             ORDER BY Title;
             """, (series_list[i]["SeriesID"],)
         ).fetchall()
+
+        parms = {
+            "title":series_data["SeriesName"],
+            "seriesName":series_data["SeriesName"],
+            "publisher":series_data["PublisherName"],
+            "author":add_data["Authors"],
+            "Location":add_data["Locations"][0]["LocationName"]
+        }
+        add_data["add_volume_url"] = url_for('manager.register', **parms)
+
+        series_list[i].update(add_data)
     
     return render_template("index.html",
                             series_list=series_list,
