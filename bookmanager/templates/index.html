@@ -3,28 +3,30 @@
 {% set title = "書籍一覧" %}
 
 {% block content %}
-    <div class="container d-flex justify-content-center">
-        <form action="{{ url_for('manager.index') }}" method="get">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <label for="SeriesName" class="form-label">タイトル</label>
-                    <input name="SeriesName" id="SeriesName" class="form-control">
+    <div class="container-fluid bg-secondary text-white pt-1 pb-3">
+        <div class="container d-flex justify-content-center">
+            <form action="{{ url_for('manager.index') }}" method="get">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <label for="SeriesName" class="form-label">タイトル</label>
+                        <input name="SeriesName" id="SeriesName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="AuthorName" class="form-label">著者名</label>
+                        <input name="AuthorName" id="AuthorName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="PublisherName" class="form-label">出版社名</label>
+                        <input name="PublisherName" id="PublisherName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="LocationName" class="form-label">本の場所</label>
+                        <input name="LocationName" id="LocationName" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary col-auto align-self-end">検索</button>
                 </div>
-                <div class="col-auto">
-                    <label for="AuthorName" class="form-label">著者名</label>
-                    <input name="AuthorName" id="AuthorName" class="form-control">
-                </div>
-                <div class="col-auto">
-                    <label for="PublisherName" class="form-label">出版社名</label>
-                    <input name="PublisherName" id="PublisherName" class="form-control">
-                </div>
-                <div class="col-auto">
-                    <label for="LocationName" class="form-label">本の場所</label>
-                    <input name="LocationName" id="LocationName" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary col-auto align-self-end">検索</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     {% if series_list %}
         <div class="accordion" id="accordion_Series">
