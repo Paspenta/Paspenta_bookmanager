@@ -10,7 +10,7 @@
                 {% if g.user %}
                     <a class="nav-link col-auto me-3 btn btn-info"
                         href="{{ url_for('auth.edit') }}">
-                        {{ g.user["username"] }}
+                        {{ g.user["UserName"] }}
                     </a>
                     <a class="nav-link col-auto me-3" href="{{ url_for('auth.logout') }}">ログアウト</a>
                 {% else %}
