@@ -151,9 +151,7 @@ def edit():
         error = None
         msg = None
 
-        UserName = db.execute(
-            "SELECT UserName FROM Users WHERE UserID = ?", (UserID,)
-        ).fetchone()["UserName"]
+        UserName = g.user["UserName"]
 
         if category == "UserName":
             if NewUserName is not None:
@@ -195,3 +193,49 @@ def edit():
             flash(msg)
     
     return render_template("auth/edit.html")
+
+
+@bp.route("/delete", methods=("GET", "POST"))
+@login_required
+def account_delete():
+    if request.method == "POST":
+        Password = request.form.get("Password")
+        UserName = g.user["UserName"]
+        UserID = g.user["UserID"]
+        db = get_db()
+
+        if Password:
+            error, _ = password_check(db, UserName, Password)
+        else:
+            error = "パスワードが入力されていません"
+        
+        if error is None:
+            db.execute(
+                """
+                DELETE
+                FROM BookAuthors
+                WHERE SeriesID IN (
+                    SELECT SeriesID
+                    FROM Series
+                    WHERE UserID = ?
+                );
+                """, (UserID,)
+            )
+            tables_name = (
+                "Locations", "Books", "Authors",
+                "Series", "Publishers", "Users"
+            )
+            for table_name in tables_name:
+                db.execute(
+                    f"""
+                    DELETE
+                    FROM {table_name}
+                    WHERE UserID = ?
+                    """, (UserID,)
+                )
+            db.commit()
+            return redirect(url_for('auth.login'))
+        
+        flash(error)
+    
+    return render_template("auth/account_delete.html")
