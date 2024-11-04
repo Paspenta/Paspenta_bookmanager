@@ -2,11 +2,6 @@
 
 {% set title = "index" %}
 
-{% block header %}
-    <a class="nav-link col-auto me-3" href="{{ url_for('manager.register_search') }}">検索登録</a>
-    <a class="nav-link col-auto me-3" href="{{ url_for('manager.register') }}">手動登録</a>
-{% endblock %}
-
 {% block content %}
     <div class="container">
         <form action="{{ url_for('manager.index') }}" method="get" class="row">
