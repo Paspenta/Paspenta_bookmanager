@@ -8,7 +8,10 @@
             <div class="row">
                 {% block header %}{% endblock %}
                 {% if g.user %}
-                    <span class="nav-item col-auto me-3">{{ g.user["username"] }}</span>
+                    <a class="nav-link col-auto me-3 btn btn-info"
+                        href="{{ url_for('auth.edit') }}">
+                        {{ g.user["username"] }}
+                    </a>
                     <a class="nav-link col-auto me-3" href="{{ url_for('auth.logout') }}">ログアウト</a>
                 {% else %}
                     <a class="nav-link col-auto me-3" href="{{ url_for('auth.register') }}">登録</a>
