@@ -23,6 +23,8 @@ def password_check(db, UserName, Password):
         formで入力されたUserName
     Password: str
         formで入力されたパスワード
+    UserID: str
+        既にログインしている場合のUserID
 
     Returns
     -------
@@ -38,7 +40,7 @@ def password_check(db, UserName, Password):
     ).fetchone() # username, はタプルにするため
 
     if user is None:
-        error = "ユーザー名をが違います。"
+        error = "ユーザー名が違います。"
     elif not check_password_hash(user["Password"], Password):
         error = "パスワードが違います。"
     
@@ -126,3 +128,70 @@ def login_required(view):
         return view(**kwargs)
     
     return wrapped_view
+
+@bp.route("/edit", methods=("GET", "POST"))
+@login_required
+def edit():
+    """Overview
+    アカウント編集画面
+
+    feature
+    ----------
+    UserNameを変更
+    パスワードを変更
+    アカウントを削除するボタンを設置
+    """
+    if request.method == "POST":
+        category = request.form.get("category", None)
+        NewUserName = request.form.get("NewUserName", None)
+        OldPassword = request.form.get("OldPassword", None)
+        NewPassword = request.form.get("NewPassword", None)
+        db = get_db()
+        UserID = g.user["UserID"]
+        error = None
+        msg = None
+
+        UserName = db.execute(
+            "SELECT UserName FROM Users WHERE UserID = ?", (UserID,)
+        ).fetchone()["UserName"]
+
+        if category == "UserName":
+            if NewUserName is not None:
+                # UserNameを変更
+                try:
+                    db.execute(
+                        """
+                        UPDATE Users 
+                        SET UserName = ?
+                        WHERE UserID = ?
+                        """, (NewUserName, UserID))
+                    db.commit()
+                    msg = "ユーザー名を変更しました"
+                except db.IntegrityError:
+                    # usernameが既に登録されている場合の処理
+                    error = f"ユーザー名 {NewUserName} は既に使われています。"
+            else:
+                error = "ユーザー名が入力されていません"
+        elif category == "Password":
+            # Passwordを変更
+            if NewPassword is not None and OldPassword is not None:
+                error, _ = password_check(db=db, UserName=UserName, Password=OldPassword)
+                if error is None:
+                    db.execute(
+                        """
+                        UPDATE Users
+                        SET Password = ?
+                        WHERE UserID = ?
+                        """, (generate_password_hash(NewPassword), UserID)
+                    )
+                    db.commit()
+                    msg = "Passwordを変更しました"
+            else:
+                error = "パスワードが入力されていません"
+        
+        if error is not None:
+            flash(error)
+        if msg is not None:
+            flash(msg)
+    
+    return render_template("auth/edit.html")
