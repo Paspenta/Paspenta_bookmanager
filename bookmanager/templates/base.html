@@ -3,13 +3,29 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 <nav class="navbar navbar-expand-sm navbar-light bg-primary">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1 text-light">{{ title }}</span>
+        <span class="navbar-brand mb-0 h1 text-light">Book Manager</span>
         {% if g.user %}
-            <div class="navbar-nav">
-                <a class="nav-link text-light" href="{{ url_for('manager.index') }}">書籍一覧</a>
-                <a class="nav-link text-light" href="{{ url_for('manager.register') }}">書籍手動登録</a>
-                <a class="nav-link text-light" href="{{ url_for('manager.register_search') }}">書籍検索登録</a>
-            </div>
+            {% set nav_links = {
+                "書籍一覧":url_for('manager.index'),
+                "書籍登録":url_for('manager.register'),
+                "API検索":url_for('manager.register_search')
+            } %}
+            <ul class="navbar-nav">
+                {% for link_text, nav_link in nav_links.items() %}
+                    <li class="nav-item">
+                        {% if link_text == title %}
+                            <a class="nav-link text-light text-decoration-underline" href="{{ nav_link }}">{{ link_text }}</a>
+                        {% else %}
+                            <a class="nav-link text-light" href="{{ nav_link }}">{{ link_text }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor%}
+                {% if title not in nav_links %}
+                    <li class="nav-item">
+                        <a class="nav-link text-light text-decoration-underline" href="#">{{ title }}</a>
+                    </li>
+                {% endif %}
+            </ul>
         {% endif %}
         <div class="ms-auto">
             <div class="row">
