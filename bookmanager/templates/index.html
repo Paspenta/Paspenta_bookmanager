@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% set title = "index" %}
+{% set title = "書籍一覧" %}
 
 {% block content %}
-    <div class="container">
+    <div class="container d-flex justify-content-center">
         <form action="{{ url_for('manager.index') }}" method="get" class="row">
             <div class="col-auto">
                 <label for="SeriesName" class="form-label">タイトル</label>
