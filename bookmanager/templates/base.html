@@ -6,7 +6,7 @@
         <span class="navbar-brand mb-0 h1 text-light">{{ title }}</span>
         {% if g.user %}
             <div class="navbar-nav">
-                <a class="nav-link text-light" href="{{ url_for('manager.index') }}">index</a>
+                <a class="nav-link text-light" href="{{ url_for('manager.index') }}">書籍一覧</a>
                 <a class="nav-link text-light" href="{{ url_for('manager.register') }}">書籍手動登録</a>
                 <a class="nav-link text-light" href="{{ url_for('manager.register_search') }}">書籍検索登録</a>
             </div>
