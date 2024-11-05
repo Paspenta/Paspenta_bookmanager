@@ -4,13 +4,13 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-primary">
     <div class="container-fluid">
         <span class="navbar-brand mb-0 h1 text-light">Book Manager</span>
-        {% if g.user %}
-            {% set nav_links = {
-                "書籍一覧":url_for('manager.index'),
-                "書籍登録":url_for('manager.register'),
-                "API検索":url_for('manager.register_search')
-            } %}
-            <ul class="navbar-nav">
+        {% set nav_links = {
+            "書籍一覧":url_for('manager.index'),
+            "書籍登録":url_for('manager.register'),
+            "API検索":url_for('manager.register_search')
+        } %}
+        <ul class="navbar-nav">
+            {% if g.user %}
                 {% for link_text, nav_link in nav_links.items() %}
                     <li class="nav-item">
                         {% if link_text == title %}
@@ -20,13 +20,13 @@
                         {% endif %}
                     </li>
                 {% endfor%}
-                {% if title not in nav_links %}
-                    <li class="nav-item">
-                        <a class="nav-link text-light text-decoration-underline" href="#">{{ title }}</a>
-                    </li>
-                {% endif %}
-            </ul>
-        {% endif %}
+            {% endif %}
+            {% if title not in nav_links %}
+                <li class="nav-item">
+                    <a class="nav-link text-light text-decoration-underline" href="#">{{ title }}</a>
+                </li>
+            {% endif %}
+        </ul>
         <div class="ms-auto">
             <div class="row">
                 {% block header %}{% endblock %}
