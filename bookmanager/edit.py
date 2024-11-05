@@ -205,7 +205,7 @@ def series_edit():
 
     SeriesID = request.args.get("SeriesID", None)
     if SeriesID is None:
-        return "Nothing Series"
+        abort(400)
     db = get_db()
     UserID = g.user["UserID"]
     SeriesData = db.execute(
@@ -220,7 +220,7 @@ def series_edit():
         """, (SeriesID, UserID)
     ).fetchone()
     if SeriesData is None:
-        return "Not found Series"
+        abort(404)
     Authors = db.execute(
         """
         SELECT Authors.AuthorName AS AuthorName
