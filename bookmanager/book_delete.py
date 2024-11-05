@@ -47,7 +47,9 @@ def volume_del():
 @bp.route("/series_del")
 @login_required
 def series_del():
-    SeriesID = request.args.get("SeriesID")
+    SeriesID = request.args.get("SeriesID", None)
+    if SeriesID is None:
+        abort(400)
     UserID = g.user["UserID"]
     db = get_db()
     flag = db.execute(
@@ -61,8 +63,8 @@ def series_del():
     ).fetchone()
     if flag is not None:
         db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
-        db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
         db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;", (SeriesID,))
+        db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
         db.commit()
     else:
         abort(404)
