@@ -116,7 +116,7 @@ def volume_edit():
 def series_edit():
     if request.method == "POST":
         SeriesID = request.form.get("SeriesID", None)
-        newSeriesName = request.form.get("SeriesName", "")
+        SeriesName = request.form.get("SeriesName", "")
         PublisherName = request.form.get("PublisherName", None)
         AuthorName = request.form.get("Authors", "")
         new_authors = set(AuthorName.split(","))
@@ -125,33 +125,41 @@ def series_edit():
         error = None
         db = get_db()
 
-        if SeriesID is None and newSeriesName == "":
-            error = "Nothing Series"
+        if SeriesID is None:
+            abort(400)
+        elif SeriesName == "":
+            error = "SeriesName require."
         else:
-            PrevSeriesName = db.execute(
+            series_flag = db.execute(
                 """
-                SELECT SeriesName
+                SELECT 1
                 FROM Series
-                WHERE UserID = ? AND SeriesID = ?
+                WHERE
+                    UserID = ?
+                    AND SeriesID = ?
                 """, (UserID, SeriesID)
             ).fetchone()
-            if PrevSeriesName is None:
-                error = "Not found Series"
-            else:
-                PrevSeriesName = PrevSeriesName["SeriesName"]
+            if series_flag is None:
+                abort(404)
 
         if error is None:
-            if PrevSeriesName != newSeriesName:
-                db.execute(
-                    "UPDATE Series SET SeriesName = ? WHERE SeriesID = ?",
-                    (newSeriesName, PrevSeriesName)
-                )
             if PublisherName:
                 PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, UserID)
-                db.execute(
-                    "UPDATE Series SET PublisherID = ? WHERE SeriesID = ?",
-                    (PublisherID, SeriesID)
-                )
+            else:
+                PublisherID = None
+            
+            db.execute(
+                """
+                UPDATE
+                    Series
+                SET
+                    SeriesName = ?,
+                    PublisherID = ?
+                WHERE
+                    SeriesID = ?:
+                """, (SeriesName, PublisherID, SeriesID)
+            )
+            
             prev_authors = db.execute(
                 """
                 SELECT
