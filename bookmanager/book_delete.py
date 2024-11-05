@@ -32,42 +32,38 @@ def volume_del():
                 "DELETE FROM Books WHERE BookID = ? AND UserID = ?",
                 (BookID, UserID)
             )
-            db.execute(
-                """
-                DELETE FROM Series
-                WHERE 
-                    SeriesID = ?
-                    AND NOT EXISTS (
-                        SELECT 1
-                        FROM Books
-                        WHERE
-                            SeriesID = ?
-                        )
-                """, (SeriesID, SeriesID)
-            )
             db.commit()
+            flag = db.execute(
+                "SELECT 1 FROM Books WHERE SeriesID = ?",
+                (SeriesID,)
+            ).fetchone()
+            if flag is None:
+                return redirect(url_for('manager.series_del', SeriesID=SeriesID))
+        else:
+            abort(404)
         
         return redirect(url_for('index'))
 
-@bp.route("/series_del", methods=("POST",))
+@bp.route("/series_del")
 @login_required
 def series_del():
-    if request.method == "POST":
-        SeriesID = request.args.get("SeriesID")
-        UserID = g.user["UserID"]
-        db = get_db()
-        flag = db.execute(
-            """
-            SELECT SeriesID
-            FROM Series
-            WHERE
-                SeriesID = ?
-                AND UserID = ?
-            """, (SeriesID, UserID)
-        ).fetchone()
-        if flag is not None:
-            db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
-            db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
-            db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;", (SeriesID,))
-            db.commit()
-        return redirect(url_for('index'))
+    SeriesID = request.args.get("SeriesID")
+    UserID = g.user["UserID"]
+    db = get_db()
+    flag = db.execute(
+        """
+        SELECT SeriesID
+        FROM Series
+        WHERE
+            SeriesID = ?
+            AND UserID = ?
+        """, (SeriesID, UserID)
+    ).fetchone()
+    if flag is not None:
+        db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
+        db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
+        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;", (SeriesID,))
+        db.commit()
+    else:
+        abort(404)
+    return redirect(url_for('index'))
