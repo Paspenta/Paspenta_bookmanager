@@ -16,32 +16,32 @@ from .manager import (
 @login_required
 def register():
     if request.method == "POST":
-        Title = request.form["Title"]
-        Series = request.form["Series"]
-        Location = request.form["Location"]
-        input_authors = request.form["author"]
-        Publisher = request.form["Publisher"]
-        PublicationDate = request.form["PublicationDate"]
-        ISBN13 = request.form["ISBN13"]
-        ISBN10 = request.form["ISBN10"]
+        Title = request.form.get("Title")
+        Series = request.form.get("Series")
+        Location = request.form.get("Location")
+        input_authors = request.form.get("author")
+        Publisher = request.form.get("Publisher")
+        PublicationDate = request.form.get("PublicationDate")
+        ISBN13 = request.form.get("ISBN13")
+        ISBN10 = request.form.get("ISBN10")
         UserID = g.user["UserID"]
         db = get_db()
         error = None
 
-        if not Title:
+        if Title is None or not Title:
             error = "タイトルが入力されていません"
-        elif not Location:
+        elif Location is None or Location:
             error = "本の場所が入力されていません"
         
         if error is None:
-            if not Series:
+            if Series is None or not Series:
                 Series = Title
-            if Publisher:
+            if Publisher is not None or Publisher:
                 PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, UserID)
             else:
                 PublisherID = None
             authorsID = []
-            if input_authors:
+            if input_authors is not None or input_authors:
                 for author in input_authors.split(","):
                     authorsID.append(
                         get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
