@@ -118,7 +118,7 @@ def register():
             return redirect(previous_url)
 
         else:
-            flash(error)
+            flash(error, 'info')
     Book = dict()
     Book["Title"] = request.args.get("title", "")
     Book["Series"] = request.args.get("series", Book["Title"])

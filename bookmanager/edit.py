@@ -76,7 +76,7 @@ def volume_edit():
 
             return redirect(url_for('index'))
         else:
-            flash(error)
+            flash(error, 'info')
     BookID = request.args.get("BookID", None)
     UserID = g.user["UserID"]
     if BookID is None:
@@ -193,7 +193,7 @@ def series_edit():
             return redirect(url_for('index'))
             
         else:
-            flash(error)
+            flash(error, 'info')
 
     SeriesID = request.args.get("SeriesID", None)
     if SeriesID is None:

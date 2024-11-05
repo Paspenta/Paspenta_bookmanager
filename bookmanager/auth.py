@@ -77,7 +77,7 @@ def register():
                 # usernameが登録されていなかった場合
                 return redirect(url_for("auth.login"))
         
-        flash(error)
+        flash(error, 'info')
     
     return render_template("auth/register.html")
 
@@ -97,7 +97,7 @@ def login():
             session["UserID"] = user["UserID"]
             return redirect(url_for("manager.index"))
         
-        flash(error)
+        flash(error, 'info')
     
     return render_template("auth/login.html")
 
@@ -190,9 +190,9 @@ def edit():
             error = "カテゴリが存在しません"
         
         if error is not None:
-            flash(error)
+            flash(error, 'info')
         if msg is not None:
-            flash(msg)
+            flash(msg, 'success')
     
     return render_template("auth/edit.html")
 
@@ -238,6 +238,6 @@ def account_delete():
             db.commit()
             return redirect(url_for('auth.login'))
         
-        flash(error)
+        flash(error, 'info')
     
     return render_template("auth/account_delete.html")
