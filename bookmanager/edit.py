@@ -80,7 +80,7 @@ def volume_edit():
     BookID = request.args.get("BookID", None)
     UserID = g.user["UserID"]
     if BookID is None:
-        return 404
+        abort(404)
     db = get_db()
     Book = db.execute(
         """
@@ -99,7 +99,7 @@ def volume_edit():
         """, (BookID, UserID)
     ).fetchone()
     if Book is None:
-        return 404
+        abort(404)
     else:
         Book = {**Book}
     if Book["PublicationDate"] is None:
