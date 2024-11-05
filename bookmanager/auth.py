@@ -186,6 +186,8 @@ def edit():
                     msg = "Passwordを変更しました"
             else:
                 error = "パスワードが入力されていません"
+        else:
+            error = "カテゴリが存在しません"
         
         if error is not None:
             flash(error)
