@@ -38,3 +38,21 @@ def client(app):
 def runner(app):
     # clickの実行者を作成
     return app.test_cli_runner()
+
+class AuthActions(object):
+    # clientにloginとlogout処理を付加
+    def __init__(self, client):
+        self.client == client
+    
+    def login(self, username="test", password="test_password"):
+        return self.client.post(
+            "/auth/login",
+            data={"UserName": username, "Password": password}
+        )
+    
+    def logout(self):
+        return self._client.get("/auth/logout")
+
+@pytest.fixture
+def auth(client):
+    return AuthActions(client)
