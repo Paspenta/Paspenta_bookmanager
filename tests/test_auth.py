@@ -1,6 +1,7 @@
 import pytest
 from flask import g, session
 from bookmanager import get_db
+from werkzeug.security import check_password_hash
 
 # Intelligence
 response = ""
@@ -24,7 +25,7 @@ def test_register(client, app):
 # 無効なユーザー名, パスワードを渡して特定のエラーメッセージが返ってくるか
 @pytest.mark.parametrize(
     ("UserName", "Password", "msg"),
-    ("", "", "ユーザー名が入力されていません。"), 
+    ("", "", "ユーザー名が入力されていません。"),
     ("a", "", "パスワードが入力されていません。")
     ("a", "a", "ユーザー名 a は既に使われています。")
 )
@@ -35,7 +36,7 @@ def test_register_validate_input(client, UserName, Password, msg):
         data={"UserName":UserName, "Password": Password}
     )
     # 特定のエラーメッセージが含まれているか
-    assert msg in response.data.decode('utf-8')
+    assert msg in response.data.decode("utf-8")
 
 
 def test_login(client, auth):
@@ -59,8 +60,8 @@ def test_login(client, auth):
     ("test", "a", "パスワードが違います。")
 )
 def test_login_validate_input(auth, UserName, Password, msg):
-    response = auth.login(UserName, Password, msg)
-    assert msg in response.data.decode('utf-8')
+    response = auth.login(UserName, Password)
+    assert msg in response.data.decode("utf-8")
 
 
 # logoutできるか
@@ -71,3 +72,20 @@ def test_logout(client, auth):
     with client:
         auth.logout()
         assert "UserID" not in session
+
+def test_user_edit(client, auth, app):
+    auth.login("change_before", "before")
+
+    response = client.post(
+        "/auth/edit",
+        data={"category":"UserName", "NewUserName":"change_after"}
+    )
+    response = client.post(
+        "/auth/edit",
+        data={"category":"Password", "OldPassword":"before", "NewPassword":"after"}
+    )
+    with app.app_context():
+        db = get_db()
+        user = db.execute("SELECT * FROM Users WHERE UserName = 'change_after'").fetchone()
+        assert user is not None
+        assert check_password_hash(user["Password"], "after")
