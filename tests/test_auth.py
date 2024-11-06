@@ -2,6 +2,9 @@ import pytest
 from flask import g, session
 from bookmanager import get_db
 
+# Intelligence
+response = ""
+
 def test_register(client, app):
     # getして200が取得できるか
     assert client.get("/auth/register").status_code == 200
@@ -47,3 +50,24 @@ def test_login(client, auth):
         client.get('/')
         assert session["UserID"] == 1
         assert g.user["UserName"] == "test"
+
+
+# loginで無効な入力をしたとき適切なメッセージが表示されるか
+@pytest.mark.parametrize(
+    ("UserName", "Password", "msg"),
+    ("a", "test", "ユーザー名が違います。"),
+    ("test", "a", "パスワードが違います。")
+)
+def test_login_validate_input(auth, UserName, Password, msg):
+    response = auth.login(UserName, Password, msg)
+    assert msg in response.data.decode('utf-8')
+
+
+# logoutできるか
+def test_logout(client, auth):
+    auth.login()
+
+    # ログアウト後、sessionがclearされているか
+    with client:
+        auth.logout()
+        assert "UserID" not in session
