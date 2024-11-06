@@ -19,6 +19,7 @@ def app():
         "DATABASE": db_path
     })
 
+    # テスト用DBを初期化し、テスト用データを挿入
     with app.app_context():
         init_db()
         get_db().executescript(_data_sql)
@@ -30,8 +31,10 @@ def app():
 
 @pytest.fixture
 def client(app):
+    # テスト用クライアントを作成
     return app.test_client()
 
 @pytest.fixture
 def runner(app):
+    # clickの実行者を作成
     return app.test_cli_runner()
