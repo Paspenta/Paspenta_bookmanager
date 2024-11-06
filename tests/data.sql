@@ -1,4 +1,4 @@
-INSERT INTO user (username, password)
+INSERT INTO Users (UserName, Password)
 VALUES
     /* passwrod: test_password */
     ("test", "scrypt:32768:8:1$8uZscSUuCdRPqJEs$b92a17217171f9d72d9b2e9899e2b2c88d090f91e8ae7f02d937961c80090da8a24c889f8018f7c6c498dc6ba9cf526c934cb57a2974a2c26b67ead223e18186"),
