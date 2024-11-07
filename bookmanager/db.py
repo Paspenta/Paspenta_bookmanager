@@ -30,6 +30,7 @@ def init_db():
 @click.command("init-db")
 def init_db_cmd():
     # コマンドからDB初期化
+    # flask --app flaskr init-db
     init_db()
     click.echo("DB初期化")
 
