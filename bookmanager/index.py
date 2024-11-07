@@ -101,6 +101,7 @@ def get_series_data(row, db, Title):
             COALESCE(ISBN13, ISBN10, "") AS ISBN
         FROM Books
         JOIN Locations ON Books.LocationID = Locations.LocationID
+        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
         WHERE SeriesID = ? AND Title LIKE ?
         ORDER BY Title;
         """, (series_data["SeriesID"], Title)
@@ -136,14 +137,14 @@ def get_series(db, UserID, parms):
             COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors
         FROM Series
         JOIN Books ON Series.SeriesID = Books.SeriesID
-        LEFT JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
         WHERE
             Series.UserID = ?
             AND SeriesName LIKE ?
             AND Books.Title LIKE ?
-        GROUP BY SeriesID
+        GROUP BY Series.SeriesID
         HAVING
             `PublisherName` LIKE ?
             AND `Authors` LIKE ?
