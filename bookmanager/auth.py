@@ -201,12 +201,12 @@ def edit():
 @login_required
 def account_delete():
     if request.method == "POST":
-        Password = request.form.get("Password")
+        Password = request.form.get("Password", "")
         UserName = g.user["UserName"]
         UserID = g.user["UserID"]
         db = get_db()
 
-        if Password:
+        if Password != "":
             error, _ = password_check(db, UserName, Password)
         else:
             error = "パスワードが入力されていません"
