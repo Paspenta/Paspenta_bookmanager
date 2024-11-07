@@ -58,9 +58,9 @@ def get_have_books(db, UserID, parms):
         FROM Books
         JOIN Series ON Series.SeriesID = Books.SeriesID
         LEFT JOIN Locations ON Locations.LocationID = Books.LocationID
-        LEFT JOIN Publishers ON Publishers.PublishersID = Books.PublishersID
+        LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
-        LEFT JOIN Authors ON Authors.AuthroID = BookAuthors.AuthorsID
+        LEFT JOIN Authors ON Authors.AuthrorID = BookAuthors.AuthorID
         WHERE
             Books.UserID = ?
             AND Title LIKE ?
