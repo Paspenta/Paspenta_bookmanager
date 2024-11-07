@@ -1,0 +1,28 @@
+from bookmanager.db import get_db
+from bookmanager.manager import get_id, get_page
+
+def test_get_id(app):
+    with app.app_context():
+        db = get_db()
+        ret_id = get_id(db, "Publisers", "PublisherName", "PublisherID", "TestPublisher", 1)
+        assert ret_id == 1
+
+        ret_id = db.execute(
+            "SELECT SeriesID FROM Series WHERE SeriesName = 'TestSeries';"
+        ).fetchall()
+        assert len(ret_id) == 1
+
+        ret_id = get_id(db, "Publisers", "PublisherName", "PublisherID", "NewPublisher", 1)
+        assert ret_id == 3
+
+        existis = db.execute(
+            """
+            SELECT 1
+            FROM Publishers
+            WHERE
+                PublisherID = 3
+                AND PublisherName = 'NewPublisher'
+                AND UserID = 1;
+            """
+        ).fetchone()
+        assert existis is not None
