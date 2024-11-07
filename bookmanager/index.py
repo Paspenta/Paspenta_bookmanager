@@ -65,7 +65,7 @@ def get_have_books(db, UserID, parms):
             Books.UserID = ?
             AND Title LIKE ?
             AND `LocationName` LIKE ?
-            AND `Authors` LIKE` ?
+            AND `Authors` LIKE ?
         ORDER BY Title
         LIMIT ? OFFSET ?
         """, (
