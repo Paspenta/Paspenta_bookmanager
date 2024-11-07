@@ -27,18 +27,18 @@ def get_id(db, table_name, col_name, id_name, name, UserID):
         挿入・取得するIDの列名
     name: str
         挿入・取得する基準となる名前
-    UserID: str
+    UserID: int
         挿入・取得するIDをもつユーザーID
-    
+
     Returns
     -------
     ret: str
         取得したID
-    
+
     Examples
     --------
     >>> get_id(db, 'Publishers', 'PublisherName', 'PublisherID', 'KADOKAWA', 1)
-    "2"
+    2
     """
     insert_template = """
         INSERT INTO {table_name} ({col_name}, UserID)
