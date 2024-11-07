@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% set title = "書籍一覧" %}
+
+{% block content %}
+    <div class="container-fluid bg-secondary text-white pt-1 pb-3 d-flex flex-row">
+        <div class="container d-flex justify-content-center">
+            <form action="{{ url_for('manager.index') }}" method="get">
+                <div class="row align-items-center">
+                    <h2 class="col-auto">検索</h2>
+                    <div class="col-auto">
+                        <label for="SeriesName" class="form-label">タイトル</label>
+                        <input name="SeriesName" id="SeriesName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="AuthorName" class="form-label">著者名</label>
+                        <input name="AuthorName" id="AuthorName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="PublisherName" class="form-label">出版社名</label>
+                        <input name="PublisherName" id="PublisherName" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="LocationName" class="form-label">本の場所</label>
+                        <input name="LocationName" id="LocationName" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary col-auto align-self-end">検索</button>
+                </div>
+            </form>
+        </div>
+        <div class="container d-flex justify-content-end">
+            <a href="{{ url_for('manager.index') }} " class="btn btn-primary">
+                シリーズをまとめて表示
+            </a>
+        </div>
+    </div>
+    {% if series_list %}
+        <div class="accordion" id="accordion_Series">
+            {% for Series in series_list %}
+                {% set SeriesID = Series.get('SeriesID') %}
+                <div class="accordion-item">
+                    <h2 class="accordion-item">
+                        <button class="accordion-button" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#Series{{ SeriesID }}"
+                            aria-expanded="false"
+                            aria-controls="#Series{{ SeriesID }}">
+                            {{ Series.get('SeriesName')}} | {{ Series.get('Authors') }} | {{ Series.get('PublisherName') }} |
+                            {% for Location in Series.get("Locations") %}
+                                <span class="badge text-bg-info ms-2">{{ Location["LocationName"] }}<span class="badge text-bg-secondary ms-2">{{ Location["VolumeCount"] }}</span></span>
+                            {% endfor %}
+                        </button>
+                    </h2>
+                    <div id="Series{{ SeriesID }}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <div class="card-header">
+                                <div class="btn-group" role="group" aria-label="edit_and_volume_register_buttons">
+                                    <a href="{{ url_for('manager.series_edit', SeriesID=SeriesID)}}" class="btn btn-primary">シリーズ編集</a>
+                                    <a href="{{ Series.get('add_volume_url') }}" class="btn btn-success">追加</a>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle table-sm m-0 w-auto p-3">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">タイトル</th>
+                                            <th scope="col">出版日</th>
+                                            <th scope="col">ISBN</th>
+                                            <th scope="col">所有場所</th>
+                                            <th scope="col">#</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for book in Series.get('volumes') %}
+                                            <tr>
+                                                <td>{{ book['Title'] }}</td>
+                                                <td>{{ book['PublicationDate'] }}</td>
+                                                <td>{{ book['ISBN'] }}</td>
+                                                <td>{{ book['LocationName'] }}</td>
+                                                <td>
+                                                    <a href="{{ url_for('manager.volume_edit', BookID=book['BookID']) }}"
+                                                        class="col-auto mb-0 btn btn-primary align-self-center">
+                                                        編集
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3">
+                {% if minus_parms["page"] %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('manager.index', **minus_parms) }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link">Previous</a>
+                    </li>
+                {% endif %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('manager.index', **plus_parms) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% else %}
+        <h1> Book not found </h1>
+    {% endif %}
+{% endblock %}
