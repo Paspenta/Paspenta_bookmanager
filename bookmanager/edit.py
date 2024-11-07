@@ -10,30 +10,33 @@ from .manager import (
     bp, get_id
 )
 
-@bp.route("/volume_edit", methods=("GET", "POST"))
+
+@bp.route("/book_edit", methods=("GET", "POST"))
 @login_required
-def volume_edit():
+def book_edit():
     if request.method == "POST":
         BookID = request.form.get("BookID")
-        Title = request.form.get("Title")
-        SeriesName = request.form.get("SeriesName")
-        Location = request.form.get("LocationName")
-        PublicationDate = request.form.get("PublicationDate")
-        ISBN10 = request.form.get("ISBN13")
-        ISBN13 = request.form.get("ISBN10")
+        Title = request.form.get("Title", "")
+        SeriesName = request.form.get("SeriesName", "")
+        PublisherName = request.form.get("PublisherName", "")
+        Location = request.form.get("LocationName", "")
+        PublicationDate = request.form.get("PublicationDate", None)
+        ISBN10 = request.form.get("ISBN13", None)
+        ISBN13 = request.form.get("ISBN10", None)
         UserID = g.user["UserID"]
         error = None
         db = get_db()
 
         if BookID is None:
-            error = "Nothing BookID"
-        elif Title is None:
-            error = "Nothing Title"
-        elif SeriesName is None:
-            error = "Nothing SeriesName"
-        elif Location is None:
-            error = "Nothing Location"
-        
+            abort(400)
+        elif Title == "":
+            error = "タイトルがありません"
+        elif Location == "":
+            error = "本の場所が入力されていません"
+
+        if SeriesName == "":
+            SeriesName = Title
+
         if error is None:
             flag = db.execute(
                 """
@@ -45,11 +48,15 @@ def volume_edit():
                 """, (BookID, UserID)
             ).fetchone()
             if flag is None:
-                error = "Not found Book"
+                abort(404)
 
         if error is None:
             LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, UserID)
             SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", SeriesName, UserID)
+            if PublisherName != "":
+                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, UserID)
+            else:
+                PublisherID = None
 
             db.execute(
                 """
@@ -58,6 +65,7 @@ def volume_edit():
                     Title = ?,
                     LocationID = ?,
                     SeriesID = ?,
+                    PublisherID = ?
                     PublicationDate = ?,
                     ISBN10 = ?,
                     ISBN13 = ?
@@ -66,6 +74,7 @@ def volume_edit():
                     Title,
                     LocationID,
                     SeriesID,
+                    PublisherID,
                     PublicationDate,
                     ISBN10,
                     ISBN13,
@@ -74,134 +83,159 @@ def volume_edit():
             )
             db.commit()
 
-            return redirect(url_for('index'))
+            return redirect(url_for('manager.index'))
         else:
             flash(error, 'info')
+
     BookID = request.args.get("BookID", None)
     UserID = g.user["UserID"]
     if BookID is None:
-        abort(404)
+        abort(400)
     db = get_db()
     Book = db.execute(
         """
         SELECT
-            BookID,
-            Title,
+            Books.BookID,
+            Books.Title,
             Locations.LocationName AS LocationName,
             Series.SeriesName AS SeriesName,
-            PublicationDate,
-            ISBN10,
-            ISBN13
+            COALESCE(Publishers.PublisherName, '') AS PublisherName,
+            COALESCE(PublicationDate, '') AS PublicationDate,
+            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors,
+            COALESCE(ISBN13, '') AS ISBN13,
+            COALESCE(ISBN10, '') AS ISBN10
         FROM Books
         JOIN Locations ON Locations.LocationID = Books.LocationID
         JOIN Series ON Series.SeriesID = Books.SeriesID
-        WHERE BookID = ? AND Books.UserID = ?;
+        LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
+        LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
+        LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
+        WHERE Books.BookID = ? AND Books.UserID = ?
+        GROUP BY Books.BookID:
         """, (BookID, UserID)
     ).fetchone()
     if Book is None:
         abort(404)
+
+    return render_template("book_edit.html", Book=Book)
+
+def change_seriesname(db, SeriesName, UserID, SeriesID):
+    error = None
+    exists = db.execute(
+        "SELECT 1 FROM Series WHERE SeriesName = ? AND UserID = ?",
+        (SeriesName, UserID)
+    ).fetchone()
+    if exists is not None:
+        return None, f"シリーズ名 {SeriesName} は既に登録されています。"
+    db.execute(
+        "UPDATE Series SET SeriesName = ? WHERE SeriesID = ?",
+        (SeriesName, SeriesID)
+    )
+    db.commit()
+    return "シリーズ名を変更しました", None
+
+
+def change_authors(db, Authors, SeriesID, UserID):
+    db.execute(
+        """
+        DELETE FROM BookAuthors
+        WHERE
+            BookAuthors.BookID IN (
+                SELECT Books.BookID
+                FROM Books
+                WHERE SeriesID = ?
+            );
+        """, (SeriesID,)
+    )
+    for author in Authors:
+        AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
+        db.execute(
+            """
+            INSERT INTO BookAuthors (BookID, AuthorID)
+            SELECT Books.BookID, ?
+            FROM Books
+            WHERE Books.SeriesID = ?;
+            """, (AuthorID, SeriesID)
+        )
+    db.commit()
+    return "著者を変更しました", None
+
+
+def change_publisher(db, PublisherName, SeriesID, UserID):
+    PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, UserID)
+    db.execute(
+        """
+        UPDATE Books
+        SET PublisherID = ?
+        WHERE SeriesID = ?
+        """, (PublisherID, SeriesID)
+    )
+    return "出版社名を変更しました", None
+
+def get_series_edit_forms():
+    """_summary_
+
+    Category
+    --------
+    SeriesName
+        シリーズ名変更
+    Authors
+        著者をまとめて変更
+    Publishers
+        出版社をまとめて変更
+
+    Returns
+    -------
+    (str or None), (str or None)
+        成功メッセージか、エラーメッセージか
+    """
+    SeriesID = request.form.get("SeriesID", None)
+    msg = error = None
+    if SeriesID is None:
+        abort(400)
+    db = get_db()
+    UserID = g.user["UserID"]
+    exists = db.execute(
+        "SELECT 1 FROM Series WHERE SeriesID = ? AND UserID = ?",
+        (SeriesID, UserID)
+    ).fetchone()
+    if exists is None:
+        abort(404)
+    category = request.form.get("category", None)
+    if category == "SeriesName":
+        name = request.form.get("SeriesName", "")
+        if name == "":
+            error = "シリーズ名が入力されていません。"
+        else:
+            msg, error = change_seriesname(db, name, UserID, SeriesID)
+    elif category == "Authors":
+        names = request.form.get("Authors", "")
+        names = set(names.split(",")) if names != "" else set()
+        names.discard("")
+        msg, error = change_authors(db, names, SeriesID, UserID)
+    elif category == "Publishers":
+        name = request.form.get("PublisherName", "")
+        name = None if name == "" else name
+        if name == "":
+            error = "出版社名が入力されていません"
+        else:
+            msg, error = change_publisher(db, name, SeriesID, UserID)
     else:
-        Book = {**Book}
-    if Book["PublicationDate"] is None:
-        Book["PublicationDate"] = ""
-    if Book["ISBN10"] is None:
-        Book["ISBN10"] = ""
-    if Book["ISBN13"] is None:
-        Book["ISBN13"] = ""
-    return render_template("volume_edit.html", Book=Book)
+        abort(400)
+
+    return msg, error
 
 
 @bp.route("/series_edit", methods=("GET", "POST"))
 @login_required
 def series_edit():
     if request.method == "POST":
-        SeriesID = request.form.get("SeriesID", None)
-        SeriesName = request.form.get("SeriesName", "")
-        PublisherName = request.form.get("PublisherName", None)
-        AuthorName = request.form.get("Authors", "")
-        new_authors = set(AuthorName.split(","))
-        new_authors.discard("")
-        UserID = g.user["UserID"]
-        error = None
-        db = get_db()
+        msg, error = get_series_edit_forms()
 
-        if SeriesID is None:
-            abort(400)
-        elif SeriesName == "":
-            error = "SeriesName require."
-        else:
-            series_flag = db.execute(
-                """
-                SELECT 1
-                FROM Series
-                WHERE
-                    UserID = ?
-                    AND SeriesID = ?
-                """, (UserID, SeriesID)
-            ).fetchone()
-            if series_flag is None:
-                abort(404)
-
-        if error is None:
-            if PublisherName:
-                PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", PublisherName, UserID)
-            else:
-                PublisherID = None
-            
-            db.execute(
-                """
-                UPDATE
-                    Series
-                SET
-                    SeriesName = ?,
-                    PublisherID = ?
-                WHERE
-                    SeriesID = ?:
-                """, (SeriesName, PublisherID, SeriesID)
-            )
-            
-            prev_authors = db.execute(
-                """
-                SELECT
-                    BookAuthors.AuthorID,
-                    Authors.AuthorName AS AuthorName
-                FROM BookAuthors
-                JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
-                WHERE SeriesID = ?
-                """, (SeriesID,)
-            ).fetchall()
-            del_authors = set()
-            for author in prev_authors:
-                if author["AuthorName"] in new_authors:
-                    new_authors.discard(author["AuthorName"])
-                else:
-                    del_authors.add(author["AuthorID"])
-            for author in new_authors:
-                AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
-                db.execute(
-                    """
-                    INSERT INTO BookAuthors (SeriesID, AuthorID)
-                    SELECT ?, ?
-                    WHERE NOT EXISTS (
-                        SELECT 1
-                        FROM BookAuthors
-                        WHERE
-                            SeriesID = ?
-                            AND AuthorID = ?
-                    );
-                    """, tuple([SeriesID, AuthorID]*2)
-                )
-            for AuthorID in del_authors:
-                db.execute(
-                    "DELETE FROM BookAuthors WHERE SeriesID = ? AND AuthorID = ?;",
-                    (SeriesID, AuthorID)
-                )
-            db.commit()
-            
-            return redirect(url_for('index'))
-            
-        else:
+        if error is not None:
             flash(error, 'info')
+        else:
+            flash(msg, 'success')
 
     SeriesID = request.args.get("SeriesID", None)
     if SeriesID is None:
@@ -213,22 +247,26 @@ def series_edit():
         SELECT
             SeriesID,
             SeriesName,
-            COALESCE(Publishers.PublisherName, '') AS PublisherName
+
+        """
+    )
+    SeriesData = db.execute(
+        """
+        SELECT
+            Series.SeriesID,
+            Series.SeriesName,
+            COALESCE(GROUP_CONCAT(Publishers.PublisherName, ','), '') AS Publishers,
+            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors
         FROM Series
-        LEFT JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
-        WHERE SeriesID = ? AND Series.UserID = ?;
-        """, (SeriesID, UserID)
+        JOIN Books ON Books.SeriesID = Series.SeriesID
+        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
+        LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
+        LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
+        WHERE Series.SeriesID = ?
+        GROUP BY Series.SeriesID;
+        """, (SeriesID,)
     ).fetchone()
     if SeriesData is None:
         abort(404)
-    Authors = db.execute(
-        """
-        SELECT Authors.AuthorName AS AuthorName
-        FROM BookAuthors
-        JOIN Authors ON Authors.AuthorID = BookAuthors.AuthorID
-        WHERE SeriesID = ?;
-        """, (SeriesID,)
-    ).fetchall()
-    Authors = ",".join([Author["AuthorName"] for Author in Authors])
-    
-    return render_template("series_edit.html", SeriesData=SeriesData, Authors=Authors)
+
+    return render_template("series_edit.html", SeriesData=SeriesData)
