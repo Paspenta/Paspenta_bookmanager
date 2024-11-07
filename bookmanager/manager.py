@@ -77,7 +77,7 @@ def get_id(db, table_name, col_name, id_name, name, UserID):
     ), select_parms).fetchall()
     db.commit()
 
-    return ret[0][id_name] if ret else None
+    return ret[0][id_name]
 
 
 def get_page(page_str):
