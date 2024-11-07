@@ -80,15 +80,28 @@ def test_user_edit(client, auth, app):
         "/auth/edit",
         data={"category":"UserName", "NewUserName":"change_after"}
     )
+    assert "ユーザー名を変更しました" in response.data.decode("utf-8")
+
     response = client.post(
         "/auth/edit",
         data={"category":"Password", "OldPassword":"before", "NewPassword":"after"}
     )
+    assert "パスワードを変更しました" in response.data.decode("utf-8")
+
     with app.app_context():
         db = get_db()
         user = db.execute("SELECT * FROM Users WHERE UserName = 'change_after'").fetchone()
         assert user is not None
         assert check_password_hash(user["Password"], "after")
+
+def test_user_edit_category(client, auth):
+    auth.login()
+    response = client.post("/auth/edit")
+    assert "カテゴリーが存在しません" in response.data.decode("utf-8")
+
+    response = client.post("/auth/edit", data={"category":"diff"})
+    assert "カテゴリーが存在しません" in response.data.decode("utf-8")
+
 
 @pytest.mark.parametrize(
     ("UserName", "msg"),
@@ -101,7 +114,7 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
     """
     auth.login()
 
-    client.post(
+    response = client.post(
         "/auth/edit",
         data={"category":"UserName", "NewUserName":UserName}
     )
@@ -112,3 +125,25 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
         db = get_db()
         user = db.execute("SELECT * FROM Users WHERE UserName = 'test'").fetchone()
         assert user is not None
+
+@pytest.mark.parametrize(
+    ("OldPassword", "NewPassword", "msg"),
+    ("", "", "パスワードが入力されていません"),
+    ("test", "", "パスワードが入力されていません"),
+    ("", "test", "パスワードが入力されていません"),
+    ("different", "after", "パスワードが違います")
+)
+def test_password_edit_validate(client, auth, app, NewPassword, OldPasword, msg):
+    # 無効なパスワードを入力して、適切なメッセージが表示されるか
+    auth.login()
+
+    response = client.post(
+        "/auth/edit",
+        data={"category":"Password", "OldPassword":OldPasword, "NewPassword":NewPassword}
+    )
+    assert msg in response.data.decode("utf-8")
+
+    with app.app_context():
+        db = get_db()
+        user = db.execute("SELECT * FROM Users WHERE UserName = 'test'").fetchone()
+        assert not check_password_hash(user["Password"], NewPassword)
