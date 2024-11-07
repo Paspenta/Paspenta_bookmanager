@@ -180,7 +180,10 @@ def index():
     Books = get_have_books(db, UserID, parms)
     plus_page, minus_page = get_pagenation(parms)
 
-    return render_template("index.html")
+    return render_template("index.html",
+                            Books=Books,
+                            plus_page=plus_page,
+                            minus_page=minus_page)
 
 @bp.route("/index_series")
 @login_required
