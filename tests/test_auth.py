@@ -126,6 +126,7 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
         user = db.execute("SELECT * FROM Users WHERE UserName = 'test'").fetchone()
         assert user is not None
 
+
 @pytest.mark.parametrize(
     ("OldPassword", "NewPassword", "msg"),
     ("", "", "パスワードが入力されていません"),
@@ -147,3 +148,25 @@ def test_password_edit_validate(client, auth, app, NewPassword, OldPasword, msg)
         db = get_db()
         user = db.execute("SELECT * FROM Users WHERE UserName = 'test'").fetchone()
         assert not check_password_hash(user["Password"], NewPassword)
+
+
+def test_account_delete(client, auth, app):
+    # アカウントが削除できるか、また、データが残っていないか
+    username = "delete_validate"
+    password = "delete_password"
+    auth.login(username, password)
+
+    # ログアウトされているか
+    with client:
+        client.post("/auth/delete", data={"Password":password})
+        assert "UserID" not in session
+    
+    tables = ["Users", "Series", "Authors", "Locations", "Books"]
+    
+    with app.app_context():
+        db = get_db()
+        for table_name in tables:
+            data_existis = db.execute(f"SELECT 1 FROM {table_name} WHERE UserID = 4").fetchone()
+            assert data_existis is None
+        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE SeriesID = 5").fetchone()
+        assert data_existis is None
