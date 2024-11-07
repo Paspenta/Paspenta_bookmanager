@@ -2,40 +2,40 @@
 
 {% set title = "書籍一覧" %}
 
+{% block header%}
+    <a href="{{ url_for('manager.index') }} " class="btn btn-secondary col-auto me-3">
+        個別に表示
+    </a>
+{% endblock %}
+
 {% block content %}
-    <div class="container-fluid bg-secondary text-white pt-1 pb-3 d-flex flex-row">
-        <div class="container d-flex justify-content-center">
+    <div class="container-fluid bg-info text-white pt-3 pb-3">
+        <div class="container d-flex justify-content-center align-items-center">
             <form action="{{ url_for('manager.index_series') }}" method="get">
-                <div class="row align-items-center">
-                    <h2 class="col-auto">検索</h2>
-                    <div class="col-auto">
-                        <label for="Title" class="form-label">タイトル</label>
-                        <input name="Title" id="Title" class="form-control">
+                <div class="input-group">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchTitle" name="Title">
+                        <label for="SearchTitle">タイトル</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="SeriesName" class="form-label">シリーズ名</label>
-                        <input name="SeriesName" id="SeriesName" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchSeries" name="SeriesName">
+                        <label for="SearchSeries">シリーズ名</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="AuthorName" class="form-label">著者名</label>
-                        <input name="AuthorName" id="AuthorName" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchAuthor" name="AuthorName">
+                        <label for="SearchAuthor">著者名</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="PublisherName" class="form-label">出版社名</label>
-                        <input name="PublisherName" id="PublisherName" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchPublisher" name="PublisherName">
+                        <label for="SearchPublisher">出版社名</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="LocationName" class="form-label">本の場所</label>
-                        <input name="LocationName" id="LocationName" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchLocation" name="LocationName">
+                        <label for="SearchLocation">本の場所</label>
                     </div>
-                    <button type="submit" class="btn btn-primary col-auto align-self-end">検索</button>
+                    <button type="submit" class="btn btn-primary">検索</button>
                 </div>
             </form>
-        </div>
-        <div class="container d-flex justify-content-end">
-            <a href="{{ url_for('manager.index') }} " class="btn btn-primary">
-                個別で表示
-            </a>
         </div>
     </div>
     {% if series_list %}
