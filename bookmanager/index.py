@@ -10,13 +10,8 @@ from .manager import (
     bp, get_page
 )
 
-
-@bp.route("/")
-@login_required
-def index():
-    """Overview
-    本を一覧表示
-
+def get_url_parameters():
+    """_summary_
     URL Parameters
     ----------
     SeriesName: str
@@ -27,17 +22,34 @@ def index():
         出版社名で検索
     LocationName: str
         本がある場所で検索
-    
+
+    Returns
+    -------
+    ret: dict
+        URLパラメタ
+    """
+    ret = {
+        "Title": "%" + request.args.get("Title", "") + "%",
+        "SeriesName": "%" + request.args.get("SeriesName", "") + "%",
+        "AuthorName": "%" + request.args.get("AuthorName", "") + "%",
+        "PublisherName": "%" + request.args.get("PublisherName", "") + "%",
+        "LocationName": "%" + request.args.get("LocationName", "") + "%"
+    }
+    return ret
+
+
+@bp.route("/")
+@login_required
+def index():
+    """Overview
+    本をシリーズごとに表示
+
     Returns
     -------
     検索条件がある場合、検索条件に一致する本を表示
     検索条件がない場合、ユーザーが持つ本を表示
     """
     db = get_db()
-    SeriesName = "%" + request.args.get("SeriesName", "") + "%"
-    AuthorName = request.args.get("AuthorName", None)
-    PublisherName = request.args.get("PublisherName", None)
-    LocationName = "%" + request.args.get("LocationName", "") + "%"
     UserID = g.user["UserID"]
 
     page = request.args.get("Page", "0")
@@ -48,60 +60,29 @@ def index():
     plus_parms["Page"] = page+1
     minus_parms["Page"] = page-1 if page>0 else 0
 
-    if PublisherName is not None:
-        PublisherName = "%" + PublisherName + "%"
-        where_publisher = "`PublisherName` = ?"
-    else:
-        where_publisher = "? IS NULL"
-    
-    if AuthorName is not None:
-        AuthorName = "%" + AuthorName + "%"
-        where_authorname = "Authors.AuthorName LIKE ?"
-        use_filter = "AND Series.SeriesID IN (SELECT SeriesID FROM AuthorFilter)"
-    else:
-        where_authorname = "? IS NULL"
-        use_filter = ""
     series_list = db.execute(
-        f"""
-        WITH AuthorFilter AS (
-            SELECT BookAuthors.SeriesID
-            FROM BookAuthors
-            WHERE BookAuthors.AuthorID IN (
-                SELECT Authors.AuthorID
-                FROM Authors
-                WHERE 
-                    Authors.UserID = ?
-                    AND {where_authorname}
-            )
-        ),
-        LocationsFilter AS (
-            SELECT Books.SeriesID
-            FROM Books
-            WHERE Books.LocationID IN (
-                SELECT Locations.LocationID
-                FROM Locations
-                WHERE
-                    Locations.UserID = ?
-                    AND Locations.LocationName LIKE ?
-            )
-        )
+        """
         SELECT
-            Series.SeriesID,
+            Series.SeriesID AS SeriesID,
             SeriesName,
-            Publishers.PublisherName AS PublisherName
+            COALESCE(GROUP_CONCAT(Publishers.PublisherName, ','), '') AS PublisherName,
+            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors
         FROM Series
+        JOIN Books ON Series.SeriesID = Books.SeriesID
         LEFT JOIN Publishers ON Series.PublisherID = Publishers.PublisherID
+        LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
+        LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
         WHERE
             Series.UserID = ?
             AND SeriesName LIKE ?
-            AND {where_publisher}
-            AND Series.SeriesID IN (SELECT SeriesID FROM LocationsFilter)
-            {use_filter}
+            AND Books.Title LIKE ?
+        GROUP BY SeriesID
+        HAVING
+            `PublisherName` LIKE ?
+            AND `Authors` LIKE ?
         LIMIT 15 OFFSET ?;
-        """, (UserID, AuthorName,
-            UserID, LocationName,
-            UserID, SeriesName, PublisherName,
-            page)
+        """, (
+        UserID, SeriesName, Title, PublisherName, AuthorName, page)
     ).fetchall()
 
     # series_listをsqlite.rowオブジェクトからdictに変換
