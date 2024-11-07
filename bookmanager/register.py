@@ -16,103 +16,81 @@ from .manager import (
 @login_required
 def register():
     if request.method == "POST":
-        Title = request.form.get("Title")
-        Series = request.form.get("Series")
-        Location = request.form.get("Location")
-        input_authors = request.form.get("author")
-        Publisher = request.form.get("Publisher")
-        PublicationDate = request.form.get("PublicationDate")
-        ISBN13 = request.form.get("ISBN13")
-        ISBN10 = request.form.get("ISBN10")
+        Title = request.form.get("Title", "")
+        Series = request.form.get("Series", "")
+        Location = request.form.get("Location", "")
+        input_authors = request.form.get("author", "")
+        Publisher = request.form.get("Publisher", "")
+        PublicationDate = request.form.get("PublicationDate", None)
+        ISBN13 = request.form.get("ISBN13", None)
+        ISBN10 = request.form.get("ISBN10", None)
         UserID = g.user["UserID"]
         db = get_db()
         error = None
 
-        if Title is None or not Title:
+        if Title == "":
             error = "タイトルが入力されていません"
-        elif Location is None or Location:
+        elif Location == "":
             error = "本の場所が入力されていません"
-        
+        exists = db.execute(
+            """
+            SELECT 1
+            FROM Books
+            WHERE
+                Title = ?
+                AND UserID = ?
+            """, (Title, UserID)
+        ).fetchall()
+        if exists:
+            error = f"「{Title}」は既に登録されています。"
+
         if error is None:
-            if Series is None or not Series:
-                Series = Title
-            if Publisher is not None or Publisher:
+            if Publisher == "":
                 PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, UserID)
             else:
                 PublisherID = None
-            authorsID = []
-            if input_authors is not None or input_authors:
-                for author in input_authors.split(","):
-                    authorsID.append(
-                        get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
-                    )
-            
-            db.execute(
-                """
-                INSERT INTO Series (SeriesName, PublisherID, UserID)
-                SELECT ?, ?, ?
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM Series
-                    WHERE
-                        SeriesName = ?
-                        AND UserID = ?
-                );
-                """, (Series, PublisherID, UserID, Series, UserID)
-            )
-            SeriesID = db.execute(
-                """
-                SELECT SeriesID
-                FROM Series
-                WHERE
-                    SeriesName = ?
-                    AND UserID = ?
-                """, (Series, UserID)
-            ).fetchone()["SeriesID"]
 
+            Series = Series if Series != "" else Title
+            SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", Series, UserID)
             LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, UserID)
-            
+
             db.execute(
-                """INSERT INTO Books (
+                """
+                INSERT INTO Books (
                     Title,
                     UserID,
                     LocationID,
                     SeriesID,
+                    PublisherID
                     PublicationDate,
                     ISBN13,
                     ISBN10
                 ) VALUES (
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?
+                    ?, ?, ?, ?, ?, ?, ?, ?
                 );
                 """, (
                     Title,
                     UserID,
                     LocationID,
                     SeriesID,
+                    PublisherID,
                     PublicationDate,
                     ISBN13, ISBN10
                 )
             )
-            for AuthorID in authorsID:
-                db.execute(
-                    """
-                    INSERT INTO BookAuthors (SeriesID, AuthorID)
-                    SELECT ?, ?
-                    WHERE NOT EXISTS (
-                        SELECT 1
-                        FROM BookAuthors
-                        WHERE
-                            SeriesID = ?
-                            AND AuthorID = ?
-                    );
-                    """, tuple([SeriesID, AuthorID]*2)
-                )
+            BookID = db.lastlowid
+
+            if input_authors != "":
+                Authors = set(input_authors.split(","))
+                Authors.discard("")
+                for Author in Authors:
+                    AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", Author, UserID)
+                    db.execute(
+                        """
+                        INSERT INTO BookAuthors (BookID, AuthorID)
+                        VALUE (?, ?)
+                        """< (BookID, AuthorID)
+                    )
             db.commit()
             previous_url = session.get('previous_url', url_for('index'))
             return redirect(previous_url)
