@@ -170,3 +170,24 @@ def test_account_delete(client, auth, app):
             assert data_existis is None
         data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE SeriesID = 5").fetchone()
         assert data_existis is None
+
+@pytest.mark.parametrize(
+    ("Password", "msg"),
+    ("", "パスワードが入力されていません"),
+    ("diff", "パスワードが違います")
+)
+def test_account_delete_validate(client, auth, app, Password, msg):
+    auth.login()
+
+    response = client.post("/auth/delete", data={"Password":Password})
+    assert msg in response.data.decode("utf-8")
+
+    tables = ["Users", "Series", "Authors", "Locations", "Books"]
+    
+    with app.app_context():
+        db = get_db()
+        for table_name in tables:
+            data_existis = db.execute(f"SELECT 1 FROM {table_name} WHERE UserID = 1").fetchall()
+            assert len(data_existis) > 0
+        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE SeriesID = 1").fetchone()
+        assert data_existis is not None
