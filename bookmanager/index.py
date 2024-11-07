@@ -52,7 +52,7 @@ def get_have_books(db, UserID, parms):
             Series.SeriesName AS SeriesName,
             Locations.LocationName AS LocationName,
             COALESCE(Publishers.PublisherName, '') AS PublisherName,
-            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors,
+            COALESCE(Authors.AuthorName, '') AS Authors,
             COALESCE(PublicationDate, '') AS PublicationDate,
             COALESCE(ISBN13, ISBN10, '') AS ISBN
         FROM Books
@@ -66,7 +66,6 @@ def get_have_books(db, UserID, parms):
             AND Title LIKE ?
             AND `LocationName` LIKE ?
             AND `Authors` LIKE ?
-        ORDER BY Title
         LIMIT ? OFFSET ?
         """, (
             UserID, parms["Title"], parms["LocationName"], parms["AuthorName"],
