@@ -1,3 +1,4 @@
+import pytest
 from bookmanager.db import get_db
 from bookmanager.manager import get_id, get_page
 
@@ -26,3 +27,16 @@ def test_get_id(app):
             """
         ).fetchone()
         assert existis is not None
+
+
+@pytest.mark.parametrize(
+    ("page", "ret"),
+    ("1", 1),
+    ("-1", 0),
+    ("0", 0)
+    ("a", 0),
+    (dict(), 0),
+    (None, 0)
+)
+def test_get_page(page, ret):
+    assert get_page(page) == ret
