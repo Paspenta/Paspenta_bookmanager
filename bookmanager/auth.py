@@ -143,9 +143,9 @@ def edit():
     """
     if request.method == "POST":
         category = request.form.get("category", None)
-        NewUserName = request.form.get("NewUserName", None)
-        OldPassword = request.form.get("OldPassword", None)
-        NewPassword = request.form.get("NewPassword", None)
+        NewUserName = request.form.get("NewUserName", "")
+        OldPassword = request.form.get("OldPassword", "")
+        NewPassword = request.form.get("NewPassword", "")
         db = get_db()
         UserID = g.user["UserID"]
         error = None
@@ -154,12 +154,12 @@ def edit():
         UserName = g.user["UserName"]
 
         if category == "UserName":
-            if NewUserName is not None:
+            if NewUserName != "":
                 # UserNameを変更
                 try:
                     db.execute(
                         """
-                        UPDATE Users 
+                        UPDATE Users
                         SET UserName = ?
                         WHERE UserID = ?
                         """, (NewUserName, UserID))
@@ -172,7 +172,7 @@ def edit():
                 error = "ユーザー名が入力されていません"
         elif category == "Password":
             # Passwordを変更
-            if NewPassword is not None and OldPassword is not None:
+            if NewPassword != "" and OldPassword != "":
                 error, _ = password_check(db=db, UserName=UserName, Password=OldPassword)
                 if error is None:
                     db.execute(
@@ -183,7 +183,7 @@ def edit():
                         """, (generate_password_hash(NewPassword), UserID)
                     )
                     db.commit()
-                    msg = "Passwordを変更しました"
+                    msg = "パスワードを変更しました"
             else:
                 error = "パスワードが入力されていません"
         else:
