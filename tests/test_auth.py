@@ -178,9 +178,9 @@ def test_account_delete(client, auth, app):
     with client:
         client.post("/auth/delete", data={"Password":password})
         assert "UserID" not in session
-    
+
     tables = ["Users", "Series", "Authors", "Locations", "Books"]
-    
+
     with app.app_context():
         db = get_db()
         for table_name in tables:
@@ -201,7 +201,7 @@ def test_account_delete_validate(client, auth, app, Password, msg):
     assert msg in response.data.decode("utf-8")
 
     tables = ["Users", "Series", "Authors", "Locations", "Books"]
-    
+
     with app.app_context():
         db = get_db()
         for table_name in tables:
