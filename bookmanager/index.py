@@ -117,6 +117,14 @@ def get_series_data(row, db, Title):
     return series_data
 
 
+def get_pagenation(parms):
+    plus_page = {**request.args}
+    minus_page = {**request.args}
+    plus_page["Page"] = parms["page"]+1
+    minus_page["Page"] = parms["page"]-1 if parms["page"]>0 else 0
+    return plus_page, minus_page
+
+
 def get_series(db, UserID, parms):
     series_list = db.execute(
         """
@@ -167,9 +175,12 @@ def index():
     db = get_db()
     UserID = g.user["UserID"]
 
-    pamrs = get_url_parameters()
+    parms = get_url_parameters()
 
-    Books = get_have_books(db, UserID, pamrs)
+    Books = get_have_books(db, UserID, parms)
+    plus_page, minus_page = get_pagenation(parms)
+
+    return render_template("index.html")
 
 @bp.route("/index_series")
 @login_required
@@ -187,15 +198,12 @@ def index_series():
 
     parms = get_url_parameters()
 
+    plus_page, minus_page = get_pagenation(parms)
 
-    plus_page = {**request.args}
-    minus_page = {**request.args}
-    plus_page["Page"] = parms["page"]+1
-    minus_page["Page"] = parms["page"]-1 if parms["page"]>0 else 0
 
     series_list = get_series(db, UserID, parms)
 
-    return render_template("index.html",
+    return render_template("index_series.html",
                             series_list=series_list,
                             plus_parms=plus_page,
                             minus_parms=minus_page)
