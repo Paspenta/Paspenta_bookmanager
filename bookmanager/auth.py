@@ -236,7 +236,7 @@ def account_delete():
                     """, (UserID,)
                 )
             db.commit()
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.logout'))
         
         flash(error, 'info')
     
