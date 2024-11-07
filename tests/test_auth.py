@@ -1,6 +1,7 @@
 import pytest
 from flask import g, session
-from bookmanager import get_db
+from bookmanager.db import get_db
+from bookmanager.auth import password_check
 from werkzeug.security import check_password_hash
 
 # Intelligence
@@ -22,6 +23,7 @@ def test_register(client, app):
         user = db.execute("SELECT * FROM Users WHERE UserName = 'a'").fetchone()
         assert user is not None
 
+
 # 無効なユーザー名, パスワードを渡して特定のエラーメッセージが返ってくるか
 @pytest.mark.parametrize(
     ("UserName", "Password", "msg"),
@@ -37,6 +39,22 @@ def test_register_validate_input(client, UserName, Password, msg):
     )
     # 特定のエラーメッセージが含まれているか
     assert msg in response.data.decode("utf-8")
+
+
+def test_password_check(app):
+    with app.app_context():
+        db = get_db()
+
+        error, user = password_check(db, "test", "test_password")
+        assert error is None
+        assert user is not None
+
+        error, user = password_check(db, "NoneUser", "None_password")
+        assert error == "ユーザー名が違います"
+        assert error is None
+
+        error, user = password_check(db, "test", "diff_password")
+        assert error == "パスワードが違います。"
 
 
 def test_login(client, auth):
