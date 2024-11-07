@@ -89,3 +89,26 @@ def test_user_edit(client, auth, app):
         user = db.execute("SELECT * FROM Users WHERE UserName = 'change_after'").fetchone()
         assert user is not None
         assert check_password_hash(user["Password"], "after")
+
+@pytest.mark.parametrize(
+    ("UserName", "msg"),
+    ("", "ユーザー名が入力されていません"),
+    ("other", "ユーザー名 other は既に使われています")
+)
+def test_username_edit_validate(client, auth, app, UserName, msg):
+    """
+    NewUserNameが無効な入力の場合、適切なメッセージを表示するか。また、UserNameが変更されていないか
+    """
+    auth.login()
+
+    client.post(
+        "/auth/edit",
+        data={"category":"UserName", "NewUserName":UserName}
+    )
+    assert msg in response.data.decode("utf-8")
+
+    with app.app_context():
+        # UserNameが変更されていないか
+        db = get_db()
+        user = db.execute("SELECT * FROM Users WHERE UserName = 'test'").fetchone()
+        assert user is not None
