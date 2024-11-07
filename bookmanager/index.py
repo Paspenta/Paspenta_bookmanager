@@ -74,6 +74,8 @@ def get_have_books(db, UserID, parms):
         )
     ).fetchall()
 
+    return books
+
 def get_series_data(row, db, Title):
     series_data = dict(row)
     # 本がある場所を追加
