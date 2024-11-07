@@ -10,39 +10,50 @@ from .manager import (
     bp
 )
 
-@bp.route("/volume_del",methods=("POST",))
+@bp.route("/volume_del")
 @login_required
 def volume_del():
-    if request.method == "POST":
-        BookID = request.args.get("BookID")
-        UserID = g.user["UserID"]
-        db = get_db()
-        SeriesID = db.execute(
+    BookID = request.args.get("BookID", None)
+    UserID = g.user["UserID"]
+    db = get_db()
+
+    if BookID is None:
+        abort(400)
+
+    SeriesID = db.execute(
+        """
+        SELECT SeriesID
+        FROM Books
+        WHERE
+            BookID = ?
+            AND UserID = ?;
+        """, (BookID, UserID)
+    ).fetchone()
+    if SeriesID is not None:
+        SeriesID = SeriesID["SeriesID"]
+        db.execute(
+            "DELETE FROM Books WHERE BookID = ?",
+            (BookID,)
+        )
+        db.execute(
+            "DELETE FROM BookAuthors WHERE BookID = ?",
+            (BookID,)
+        )
+        db.execute(
             """
-            SELECT SeriesID
-            FROM Books
-            WHERE
-                BookID = ?
-                AND UserID = ?;
-            """, (BookID, UserID)
-        ).fetchone()
-        if SeriesID is not None:
-            SeriesID = SeriesID["SeriesID"]
-            db.execute(
-                "DELETE FROM Books WHERE BookID = ? AND UserID = ?",
-                (BookID, UserID)
-            )
-            db.commit()
-            flag = db.execute(
-                "SELECT 1 FROM Books WHERE SeriesID = ?",
-                (SeriesID,)
-            ).fetchone()
-            if flag is None:
-                return redirect(url_for('manager.series_del', SeriesID=SeriesID))
-        else:
-            abort(404)
-        
-        return redirect(url_for('index'))
+            DELETE FROM Series
+            WHERE SeriesID = ?
+            AND NOT EXISTS (
+                SELECT 1 FROM Books WHERE SeriesID = ?
+            );
+            """, (SeriesID, SeriesID)
+        )
+        db.commit()
+    else:
+        abort(404)
+
+    return redirect(url_for('manager.index'))
+
 
 @bp.route("/series_del")
 @login_required
@@ -62,10 +73,19 @@ def series_del():
         """, (SeriesID, UserID)
     ).fetchone()
     if flag is not None:
+        db.execute(
+            """
+            DELETE FROM BookAuthors
+            WHERE BookAuthors.BookID IN (
+                SELECT Books.BookID
+                FROM Books
+                WHERE SeriesID = ?
+            );
+            """, (SeriesID,)
+        )
         db.execute("DELETE FROM Books WHERE SeriesID = ?;", (SeriesID,))
-        db.execute("DELETE FROM BookAuthors WHERE SeriesID = ?;", (SeriesID,))
         db.execute("DELETE FROM Series WHERE SeriesID = ?;", (SeriesID,))
         db.commit()
     else:
         abort(404)
-    return redirect(url_for('index'))
+    return redirect(url_for('manager.index'))
