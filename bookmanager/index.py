@@ -69,7 +69,7 @@ def get_have_books(db, UserID, parms):
         ORDER BY Title
         LIMIT ? OFFSET ?
         """, (
-            UserID, parms["Title"], parms["LocationName"], parms["Author"],
+            UserID, parms["Title"], parms["LocationName"], parms["AuthorName"],
             GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["page"]
         )
     ).fetchall()
