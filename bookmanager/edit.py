@@ -191,6 +191,7 @@ def get_series_edit_forms():
     """
     SeriesID = request.form.get("SeriesID", None)
     msg = error = None
+
     if SeriesID is None:
         abort(400)
     db = get_db()
@@ -201,19 +202,24 @@ def get_series_edit_forms():
     ).fetchone()
     if exists is None:
         abort(404)
+
     category = request.form.get("category", None)
+
     if category == "SeriesName":
+        # シリーズ名変更
         name = request.form.get("NewSeriesName", "")
         if name == "":
             error = "シリーズ名が入力されていません。"
         else:
             msg, error = change_seriesname(db, name, UserID, SeriesID)
     elif category == "Authors":
-        names = request.form.get("Authors", "")
+        # 著者変更
+        names = request.form.get("AuthorsName", "")
         names = set(names.split(",")) if names != "" else set()
         names.discard("")
         msg, error = change_authors(db, names, SeriesID, UserID)
-    elif category == "Publishers":
+    elif category == "Publisher":
+        # 出版社名変更
         name = request.form.get("PublisherName", "")
         name = None if name == "" else name
         if name == "":
@@ -247,18 +253,26 @@ def series_edit():
         SELECT
             Series.SeriesID,
             Series.SeriesName,
-            COALESCE(GROUP_CONCAT(Publishers.PublisherName, ','), '') AS Publishers,
+            (
+                SELECT COALESCE(Publishers.PublisherName, '')
+                FROM Books
+                LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
+                WHERE
+                    Books.SeriesID = ?
+                GROUP BY Publishers.PublisherID
+                ORDER BY COUNT(*) DESC
+                LIMIT 1
+            ) AS PublisherName,
             COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors
         FROM Series
         JOIN Books ON Books.SeriesID = Series.SeriesID
-        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
         WHERE
             Series.SeriesID = ?
             AND UserID = ?
         GROUP BY Series.SeriesID;
-        """, (SeriesID, UserID)
+        """, (SeriesID, SeriesID, UserID)
     ).fetchone()
     if SeriesData is None:
         abort(404)
