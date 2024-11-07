@@ -203,7 +203,7 @@ def get_series_edit_forms():
         abort(404)
     category = request.form.get("category", None)
     if category == "SeriesName":
-        name = request.form.get("SeriesName", "")
+        name = request.form.get("NewSeriesName", "")
         if name == "":
             error = "シリーズ名が入力されていません。"
         else:
@@ -245,14 +245,6 @@ def series_edit():
     SeriesData = db.execute(
         """
         SELECT
-            SeriesID,
-            SeriesName,
-
-        """
-    )
-    SeriesData = db.execute(
-        """
-        SELECT
             Series.SeriesID,
             Series.SeriesName,
             COALESCE(GROUP_CONCAT(Publishers.PublisherName, ','), '') AS Publishers,
@@ -262,9 +254,11 @@ def series_edit():
         LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
-        WHERE Series.SeriesID = ?
+        WHERE
+            Series.SeriesID = ?
+            AND UserID = ?
         GROUP BY Series.SeriesID;
-        """, (SeriesID,)
+        """, (SeriesID, UserID)
     ).fetchone()
     if SeriesData is None:
         abort(404)
