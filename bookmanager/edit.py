@@ -279,8 +279,8 @@ def series_edit():
     SeriesData = db.execute(
         """
         SELECT
-            Series.SeriesID,
-            Series.SeriesName,
+            Series.SeriesID AS SeriesID,
+            Series.SeriesName AS SeriesName,
             (
                 SELECT COALESCE(Publishers.PublisherName, '')
                 FROM Books
