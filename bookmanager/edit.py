@@ -298,7 +298,7 @@ def series_edit():
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
         WHERE
             Series.SeriesID = ?
-            AND UserID = ?
+            AND Series.UserID = ?
         GROUP BY Series.SeriesID;
         """, (SeriesID, SeriesID, UserID)
     ).fetchone()
