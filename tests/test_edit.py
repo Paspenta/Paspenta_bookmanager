@@ -9,9 +9,9 @@ def test_book_edit(client, auth, app):
         "Title":"afterTitle",
         "SeriesName":"afterSeries",
         "PublisherName":"afterPublisher",
-        "AuthorName":"AfterAuthor",
+        "Authors":"AfterAuthor",
         "LocationName":"afterLocation",
-        "PUblicationDate":"after-date",
+        "PublicationDate":"after-date",
         "ISBN10":"afterISBN10",
         "ISBN13":"afterISBN13"
     }
@@ -29,6 +29,7 @@ def test_book_edit(client, auth, app):
                 Series.SeriesName AS SeriesName,
                 Publishers.PublisherName AS PublisherName,
                 Locations.LocationName AS LocationName,
+                Authors.AuthorName AS Authors,
                 PublicationDate,
                 ISBN10,
                 ISBN13
