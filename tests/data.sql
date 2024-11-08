@@ -13,14 +13,21 @@ INSERT INTO Publishers (PublisherName, UserID)
 VALUES
     ("TestPublisher", 1),
     ("OtherPublisher", 2),
-    ("DeletePublisher", 4);
+    ("DeletePublisher", 4),
+    ("SearchPythonPublisher4", 1);
 
 INSERT INTO Series (SeriesName, UserID)
 VALUES
     ("TestSeries1", 1),
     ("OtherSeries", 2),
     ("DeleteSeries", 4),
-    ("TestSeries2", 1);
+    ("TestSeries2", 1),
+    ("SearchGolangSeries5", 1),
+    ("S_P_Series6", 1),
+    ("S_JS_Series7", 1),
+    ("S_GL_Series8", 1),
+    ("S_FL_Series9", 1),
+    ("S_NV_Series10", 1);
 
 INSERT INTO Authors (AuthorName, UserID)
 VALUES
@@ -28,20 +35,32 @@ VALUES
     ("OtherAuthors", 2),
     ("DeleteAuthors1", 4),
     ("CONCAT1", 1),
-    ("CONCAT2", 1);
+    ("CONCAT2", 1),
+    ("SearchJavaScriptAuthors6", 1);
 
 INSERT INTO Locations (LocationName, UserID)
 VALUES
     ("TestLocation", 1),
     ("OtherLocation", 2),
-    ("DeleteLocation", 4);
+    ("DeleteLocation", 4),
+    ("SearchFlutterLocation4", 1);
+    ("S_P_Locaiton5", 1),
+    ("S_JS_Locaiton6", 1),
+    ("S_GL_Locaiton7", 1),
+    ("S_FL_Location8"),
+    ("S_NV_Location9");
 
 INSERT INTO Books (Title, SeriesID, LocationID, PublisherID, PublicationDate, ISBN13, ISBN10, UserID)
 VALUES
     ("TestBook1", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
     ("OtherBook", 2, 2, 2, "xxxx-xx-xx", "1111111111111", "1111111111", 2),
     ("DeleteBook", 3, 3, 3, "xxxx-xx-xx", "1111111111111", "1111111111", 4),
-    ("CONCATAuthor", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1);
+    ("CONCATAuthor", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
+    ("S_P_Book5", 6, 5, 4, NULL, NULL, NULL, 1),
+    ("S_GL_Book6", 5, 7, NULL, NULL, NULL, NULL, 1),
+    ("S_JS_Book7", 7, 6, NULL, NULL, NULL, NULL, 1),
+    ("S_FL_Book8", 9, 8, NULL, NULL, NULL, NULL, 1),
+    ("SearchNeoVim9", 10, 9, NULL, NULL, NULL, NULL, 1);
 
 
 INSERT INTO BookAuthors (BookID, AuthorID)
@@ -50,4 +69,5 @@ VALUES
     (2, 2), /* other */
     (3, 3), /* delete */
     (4, 4), /* CONCAT1 */
-    (4, 5): /* CONCAT2 */
+    (4, 5), /* CONCAT2 */
+    (7, 6); /* AuthroSearch */
