@@ -10,7 +10,7 @@ from .manager import (
     bp
 )
 
-@bp.route("/volume_del")
+@bp.route("/volume_del", methods=("POST",))
 @login_required
 def volume_del():
     BookID = request.args.get("BookID", None)
@@ -55,7 +55,7 @@ def volume_del():
     return redirect(url_for('manager.index'))
 
 
-@bp.route("/series_del")
+@bp.route("/series_del", methods=("POST",))
 @login_required
 def series_del():
     SeriesID = request.args.get("SeriesID", None)
