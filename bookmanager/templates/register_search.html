@@ -3,27 +3,28 @@
 {% set title = "API検索"%}
 
 {% block content %}
-    <div class="container-fluid bg-secondary text-white pt-1 pb-3">
-        <div class="container d-flex justify-content-center bg-secondary text-white">
+    <div class="container-fluid bg-info text-white pt-3 pb-3">
+        <div class="container d-flex justify-content-center align-items-center">
             <form action="{{ url_for('manager.register_search') }}" method="get">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <label for="keyword" class="form-label">キーワード</label>
-                        <input name="keyword" id="keyword" class="form-control">
+                <div class="input-group">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="Searchkeyword" name="keyword" value="{{ parms.get('keyword', '') }}">
+                        <label for="Searchkeyword">キーワード</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="Title" class="form-label">タイトル</label>
-                        <input name="Title" id="Title" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="SearchTitle" name="Title" value="{{ parms.get('Title', '') }}">
+                        <label for="SearchTitle">タイトル</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="author" class="form-label">著者名</label>
-                        <input name="author" id="author" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="Searchauthor" name="author" value="{{ parms.get('author', '') }}">
+                        <label for="Searchauthor">著者名</label>
                     </div>
-                    <div class="col-auto">
-                        <label for="isbn" class="form-label">ISBN</label>
-                        <input name="isbn" id="isbn" class="form-control">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="Searchisbn" name="isbn" value="{{ parms.get('author', '') }}">
+                        <label for="Searchisbn">ISBN</label>
                     </div>
-                <button type="submit" class="btn btn-primary col-auto align-self-end">検索</button>
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </div>
             </form>
         </div>
     </div>

@@ -121,6 +121,7 @@ def register_search():
     author = request.args.get("author", None)
     isbn = request.args.get("isbn", None)
     page = request.args.get("page", "0")
+    parms = request.args
 
     page = get_page(page)
 
@@ -131,4 +132,8 @@ def register_search():
 
     books = get_books(q=keyword, intitle=title, inauthor=author, isbn=isbn)
 
-    return render_template("register_search.html", Books=books, plus_parms=plus_parms, minus_parms=minus_parms)
+    return render_template("register_search.html",
+                            Books=books,
+                            plus_parms=plus_parms,
+                            minus_parms=minus_parms,
+                            parms=parms)
