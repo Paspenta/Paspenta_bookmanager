@@ -89,7 +89,7 @@ def book_edit():
                     Title = ?,
                     LocationID = ?,
                     SeriesID = ?,
-                    PublisherID = ?
+                    PublisherID = ?,
                     PublicationDate = ?,
                     ISBN10 = ?,
                     ISBN13 = ?
@@ -137,11 +137,13 @@ def book_edit():
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
         WHERE Books.BookID = ? AND Books.UserID = ?
-        GROUP BY Books.BookID:
+        GROUP BY Books.BookID
         """, (BookID, UserID)
     ).fetchone()
     if Book is None:
         abort(404)
+    else:
+        Book = dict(Book)
 
     return render_template("book_edit.html", Book=Book)
 
