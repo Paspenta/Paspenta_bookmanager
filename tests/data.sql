@@ -12,44 +12,42 @@ VALUES
 INSERT INTO Publishers (PublisherName, UserID)
 VALUES
     ("TestPublisher", 1),
-    ("delete_publisher", 3);
+    ("OtherPublisher", 2),
+    ("DeletePublisher", 4);
 
-INSERT INTO Series (SeriesName, PublisherID, UserID)
+INSERT INTO Series (SeriesName, UserID)
 VALUES
-    ("TestSeries", 1, 1),
-    ("HaveTwoAuthorSeries", 1, 1),
-    ("NonPublisherSeries", NULL, 1),
-    ("NonAuhtorsSeries", 1, 1),
-    ("DeleteSeries", 2, 3);
+    ("TestSeries1", 1),
+    ("OtherSeries", 2),
+    ("DeleteSeries", 4),
+    ("TestSeries2", 1);
 
 INSERT INTO Authors (AuthorName, UserID)
 VALUES
     ("TestAuthor1", 1),
-    ("TestAuthor2", 1),
-    ("DeleteAuthor", 3);
+    ("OtherAuthors", 2),
+    ("DeleteAuthors1", 4),
+    ("CONCAT1", 1),
+    ("CONCAT2", 1);
 
 INSERT INTO Locations (LocationName, UserID)
 VALUES
     ("TestLocation", 1),
-    ("DeleteLocation", 3);
+    ("OtherLocation", 2),
+    ("DeleteLocation", 4);
 
-INSERT INTO Books (Title, SeriesID, LocationID, PublicationDate, ISBN13, ISBN10, UserID)
+INSERT INTO Books (Title, SeriesID, LocationID, PublisherID, PublicationDate, ISBN13, ISBN10, UserID)
 VALUES
-    ("TestBook1", 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
-    ("TestBook2", 2, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
-    ("Book_NullDate", 1, 1, NULL, "1234567890123", "1234567890", 1),
-    ("Book_NullISBN13", 1, 1, "2023-01-01", NULL, "1234567890", 1),
-    ("Book_NullISBN10", 1, 1, "2023-01-01", "1234567890123", NULL, 1),
-    ("Book_NullDate_ISBN13", 1, 1, NULL, NULL, "1234567890", 1),
-    ("Book_NullDate_ISBN10", 1, 1, NULL, "1234567890123", NULL, 1),
-    ("Book_NullISBN13_ISBN10", 1, 1, "2023-01-01", NULL, NULL, 1),
-    ("Book_AllNull", 1, 1, NULL, NULL, NULL, 1),
-    ("DeleteBook", 5, 2, "xxxx-xx-xx", "1234567890123", "1234567890", 3); 
+    ("TestBook1", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
+    ("OtherBook", 2, 2, 2, "xxxx-xx-xx", "1111111111111", "1111111111", 2),
+    ("DeleteBook", 3, 3, 3, "xxxx-xx-xx", "1111111111111", "1111111111", 4),
+    ("CONCATAuthor", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1);
 
-INSERT INTO BookAuthors (SeriesID, AuthorID)
+
+INSERT INTO BookAuthors (BookID, AuthorID)
 VALUES
-    (1, 1),
-    (2, 1),
-    (2, 2),
-    (3, 1),
-    (5, 3);
+    (1, 1), /* test */
+    (2, 2), /* other */
+    (3, 3), /* delete */
+    (4, 4), /* CONCAT1 */
+    (4, 5): /* CONCAT2 */
