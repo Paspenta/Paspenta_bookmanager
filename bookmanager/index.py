@@ -32,14 +32,22 @@ def get_url_parameters():
     parms: dict
         URLパラメタ
     """
+    def f(name):
+        if name == "":
+            return "%"
+        else:
+            return "%" + name + "%"
+
     parms = {
-        "Title": "%" + request.args.get("Title", "") + "%",
-        "SeriesName": "%" + request.args.get("SeriesName", "") + "%",
-        "AuthorName": "%" + request.args.get("AuthorName", "") + "%",
-        "PublisherName": "%" + request.args.get("PublisherName", "") + "%",
-        "LocationName": "%" + request.args.get("LocationName", "") + "%",
-        "page":get_page(request.args.get("Page", "0"))
+        "Title": f(request.args.get("Title", "")),
+        "SeriesName": f(request.args.get("SeriesName", "")),
+        "AuthorName": f(request.args.get("AuthorName", "")),
+        "PublisherName": f(request.args.get("PublisherName", "")),
+        "LocationName": f(request.args.get("LocationName", "")),
+        "page": get_page(request.args.get("Page", "0"))
     }
+
+
     return parms
 
 
@@ -52,30 +60,36 @@ def get_have_books(db, UserID, parms):
             Series.SeriesName AS SeriesName,
             Locations.LocationName AS LocationName,
             COALESCE(Publishers.PublisherName, '') AS PublisherName,
-            COALESCE(Authors.AuthorName, '') AS Authors,
+            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors,
             COALESCE(PublicationDate, '') AS PublicationDate,
             COALESCE(ISBN13, ISBN10, '') AS ISBN
         FROM Books
         JOIN Series ON Series.SeriesID = Books.SeriesID
-        LEFT JOIN Locations ON Locations.LocationID = Books.LocationID
+        JOIN Locations ON Locations.LocationID = Books.LocationID
         LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON Authors.AuthorID = BookAuthors.AuthorID
         WHERE
             Books.UserID = ?
             AND Title LIKE ?
-            AND `LocationName` LIKE ?
-            AND `Authors` LIKE ?
-        LIMIT ? OFFSET ?
+            AND Locations.LocationName LIKE ?
+            AND (Authors.AuthorName LIKE ? OR (Authors.AuthorName IS NULL AND ? = '%'))
+            AND (Publishers.PublisherName LIKE ? OR (Publishers.PublisherName IS NULL AND ? = '%'))
+        GROUP BY Books.BookID
+        LIMIT ? OFFSET ?;
         """, (
-            UserID, parms["Title"], parms["LocationName"], parms["AuthorName"],
+            UserID,
+            parms["Title"],
+            parms["LocationName"],
+            parms["AuthorName"], parms["AuthorName"],
+            parms["PublisherName"], parms["PublisherName"],
             GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["page"]
         )
     ).fetchall()
 
     return books
 
-def get_series_data(row, db, Title):
+def get_series_data(row, db, parms):
     series_data = dict(row)
     # 本がある場所を追加
     series_data["Locations"] = db.execute(
@@ -90,31 +104,61 @@ def get_series_data(row, db, Title):
         ORDER BY `VolumeCount` DESC;
         """, (series_data["SeriesID"],)
     ).fetchall()
+    series_data["PublisherName"] = db.execute(
+        """
+        SELECT
+            COALESCE(MAX(Publishers.PublisherName), '') AS PublisherName,
+            COUNT(Books.PublisherID) AS PublisherCount
+        FROM Books
+        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
+        WHERE Books.SeriesID = ?
+        GROUP BY Books.SeriesID
+        ORDER BY PublisherCount DESC
+        LIMIT 1;
+        """, (series_data["SeriesID"],)
+    ).fetchone()["PublisherName"]
 
     series_data["volumes"] = db.execute(
         """
         SELECT
-            BookID,
+            Books.BookID AS BookID,
             Title,
-            COALESCE(PublicationDate, "") AS PublicationDate,
             Locations.LocationName AS LocationName,
-            COALESCE(ISBN13, ISBN10, "") AS ISBN
+            COALESCE(Publishers.PublisherName, '') AS PublisherName,
+            COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors,
+            COALESCE(PublicationDate, '') AS PublicationDate,
+            COALESCE(ISBN13, ISBN10, '') AS ISBN
         FROM Books
-        JOIN Locations ON Books.LocationID = Locations.LocationID
-        LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
-        WHERE SeriesID = ? AND Title LIKE ?
-        ORDER BY Title;
-        """, (series_data["SeriesID"], Title)
+        JOIN Locations ON Locations.LocationID = Books.LocationID
+        LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
+        LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
+        LEFT JOIN Authors ON Authors.AuthorID = BookAuthors.AuthorID
+        WHERE
+            Title LIKE ?
+            AND SeriesID = ?
+            AND Locations.LocationName LIKE ?
+            AND (Authors.AuthorName LIKE ? OR (Authors.AuthorName IS NULL AND ? = '%'))
+            AND (Publishers.PublisherName LIKE ? OR (Publishers.PublisherName IS NULL AND ? = '%'))
+        GROUP BY Books.BookID
+        LIMIT ? OFFSET ?;
+        """, (
+            parms["Title"],
+            series_data["SeriesID"],
+            parms["LocationName"],
+            parms["AuthorName"], parms["AuthorName"],
+            parms["PublisherName"], parms["PublisherName"],
+            GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["page"]
+        )
     ).fetchall()
 
-    parms = {
+    register_parms = {
         "title":series_data["SeriesName"],
         "seriesName":series_data["SeriesName"],
         "publisher":series_data["PublisherName"],
         "author":series_data["Authors"],
         "Location":series_data["Locations"][0]["LocationName"]
     }
-    series_data["add_volume_url"] = url_for('manager.register', **parms)
+    series_data["add_volume_url"] = url_for('manager.register', **register_parms)
 
     return series_data
 
@@ -133,10 +177,10 @@ def get_series(db, UserID, parms):
         SELECT
             Series.SeriesID AS SeriesID,
             SeriesName,
-            COALESCE(GROUP_CONCAT(Publishers.PublisherName, ','), '') AS PublisherName,
             COALESCE(GROUP_CONCAT(Authors.AuthorName, ','), '') AS Authors
         FROM Series
         JOIN Books ON Series.SeriesID = Books.SeriesID
+        JOIN Locations ON Books.LocationID = Locations.LocationID
         LEFT JOIN Publishers ON Books.PublisherID = Publishers.PublisherID
         LEFT JOIN BookAuthors ON Books.BookID = BookAuthors.BookID
         LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
@@ -144,21 +188,25 @@ def get_series(db, UserID, parms):
             Series.UserID = ?
             AND SeriesName LIKE ?
             AND Books.Title LIKE ?
+            AND Locations.LocationName LIKE ?
+            AND (Authors.AuthorName LIKE ? OR (Authors.AuthorName IS NULL AND ? = '%'))
+            AND (Publishers.PublisherName LIKE ? OR (Publishers.PublisherName IS NULL AND ? = '%'))
         GROUP BY Series.SeriesID
-        HAVING
-            `PublisherName` LIKE ?
-            AND `Authors` LIKE ?
         ORDER BY SeriesName
         LIMIT ? OFFSET ?;
         """, (
             UserID,
-            parms["SeriesName"], parms["Title"], parms["PublisherName"], parms["AuthorName"],
+            parms["SeriesName"],
+            parms["Title"],
+            parms["LocationName"],
+            parms["AuthorName"], parms["AuthorName"],
+            parms["PublisherName"], parms["PublisherName"],
             GET_SERIES_AMOUNT, parms["page"] * GET_SERIES_AMOUNT
         )
     ).fetchall()
 
     # 各シリーズに情報を追加
-    series_list = [get_series_data(row, db, parms["Title"]) for row in series_list]
+    series_list = [get_series_data(row, db, parms) for row in series_list]
     return series_list
 
 

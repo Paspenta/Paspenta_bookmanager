@@ -54,14 +54,15 @@ def register():
             SeriesID = get_id(db, "Series", "SeriesName", "SeriesID", Series, UserID)
             LocationID = get_id(db, "Locations", "LocationName", "LocationID", Location, UserID)
 
-            db.execute(
+            cursor = db.cursor()
+            cursor.execute(
                 """
                 INSERT INTO Books (
                     Title,
                     UserID,
                     LocationID,
                     SeriesID,
-                    PublisherID
+                    PublisherID,
                     PublicationDate,
                     ISBN13,
                     ISBN10
@@ -78,7 +79,9 @@ def register():
                     ISBN13, ISBN10
                 )
             )
-            BookID = db.lastlowid
+            BookID = cursor.lastrowid
+            db.commit()
+            cursor.close()
 
             if input_authors != "":
                 Authors = set(input_authors.split(","))
@@ -88,8 +91,8 @@ def register():
                     db.execute(
                         """
                         INSERT INTO BookAuthors (BookID, AuthorID)
-                        VALUE (?, ?)
-                        """< (BookID, AuthorID)
+                        VALUES (?, ?)
+                        """, (BookID, AuthorID)
                     )
             db.commit()
             previous_url = session.get('previous_url', url_for('index'))
