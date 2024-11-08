@@ -11,6 +11,29 @@ from .manager import (
 )
 
 
+def change_book_authors(db, UserID, BookID, authors):
+    if authors == "":
+        authors = []
+    else:
+        authors = set(authors.split(","))
+        authors.discard("")
+    db.execute(
+        """
+        DELETE FROM BookAuthors
+        WHERE BookID = ?;
+        """, (BookID,)
+    )
+    for author in authors:
+        AuthorID = get_id(db, "Authors", "AuthorName", "AuthorID", author, UserID)
+        db.execute(
+            """
+            INSERT INTO BookAuthors (BookID, AuthorID)
+            VALUES (?, ?)
+            """, (BookID, AuthorID)
+        )
+    db.commit()
+
+
 @bp.route("/book_edit", methods=("GET", "POST"))
 @login_required
 def book_edit():
@@ -19,6 +42,7 @@ def book_edit():
         Title = request.form.get("Title", "")
         SeriesName = request.form.get("SeriesName", "")
         PublisherName = request.form.get("PublisherName", "")
+        Authors = request.form.get("Authors", "")
         Location = request.form.get("LocationName", "")
         PublicationDate = request.form.get("PublicationDate", None)
         ISBN10 = request.form.get("ISBN13", None)
@@ -83,6 +107,8 @@ def book_edit():
             )
             db.commit()
 
+            change_book_authors(db, UserID, BookID, Authors)
+
             return redirect(url_for('manager.index'))
         else:
             flash(error, 'info')
@@ -135,7 +161,7 @@ def change_seriesname(db, SeriesName, UserID, SeriesID):
     return "シリーズ名を変更しました", None
 
 
-def change_authors(db, Authors, SeriesID, UserID):
+def change_series_authors(db, Authors, SeriesID, UserID):
     db.execute(
         """
         DELETE FROM BookAuthors
@@ -217,7 +243,7 @@ def get_series_edit_forms():
         names = request.form.get("AuthorsName", "")
         names = set(names.split(",")) if names != "" else set()
         names.discard("")
-        msg, error = change_authors(db, names, SeriesID, UserID)
+        msg, error = change_series_authors(db, names, SeriesID, UserID)
     elif category == "Publisher":
         # 出版社名変更
         name = request.form.get("PublisherName", "")
