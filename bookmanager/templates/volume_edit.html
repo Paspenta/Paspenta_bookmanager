@@ -15,6 +15,10 @@
                 <input name="SeriesName" id="SeriesName" class="form-control" value="{{ Book.get('SeriesName') }}" required>
             </div>
             <div class="mb-3">
+                <label for="Authors" class="form-label">シリーズ</label>
+                <input name="Authors" id="Authors" class="form-control" value="{{ Book.get('Authors') }}">
+            </div>
+            <div class="mb-3">
                 <label for="LocationName" class="form-label">場所</label>
                 <input name="LocationName" id="LocationName" class="form-control" value="{{ Book.get('LocationName') }}" required>
             </div>
