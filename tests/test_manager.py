@@ -40,3 +40,13 @@ def test_get_id(app):
 )
 def test_get_page(page, ret):
     assert get_page(page) == ret
+
+
+@pytest.mark.parametrize('path',
+    "/", "/index_series",
+    "/book_edit", "/series_edit",
+    "/register", "/register_search",
+    "/volume_del", "/series_del")
+def test_login_required(client, path):
+    response = client.get(path)
+    assert response.headers["Location"] == "/auth/login"
