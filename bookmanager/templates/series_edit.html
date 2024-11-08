@@ -9,7 +9,7 @@
             <input type="hidden" name="category" value="SeriesName">
             <div class="input-group mb-3">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="NewSeriesName">
+                    <input type="text" class="form-control" id="NewSeriesName" value="{{ SeriesData['SeriesName'] }}">
                     <label for="NewSeriesName">シリーズ名変更</label>
                 </div>
                 <button class="btn btn-primary" type="submit" id="NewSeriesNameSubmit">変更</button>
@@ -22,7 +22,7 @@
             <input type="hidden" name="category" value="Authors">
             <div class="input-group mb-3">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="AuthorsName">
+                    <input type="text" class="form-control" id="AuthorsName" value="{{ SeriesData['Authors'] }}">
                     <label for="AuthorsName">著者(カンマ区切り)</label>
                 </div>
                 <button class="btn btn-primary" type="submit" id="AuthorsNameSubmit">変更</button>
@@ -35,7 +35,7 @@
             <input type="hidden" name="category" value="Publisher">
             <div class="input-group mb-3">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="PublisherName">
+                    <input type="text" class="form-control" id="PublisherName" value="{{ SeriesData['PublisherName'] }}">
                     <label for="PublisherName">出版社名</label>
                 </div>
                 <button class="btn btn-primary" type="submit" id="PublisherNameSubmit">変更</button>
