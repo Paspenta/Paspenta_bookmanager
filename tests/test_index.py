@@ -53,8 +53,8 @@ def test_index_Series(client, auth, parm, value, HitBook):
 
 
 def test_index_pagenation(client, auth, app):
+    auth.login()
     with app.app_context():
-        auth.login()
         db = get_db()
 
         for i in range(1, 62):
@@ -86,3 +86,47 @@ def test_index_pagenation(client, auth, app):
         for i in range(1, 61):
             assert f"Pagenation{i}" not in data
         assert f"Pagenation{i}" in data
+
+def test_index_series_pagenation(client, auth, app):
+    auth.login()
+    with app.app_context():
+        db = get_db()
+        cur = db.cursor()
+
+        for i in range(1, 32):
+            cur.execute(
+                """
+                INSERT INTO Series (SeriesName)
+                VALUES (?);
+                """, (f"PagenationSeries{i}")
+            )
+            SeriesID = cur.lastrowid
+            cur.execute(
+                """
+                INSERT INTO Books (Title, SeriesID, LocationID, UserID)
+                VALUES (?, ?, 1, 1):
+                """, (f"PagenationBook{i}", SeriesID)
+            )
+        db.commit()
+        cur.close()
+
+        response = client.get("/index_series", query_string={"SeriesName":"Pagenation"})
+        data = response.data.decode("utf-8")
+        for i in range(1, 16):
+            assert f"PagenationSeries{i}" in data
+        for i in range(16, 32):
+            assert f"PagenationSeries{i}" not in data
+
+        response = client.get("/index_series"), query_string=({"SeriesName":"Pagenation", "page":"2"})
+        data = response.data.decode("utf-8")
+        for i in range(1, 16):
+            assert f"PagenationSeries{i}" not in data
+        for i in range(15, 31):
+            assert f"PagenationSeries{i}" in data
+        assert f"PagenationSeries31" not in data
+
+        response = client.get("/index_series"), query_string=({"SeriesName":"Pagenation", "page":"3"})
+        data = response.data.decode("utf-8")
+        for i in range(1, 61):
+            assert f"PagenationSeries{i}" not in data
+        assert f"PagenationSeries{i}" in data
