@@ -23,6 +23,10 @@
                 <input name="LocationName" id="LocationName" class="form-control" value="{{ Book.get('LocationName') }}" required>
             </div>
             <div class="mb-3">
+                <label for="PublisherName" class="form-label">出版社名</label>
+                <input name="PublisherName" id="PublisherName" class="form-control" value="{{ Book.get('PublisherName') }}">
+            </div>
+            <div class="mb-3">
                 <label for="PublicationDate" class="form-label">出版日</label>
                 <input name="PublicationDate" id="PublicationDate" class="form-control" value="{{ Book.get('PublicationDate') }}" >
             </div>
