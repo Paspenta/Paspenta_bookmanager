@@ -45,7 +45,7 @@ def register():
             error = f"「{Title}」は既に登録されています。"
 
         if error is None:
-            if Publisher == "":
+            if Publisher != "":
                 PublisherID = get_id(db, "Publishers", "PublisherName", "PublisherID", Publisher, UserID)
             else:
                 PublisherID = None
