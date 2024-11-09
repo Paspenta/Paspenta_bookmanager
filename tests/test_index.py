@@ -93,24 +93,28 @@ def test_index_series_pagenation(client, auth, app):
     auth.login()
     with app.app_context():
         db = get_db()
-        cur = db.cursor()
 
         for i in range(1, 32):
-            cur.execute(
+            db.execute(
                 """
                 INSERT INTO Series (SeriesName)
                 VALUES (?);
                 """, (f"PagenationSeries{i}")
             )
-            SeriesID = cur.lastrowid
-            cur.execute(
+            SeriesID = db.execute(
+                """
+                SELECT SeriesID
+                FROM Series
+                WHERE SeriesName = ?
+                """, (f"PagenationSeries{i}")
+            ).fetchone()["SeriesID"]
+            db.execute(
                 """
                 INSERT INTO Books (Title, SeriesID, LocationID, UserID)
                 VALUES (?, ?, 1, 1):
                 """, (f"PagenationBook{i}", SeriesID)
             )
         db.commit()
-        cur.close()
 
         response = client.get("/index_series", query_string={"SeriesName":"Pagenation"})
         data = response.data.decode("utf-8")
