@@ -75,6 +75,22 @@ def test_book_delete_remain_series(client, auth, app):
         assert exists is not None
 
 
+def test_book_delete_validate(client, auth):
+    """_summary_
+    無効なリクエストをした時、適切な出力が得られるか
+    """
+    auth.login()
+
+    # BookIDを指定しない
+    assert client.post("/book_del?").status_code == 400
+
+    # 他ユーザーの本を指定
+    assert client.post("/book_del?BookID=2").status_code == 404
+
+    # 存在しない本を指定
+    assert client.post("/book_del?BookID=404").status_code == 404
+
+
 def test_sereis_del(client, auth, app):
     """_summary_
     シリーズごと本の削除ができるか
