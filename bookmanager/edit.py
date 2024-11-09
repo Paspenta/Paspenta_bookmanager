@@ -45,8 +45,8 @@ def book_edit():
         Authors = request.form.get("Authors", "")
         Location = request.form.get("LocationName", "")
         PublicationDate = request.form.get("PublicationDate", None)
-        ISBN10 = request.form.get("ISBN13", None)
-        ISBN13 = request.form.get("ISBN10", None)
+        ISBN10 = request.form.get("ISBN10", None)
+        ISBN13 = request.form.get("ISBN13", None)
         UserID = g.user["UserID"]
         error = None
         db = get_db()
