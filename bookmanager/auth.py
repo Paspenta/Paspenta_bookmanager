@@ -210,15 +210,15 @@ def account_delete():
             error, _ = password_check(db, UserName, Password)
         else:
             error = "パスワードが入力されていません"
-        
+
         if error is None:
             db.execute(
                 """
                 DELETE
                 FROM BookAuthors
-                WHERE SeriesID IN (
-                    SELECT SeriesID
-                    FROM Series
+                WHERE BookAuthors.BookID IN (
+                    SELECT Books.BookID
+                    FROM Books
                     WHERE UserID = ?
                 );
                 """, (UserID,)
