@@ -27,7 +27,8 @@ VALUES
     ("S_JS_Series7", 1),
     ("S_GL_Series8", 1),
     ("S_FL_Series9", 1),
-    ("S_NV_Series10", 1);
+    ("S_NV_Series10", 1),
+    ("CONCAT_Series11", 1);
 
 INSERT INTO Authors (AuthorName, UserID)
 VALUES
@@ -55,12 +56,13 @@ VALUES
     ("TestBook1", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
     ("OtherBook", 2, 2, 2, "xxxx-xx-xx", "1111111111111", "1111111111", 2),
     ("DeleteBook", 3, 3, 3, "xxxx-xx-xx", "1111111111111", "1111111111", 4),
-    ("CONCATAuthor", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
+    ("CONCATAuthor", 11, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1),
     ("S_P_Book5", 6, 5, 4, NULL, NULL, NULL, 1),
     ("S_GL_Book6", 5, 7, NULL, NULL, NULL, NULL, 1),
     ("S_JS_Book7", 7, 6, NULL, NULL, NULL, NULL, 1),
     ("S_FL_Book8", 9, 8, NULL, NULL, NULL, NULL, 1),
-    ("SearchNeoVim9", 10, 9, NULL, NULL, NULL, NULL, 1);
+    ("SearchNeoVim9", 10, 9, NULL, NULL, NULL, NULL, 1),
+    ("TestBook10", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1);
 
 
 INSERT INTO BookAuthors (BookID, AuthorID)
