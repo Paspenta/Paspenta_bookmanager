@@ -110,3 +110,51 @@ def test_book_edit_validate(client, auth, BookID, status_code):
     data["BookID"] = BookID
     assert client.post("/book_edit", data=data).status_code == status_code
     assert client.get(f"/book_edit?BookID={BookID}").status_code == status_code
+
+
+@pytest.mark.parametrize(
+    ("category", "formkey", "name"),
+    ("SeriesName", "NewSeriesName", "AfterSeries"),
+    ("Authors", "AuthorsName", "AfterAuthor"),
+    ("Publisher", "PublisherName", "AfterPublisher")
+)
+def test_series_edit(client, auth, app, category, formkey, name):
+    """_summary_
+    シリーズを正常に編集できるかテスト
+    """
+    auth.login()
+
+    # getした時にシリーズの情報がform初期値として入力されているか
+    response = client.get("/series_edit?SeriesID=1")
+    html = response.data.decode("utf-8")
+    series_datas = ["TestSeries1", "TestPublisher", "TestAuthor1"]
+    for series_data in series_datas:
+        assert series_data in html
+
+    # 各項目を変更
+    response = client.post("/series_edit", data={
+        "SeriesID":1,
+        "category":category,
+        formkey:name
+    })
+
+    # データが編集されているか確認
+    with app.app_context():
+        db = get_db()
+        after_books = db.execute(
+            """
+            SELECT
+                SeriesName AS NewSeriesName,
+                Publishers.PublisherName AS PublisherName,
+                Authors.AuthorName AS AuthorsName
+            FROM Books
+            JOIN Series ON Series.SeriesID = Books.SeriesID
+            LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
+            LEFT JOIN BookAuthors ON BookAuthors.BookID = Books.BookID
+            LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
+            WHERE Books.SeriesID = 1;
+            """
+        ).fetchall()
+        assert len(after_books) == 2
+        for book in after_books:
+            assert book[formkey] == name
