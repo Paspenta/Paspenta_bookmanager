@@ -213,5 +213,5 @@ def test_account_delete_validate(client, auth, app, Password, msg):
         for table_name in tables:
             data_existis = db.execute(f"SELECT 1 FROM {table_name} WHERE UserID = 1").fetchall()
             assert len(data_existis) > 0
-        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE SeriesID = 1").fetchone()
+        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE BookID = 1").fetchone()
         assert data_existis is not None
