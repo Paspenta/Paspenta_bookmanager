@@ -43,7 +43,7 @@ def test_register(client, auth, app):
         assert v in html
 
     client.get("/register_search")
-    response = client.post("/register", data=data, follow_redirects=True)
+    response = client.post("/register", data=data)
     assert response.headers["Location"] == url
     with app.app_context():
         db = get_db()

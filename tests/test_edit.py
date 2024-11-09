@@ -54,7 +54,7 @@ def test_book_edit(client, auth, app, flag, AuthorName, PublisherName, SeriesNam
         assert book_data in html
 
     # 編集完了した後indexに遷移するか
-    response = client.post("/book_edit", data=data, follow_redirects=True)
+    response = client.post("/book_edit", data=data)
     assert response.headers["Location"] == "/"
 
     # 編集されているか確認
