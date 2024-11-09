@@ -9,19 +9,19 @@ def test_get_id(app):
         assert ret_id == 1
 
         ret_id = db.execute(
-            "SELECT SeriesID FROM Series WHERE SeriesName = 'TestSeries';"
+            "SELECT SeriesID FROM Series WHERE SeriesName = 'TestSeries1';"
         ).fetchall()
         assert len(ret_id) == 1
 
         ret_id = get_id(db, "Publishers", "PublisherName", "PublisherID", "NewPublisher", 1)
-        assert ret_id == 3
+        assert ret_id == 5
 
         existis = db.execute(
             """
             SELECT 1
             FROM Publishers
             WHERE
-                PublisherID = 3
+                PublisherID = 5
                 AND PublisherName = 'NewPublisher'
                 AND UserID = 1;
             """
@@ -47,9 +47,17 @@ def test_get_page(page, ret):
     "/", "/index_series",
     "/book_edit", "/series_edit",
     "/register", "/register_search",
-    "/volume_del", "/series_del"
     ]
 )
 def test_login_required(client, path):
-    response = client.get(path, follow_redirects=True)
+    response = client.get(path)
+    assert response.headers["Location"] == "/auth/login"
+
+
+@pytest.mark.parametrize('path', [
+    "/book_del", "/series_del"
+    ]
+)
+def test_login_required_post(client, path):
+    response = client.post(path)
     assert response.headers["Location"] == "/auth/login"

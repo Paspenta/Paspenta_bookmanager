@@ -1,6 +1,6 @@
 import pytest
 from bookmanager.db import get_db
-
+from bookmanager.get_books import get_books
 
 def test_register(client, auth, app):
     """_summary_
@@ -17,12 +17,12 @@ def test_register(client, auth, app):
         "ISBN10":"New10"
     }
     parms = {
-        "Title":"TestTitle",
-        "Series":"TestSeries",
+        "title":"TestTitle",
+        "series":"TestSeries",
         "author":"TestAuthor",
         "Location":"TestLocation",
-        "Publisher":"TestPublisher",
-        "PublicationData":"TestData",
+        "publisher":"TestPublisher",
+        "publishe_date":"TestData",
         "ISBN13":"Test13",
         "ISBN10":"Test10"
     }
@@ -42,9 +42,8 @@ def test_register(client, auth, app):
     for v in parms.values():
         assert v in html
 
-    client.get("/register_search")
     response = client.post("/register", data=data)
-    assert response.headers["Location"] == url
+    assert response.headers["Location"] == "/"
     with app.app_context():
         db = get_db()
         register_book = db.execute(
@@ -86,7 +85,7 @@ def test_register_null(client, auth, app):
         db = get_db()
         BookID = db.execute(
             """
-            SELECT Books.BookID
+            SELECT Books.BookID AS GetBookID
             FROM Books
             JOIN Series ON Books.SeriesID = Series.SeriesID
             JOIN Locations ON Locations.LocationID = Books.LocationID
@@ -96,8 +95,7 @@ def test_register_null(client, auth, app):
                 AND Locations.LocationName = 'NewLocation'
                 AND Books.PublisherID IS NULL;
             """
-        ).fetchone()
-        assert BookID is not None
+        ).fetchone()["GetBookID"]
         assert db.execute(
             """
             SELECT 1
@@ -125,21 +123,6 @@ def test_register_validate(client, auth, app, Title, Location, error):
 def test_register_search(client, auth, monkeypatch):
     auth.login()
 
-    def fake_get_book():
-        ret = [
-            {"title":"SearchTitle",
-             "author":"SearchAuthor",
-             "publisher":"SearchPublisher",
-             "Publishe_date":"2000-01-01",
-             "isbn_10":"xxxxxxxxxx",
-             "isbn_13":"ooooooooooooo"
-            }
-        ]
-        return ret
-
-    monkeypatch.setattr("bookmanager.get_books.get_books", fake_get_book)
-    response = client.get("/register_search")
+    response = client.get("/register_search?keyword=森見登美彦")
     html = response.data.decode("utf-8")
-    book = fake_get_book()
-    for v in book[0].values():
-        assert v in html
+    assert "四畳半" in html
