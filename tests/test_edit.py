@@ -134,12 +134,12 @@ def test_book_edit_validate(client, auth, app, BookID, status_code):
 
 
 @pytest.mark.parametrize(
-    ("category", "formkey", "name"),
-    ("SeriesName", "NewSeriesName", "AfterSeries"),
-    ("Authors", "AuthorsName", "AfterAuthor"),
-    ("Publisher", "PublisherName", "AfterPublisher")
+    ("category", "formkey", "name", "msg"),
+    ("SeriesName", "NewSeriesName", "AfterSeries", "シリーズ名を変更しました"),
+    ("Authors", "AuthorsName", "AfterAuthor", "著者を変更しました"),
+    ("Publisher", "PublisherName", "AfterPublisher", "出版社名を変更しました")
 )
-def test_series_edit(client, auth, app, category, formkey, name):
+def test_series_edit(client, auth, app, category, formkey, name, msg):
     """_summary_
     シリーズを正常に編集できるかテスト
     """
@@ -158,6 +158,8 @@ def test_series_edit(client, auth, app, category, formkey, name):
         "category":category,
         formkey:name
     })
+    html = response.data.decode("utf-8")
+    assert msg in html
 
     # データが編集されているか確認
     with app.app_context():
