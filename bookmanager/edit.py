@@ -147,7 +147,8 @@ def book_edit():
 
     return render_template("book_edit.html", Book=Book)
 
-def change_seriesname(db, SeriesName, UserID, SeriesID):
+def change_seriesname(SeriesName, UserID, SeriesID):
+    db = get_db()
     error = None
     exists = db.execute(
         "SELECT 1 FROM Series WHERE SeriesName = ? AND UserID = ?",
@@ -244,7 +245,7 @@ def get_series_edit_forms():
         if name == "":
             error = "シリーズ名が入力されていません。"
         else:
-            msg, error = change_seriesname(db, name, UserID, SeriesID)
+            msg, error = change_seriesname(name, UserID, SeriesID)
     elif category == "Authors":
         # 著者変更
         names = request.form.get("AuthorsName", "")
@@ -252,7 +253,6 @@ def get_series_edit_forms():
     elif category == "Publisher":
         # 出版社名変更
         name = request.form.get("PublisherName", "")
-        name = None if name == "" else name
         if name == "":
             error = "出版社名が入力されていません"
         else:
