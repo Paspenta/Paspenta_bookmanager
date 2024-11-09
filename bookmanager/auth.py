@@ -224,7 +224,7 @@ def account_delete():
                 """, (UserID,)
             )
             tables_name = (
-                "Locations", "Books", "Authors",
+                "Books", "Locations", "Authors",
                 "Series", "Publishers", "Users"
             )
             for table_name in tables_name:
