@@ -9,7 +9,7 @@ def test_book_delete(client, auth, app):
     """
     auth.login("delete_validate", "delete_password")
 
-    response = client.post("/book_del?BookID=3", follow_redirects=True)
+    response = client.post("/book_del?BookID=3")
     assert response.headers["Location"] == "/"
 
     with app.app_context():
