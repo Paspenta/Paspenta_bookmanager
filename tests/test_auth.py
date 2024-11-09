@@ -116,10 +116,10 @@ def test_user_edit(client, auth, app):
 def test_user_edit_category(client, auth):
     auth.login()
     response = client.post("/auth/edit", follow_redirects=True)
-    assert "カテゴリーが存在しません" in response.data.decode("utf-8")
+    assert "カテゴリが存在しません" in response.data.decode("utf-8")
 
     response = client.post("/auth/edit", data={"category":"diff"}, follow_redirects=True)
-    assert "カテゴリーが存在しません" in response.data.decode("utf-8")
+    assert "カテゴリが存在しません" in response.data.decode("utf-8")
 
 
 @pytest.mark.parametrize(
