@@ -42,7 +42,7 @@ def runner(app):
 class AuthActions(object):
     # clientにloginとlogout処理を付加
     def __init__(self, client):
-        self.client == client
+        self.client = client
     
     def login(self, username="test", password="test_password"):
         return self.client.post(
