@@ -191,7 +191,7 @@ def test_account_delete(client, auth, app):
         for table_name in tables:
             data_existis = db.execute(f"SELECT 1 FROM {table_name} WHERE UserID = 4").fetchone()
             assert data_existis is None
-        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE SeriesID = 5").fetchone()
+        data_existis = db.execute("SELECT 1 FROM BookAuthors WHERE BookID = 3").fetchone()
         assert data_existis is None
 
 @pytest.mark.parametrize(
