@@ -30,23 +30,26 @@ def test_get_id(app):
 
 
 @pytest.mark.parametrize(
-    ("page", "ret"),
-    ("1", 1),
-    ("-1", 0),
-    ("0", 0)
-    ("a", 0),
-    (dict(), 0),
-    (None, 0)
+    ("page", "ret"), [
+        ("1", 1),
+        ("-1", 0),
+        ("0", 0)
+        ("a", 0),
+        (dict(), 0),
+        (None, 0)
+    ]
 )
 def test_get_page(page, ret):
     assert get_page(page) == ret
 
 
-@pytest.mark.parametrize('path',
+@pytest.mark.parametrize('path', [
     "/", "/index_series",
     "/book_edit", "/series_edit",
     "/register", "/register_search",
-    "/volume_del", "/series_del")
+    "/volume_del", "/series_del"
+    ]
+)
 def test_login_required(client, path):
     response = client.get(path)
     assert response.headers["Location"] == "/auth/login"
