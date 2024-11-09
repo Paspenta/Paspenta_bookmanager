@@ -198,6 +198,7 @@ def change_publisher(db, PublisherName, SeriesID, UserID):
         WHERE SeriesID = ?
         """, (PublisherID, SeriesID)
     )
+    db.commit()
     return "出版社名を変更しました", None
 
 def get_series_edit_forms():
