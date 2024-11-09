@@ -5,7 +5,7 @@ from bookmanager.manager import get_id, get_page
 def test_get_id(app):
     with app.app_context():
         db = get_db()
-        ret_id = get_id(db, "Publisers", "PublisherName", "PublisherID", "TestPublisher", 1)
+        ret_id = get_id(db, "Publishers", "PublisherName", "PublisherID", "TestPublisher", 1)
         assert ret_id == 1
 
         ret_id = db.execute(
@@ -13,7 +13,7 @@ def test_get_id(app):
         ).fetchall()
         assert len(ret_id) == 1
 
-        ret_id = get_id(db, "Publisers", "PublisherName", "PublisherID", "NewPublisher", 1)
+        ret_id = get_id(db, "Publishers", "PublisherName", "PublisherID", "NewPublisher", 1)
         assert ret_id == 3
 
         existis = db.execute(
@@ -51,5 +51,5 @@ def test_get_page(page, ret):
     ]
 )
 def test_login_required(client, path):
-    response = client.get(path)
+    response = client.get(path, follow_redirects=True)
     assert response.headers["Location"] == "/auth/login"
