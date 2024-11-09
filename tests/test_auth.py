@@ -95,6 +95,8 @@ def test_logout(client, auth):
 def test_user_edit(client, auth, app):
     auth.login("change_before", "before")
 
+    assert client.get("/auth/edit").status_code == 200
+
     response = client.post(
         "/auth/edit",
         data={"category":"UserName", "NewUserName":"change_after"}, follow_redirects=True
@@ -178,6 +180,8 @@ def test_account_delete(client, auth, app):
     username = "delete_validate"
     password = "delete_password"
     auth.login(username, password)
+
+    assert client.get("/auth/delete").status_code == 200
 
     # ログアウトされているか
     with client:
