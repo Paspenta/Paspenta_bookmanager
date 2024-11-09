@@ -28,7 +28,7 @@ def test_register(client, app):
 @pytest.mark.parametrize(
     ("UserName", "Password", "msg"),
     ("", "", "ユーザー名が入力されていません。"),
-    ("a", "", "パスワードが入力されていません。")
+    ("a", "", "パスワードが入力されていません。"),
     ("a", "a", "ユーザー名 a は既に使われています。")
 )
 def test_register_validate_input(client, UserName, Password, msg):
