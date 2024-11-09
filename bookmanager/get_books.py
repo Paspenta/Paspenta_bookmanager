@@ -30,7 +30,7 @@ def get_books(q=None, intitle=None, inauthor=None, isbn=None, page=0):
 
     for book in books.get("items", []):
         ret.append(parse_book(book))
-    
+
     return ret
 
 def parse_book(book):
@@ -51,12 +51,3 @@ def parse_book(book):
     ret["isbn_13"] = isbn_13
 
     return ret
-
-
-if __name__ == "__main__":
-    keyword = input("Search:")
-    books = get_books(q=keyword)
-    for book in books:
-        for key, value in book.items():
-            print(f"{key}:{value}")
-        print("-----")
