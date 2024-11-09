@@ -16,7 +16,7 @@ def app():
     # appをテストモード, dbにtempfileを指定
     app = create_app({
         "TESTING": True,
-        "DATABASE": db_path
+        "DATABASE": ":memory:"
     })
 
     # テスト用DBを初期化し、テスト用データを挿入
