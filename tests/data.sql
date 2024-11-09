@@ -5,7 +5,7 @@ VALUES
     /* password: other_password */
     ("other", "scrypt:32768:8:1$I4mIy0QdfpRfB62m$b8491a038c9984da03e51d7e109c1300ad004afc1cfd3eea0f810cefa9560633dc3b1a9025285cb628ddf621b2ee299f852a4c5b86daf21d26491e638dce551d"),
     /* password: before */
-    ("change_before", "scrypt:32768:8:1$gAAflYCVswMkCT2o$a16f1e154e4f292d0a29fa33e3dc9c9cb105fb845c014a53e1061a8cabd78d013ca0ce7f4b531897d27d0d46fcebd8f28454b46ae3c72804816093591fb17b08"),
+    ("change_before", "scrypt:32768:8:1$LIixhld2dFVxpATJ$5d8f12d451b391ea4049f97c84b45d2d1235a01bc1211f1d57d42eaa7c89a1a69963c9df0a48b81793cca494a5bc0218aeee8352eb073f61f3abb6ef996fe626"),
     /* password: delete_password */
     ("delete_validate", "scrypt:32768:8:1$AfJ0Rihey4ZzS3hB$a1138aaa881500fdad5b432f75d61b57252db8241e6a6272f663737455afac1ada89cba0a813588c678d5645e165fc2e120d4c0ad43b7f692ba729ccd486ce4c");
 
