@@ -1,0 +1,4 @@
+include bookmanager/schema.sql
+graft bookmanager/template
+graft bookmanager/templates
+global-exclude *.pyc
