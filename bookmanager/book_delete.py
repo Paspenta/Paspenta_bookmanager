@@ -10,9 +10,9 @@ from .manager import (
     bp
 )
 
-@bp.route("/volume_del", methods=("POST",))
+@bp.route("/book_del", methods=("POST",))
 @login_required
-def volume_del():
+def book_del():
     BookID = request.args.get("BookID", None)
     UserID = g.user["UserID"]
     db = get_db()
