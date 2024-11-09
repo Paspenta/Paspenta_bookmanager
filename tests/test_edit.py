@@ -2,6 +2,21 @@ import pytest
 from bookmanager.db import get_db
 response = ""
 
+
+get_no_change_book_sql = """
+    SELECT 1
+    FROM Books
+    JOIN Series ON Series.SeriesID = Books.SeriesID
+    LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
+    LEFT JOIN BookAuthors ON BookAuthors.BookID = Books.BookID
+    LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
+    WHERE
+        BookID = 1
+        AND Series.SeriesName = "TestSeries1"
+        AND Publishers.PublisherName = "TestPublisher"
+        AND Authors.AuthorName = "TestAuthor1";
+    """
+
 @pytest.mark.parametrize(
     ("flag", "AuthorName", "PublisherName", "SeriesName"),
     (True, "AfterAuthor", "AfterPublisher", "AfterSeries"),
@@ -83,7 +98,7 @@ def test_book_edit(client, auth, app, flag, AuthorName, PublisherName, SeriesNam
     (2, 404),
     (404, 404)
 )
-def test_book_edit_validate(client, auth, BookID, status_code):
+def test_book_edit_validate(client, auth, app, BookID, status_code):
     """
     book_editに無効な入力をして適切なエラーが表示されるか
     """
@@ -110,6 +125,12 @@ def test_book_edit_validate(client, auth, BookID, status_code):
     data["BookID"] = BookID
     assert client.post("/book_edit", data=data).status_code == status_code
     assert client.get(f"/book_edit?BookID={BookID}").status_code == status_code
+
+    # 変更されていないか
+    with app.app_context():
+        db = get_db()
+        exists = db.execute(get_no_change_book_sql).fetchone
+        assert exists is not None
 
 
 @pytest.mark.parametrize(
@@ -209,19 +230,5 @@ def test_series_edit_validate(client, auth, app, category, formkey, error):
     # 変更されていないか
     with app.app_context():
         db = get_db()
-        exists = db.execute(
-            """
-            SELECT 1
-            FROM Books
-            JOIN Series ON Series.SeriesID = Books.SeriesID
-            LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
-            LEFT JOIN BookAuthors ON BookAuthors.BookID = Books.BookID
-            LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
-            WHERE
-                BookID = 1
-                AND Series.SeriesName = "TestSeries1"
-                AND Publishers.PublisherName = "TestPublisher"
-                AND Authors.AuthorName = "TestAuthor1";
-            """
-        ).fetchone
+        exists = db.execute(get_no_change_book_sql).fetchone
         assert exists is not None
