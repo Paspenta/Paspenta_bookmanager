@@ -52,7 +52,7 @@ def test_book_delete_remain_series(client, auth, app):
         )
 
         # 1冊目を削除
-        response = client.post("/book_del?BookID=3", follow_redirects=True)
+        response = client.post("/book_del?BookID=3")
         assert response.headers["Location"] == "/"
 
         # シリーズが残っているか
@@ -99,7 +99,7 @@ def test_sereis_del(client, auth, app):
     auth.login("delete_validate", "delete_password")
 
     # 削除した後、indexに遷移するか
-    response = client.post("/series_del?SeriesID=3", follow_redirects=True)
+    response = client.post("/series_del?SeriesID=3")
     assert response.headers["Location"] == "/"
 
     # シリーズが削除されているか確認
