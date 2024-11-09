@@ -7,7 +7,7 @@ VALUES
     /* password: before */
     ("change_before", "scrypt:32768:8:1$gAAflYCVswMkCT2o$a16f1e154e4f292d0a29fa33e3dc9c9cb105fb845c014a53e1061a8cabd78d013ca0ce7f4b531897d27d0d46fcebd8f28454b46ae3c72804816093591fb17b08"),
     /* password: delete_password */
-    ("delete_validate", "scrypt:32768:8:1$AfJ0Rihey4ZzS3hB$a1138aaa881500fdad5b432f75d61b57252db8241e6a6272f663737455afac1ada89cba0a813588c678d5645e165fc2e120d4c0ad43b7f692ba729ccd486ce4c"):
+    ("delete_validate", "scrypt:32768:8:1$AfJ0Rihey4ZzS3hB$a1138aaa881500fdad5b432f75d61b57252db8241e6a6272f663737455afac1ada89cba0a813588c678d5645e165fc2e120d4c0ad43b7f692ba729ccd486ce4c");
 
 INSERT INTO Publishers (PublisherName, UserID)
 VALUES
