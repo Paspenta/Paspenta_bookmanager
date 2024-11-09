@@ -108,10 +108,11 @@ def test_register_null(client, auth, app):
 
 
 @pytest.mark.parametrize(
-    ("Title", "Location", "error"),
-    ("", "", "タイトルが入力されていません"),
-    ("NewTitle", "", "本の場所が入力されていません"),
-    ("TestBook1", "NewLocation", "「TestBook1」は既に登録されています")
+    ("Title", "Location", "error"), [
+        ("", "", "タイトルが入力されていません"),
+        ("NewTitle", "", "本の場所が入力されていません"),
+        ("TestBook1", "NewLocation", "「TestBook1」は既に登録されています")
+    ]
 )
 def test_register_validate(client, auth, app, Title, Location, error):
     auth.login()
