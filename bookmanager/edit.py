@@ -164,6 +164,10 @@ def change_seriesname(db, SeriesName, UserID, SeriesID):
 
 
 def change_series_authors(db, Authors, SeriesID, UserID):
+    if Authors == "":
+        return None, "著者名が入力されていません"
+    Authors = set(Authors.split(","))
+    Authors.discard("")
     db.execute(
         """
         DELETE FROM BookAuthors
@@ -244,8 +248,6 @@ def get_series_edit_forms():
     elif category == "Authors":
         # 著者変更
         names = request.form.get("AuthorsName", "")
-        names = set(names.split(",")) if names != "" else set()
-        names.discard("")
         msg, error = change_series_authors(db, names, SeriesID, UserID)
     elif category == "Publisher":
         # 出版社名変更
