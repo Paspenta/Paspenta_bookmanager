@@ -108,3 +108,19 @@ def test_sereis_del(client, auth, app):
         for table in ("Books", "BookAuthors"):
             assert db.execute(f"SELECT 1 FROM {table} WHERE BookID = 3").fetchone() is None
         assert db.execute(f"SELECT 1 FROM Series WHERE SeriesID = 3").fetchone() is None
+
+
+def test_series_del(client, auth):
+    """_summary_
+    series_delに無効なリクエストをして、適切なエラーが返ってくるか
+    """
+    auth.login()
+
+    # seriesIDを指定しない
+    assert client.post("/series_del?").status_code == 400
+
+    # 他ユーザーのシリーズを指定
+    assert client.post("/series_del?SeriesID=2").status_code == 404
+
+    # 存在しないシリーズを指定
+    assert client.post("/series_del?SeriesID=404").status_code == 404
