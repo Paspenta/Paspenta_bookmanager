@@ -44,12 +44,12 @@ VALUES
     ("TestLocation", 1),
     ("OtherLocation", 2),
     ("DeleteLocation", 4),
-    ("SearchFlutterLocation4", 1);
+    ("SearchFlutterLocation4", 1),
     ("S_P_Locaiton5", 1),
     ("S_JS_Locaiton6", 1),
     ("S_GL_Locaiton7", 1),
-    ("S_FL_Location8"),
-    ("S_NV_Location9");
+    ("S_FL_Location8", 1),
+    ("S_NV_Location9", 1);
 
 INSERT INTO Books (Title, SeriesID, LocationID, PublisherID, PublicationDate, ISBN13, ISBN10, UserID)
 VALUES
