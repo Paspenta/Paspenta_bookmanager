@@ -28,11 +28,12 @@ def test_get_books(monkeypatch, q, intitle, inauthor, isbn, page, flag):
             return {"items":"test"}
 
     # init_dbが呼び出されたことを記録
-    def fake_get(parms):
+    def fake_get(URL, params):
         Recorder.called = True
         return fake_json()
 
     def fake_parse(book):
+        Recorder.called_parse = True
         return True
 
     monkeypatch.setattr("requests.get", fake_get)
