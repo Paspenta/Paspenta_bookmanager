@@ -52,7 +52,6 @@ def test_password_check(app):
 
         error, user = password_check(db, "NoneUser", "None_password")
         assert error == "ユーザー名が違います。"
-        assert error is None
 
         error, user = password_check(db, "test", "diff_password")
         assert error == "パスワードが違います。"
@@ -98,13 +97,13 @@ def test_user_edit(client, auth, app):
 
     response = client.post(
         "/auth/edit",
-        data={"category":"UserName", "NewUserName":"change_after"}
+        data={"category":"UserName", "NewUserName":"change_after"}, follow_redirects=True
     )
     assert "ユーザー名を変更しました" in response.data.decode("utf-8")
 
     response = client.post(
         "/auth/edit",
-        data={"category":"Password", "OldPassword":"before", "NewPassword":"after"}
+        data={"category":"Password", "OldPassword":"before", "NewPassword":"after"}, follow_redirects=True
     )
     assert "パスワードを変更しました" in response.data.decode("utf-8")
 
@@ -137,7 +136,8 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
 
     response = client.post(
         "/auth/edit",
-        data={"category":"UserName", "NewUserName":UserName}
+        data={"category":"UserName", "NewUserName":UserName},
+        follow_redirects=True
     )
     assert msg in response.data.decode("utf-8")
 
@@ -162,7 +162,8 @@ def test_password_edit_validate(client, auth, app, NewPassword, OldPassword, msg
 
     response = client.post(
         "/auth/edit",
-        data={"category":"Password", "OldPassword":OldPassword, "NewPassword":NewPassword}
+        data={"category":"Password", "OldPassword":OldPassword, "NewPassword":NewPassword},
+        follow_redirects=True
     )
     assert msg in response.data.decode("utf-8")
 
