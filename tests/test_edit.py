@@ -188,6 +188,31 @@ def test_series_edit(client, auth, app, category, formkey, name, msg):
             assert book[formkey] == name
 
 
+def test_seriesname_edit_already(client, auth):
+    """_summary_
+    既存シリーズ名を指定して適切なエラーが表示されるか
+    """
+    auth.login()
+
+    seriesname = "TestSeries1"
+
+    response = client.post("/series_edit?SeriesID=1", data={
+        "SeriesID":1,
+        "category":"SeriesName",
+        "NewSeriesName":seriesname
+    })
+    html = response.data.decode("utf-8")
+    assert f"シリーズ名 {seriesname} は既に登録されています。" in html
+
+
+def test_series_edit_404(client, auth):
+    """_summary_
+    存在しないシリーズIDを指定して404がでるか
+    """
+    auth.login()
+
+    assert client.get("/series_edit?SeriesID=404").status_code == 404
+
 @pytest.mark.parametrize(
     ("category", "formkey", "error"), [
         ("SeriesName", "NewSeriesName", "シリーズ名が入力されていません"),
