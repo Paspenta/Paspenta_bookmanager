@@ -73,3 +73,22 @@ def test_book_delete_remain_series(client, auth, app):
             """
         ).fetchone()
         assert exists is not None
+
+
+def test_sereis_del(client, auth, app):
+    """_summary_
+    シリーズごと本の削除ができるか
+    """
+
+    auth.login("delete_validate", "delete_password")
+
+    # 削除した後、indexに遷移するか
+    response = client.post("/series_del?SeriesID=3")
+    assert response.headers["Location"] == "/"
+
+    # シリーズが削除されているか確認
+    with app.app_context():
+        db = get_db()
+        for table in ("Books", "BookAuthors"):
+            assert db.execute(f"SELECT 1 FROM {table} WHERE BookID = 3").fetchone() is None
+        assert db.execute(f"SELECT 1 FROM Series WHERE SeriesID = 3").fetchone() is None
