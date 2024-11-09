@@ -26,10 +26,11 @@ def test_register(client, app):
 
 # 無効なユーザー名, パスワードを渡して特定のエラーメッセージが返ってくるか
 @pytest.mark.parametrize(
-    ("UserName", "Password", "msg"),
-    ("", "", "ユーザー名が入力されていません。"),
-    ("a", "", "パスワードが入力されていません。"),
-    ("a", "a", "ユーザー名 a は既に使われています。")
+    ("UserName", "Password", "msg"), [
+        ("", "", "ユーザー名が入力されていません。"),
+        ("a", "", "パスワードが入力されていません。"),
+        ("a", "a", "ユーザー名 a は既に使われています。")
+    ]
 )
 def test_register_validate_input(client, UserName, Password, msg):
     # registerに無効なユーザー名・パスワードを送る
@@ -73,9 +74,10 @@ def test_login(client, auth):
 
 # loginで無効な入力をしたとき適切なメッセージが表示されるか
 @pytest.mark.parametrize(
-    ("UserName", "Password", "msg"),
-    ("a", "test", "ユーザー名が違います。"),
-    ("test", "a", "パスワードが違います。")
+    ("UserName", "Password", "msg"), [
+        ("a", "test", "ユーザー名が違います。"),
+        ("test", "a", "パスワードが違います。")
+    ]
 )
 def test_login_validate_input(auth, UserName, Password, msg):
     response = auth.login(UserName, Password)
@@ -122,9 +124,10 @@ def test_user_edit_category(client, auth):
 
 
 @pytest.mark.parametrize(
-    ("UserName", "msg"),
-    ("", "ユーザー名が入力されていません"),
-    ("other", "ユーザー名 other は既に使われています")
+    ("UserName", "msg"), [
+        ("", "ユーザー名が入力されていません"),
+        ("other", "ユーザー名 other は既に使われています")
+    ]
 )
 def test_username_edit_validate(client, auth, app, UserName, msg):
     """
@@ -146,11 +149,12 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
 
 
 @pytest.mark.parametrize(
-    ("OldPassword", "NewPassword", "msg"),
-    ("", "", "パスワードが入力されていません"),
-    ("test", "", "パスワードが入力されていません"),
-    ("", "test", "パスワードが入力されていません"),
-    ("different", "after", "パスワードが違います")
+    ("OldPassword", "NewPassword", "msg"), [
+        ("", "", "パスワードが入力されていません"),
+        ("test", "", "パスワードが入力されていません"),
+        ("", "test", "パスワードが入力されていません"),
+        ("different", "after", "パスワードが違います")
+    ]
 )
 def test_password_edit_validate(client, auth, app, NewPassword, OldPasword, msg):
     # 無効なパスワードを入力して、適切なメッセージが表示されるか
@@ -190,9 +194,10 @@ def test_account_delete(client, auth, app):
         assert data_existis is None
 
 @pytest.mark.parametrize(
-    ("Password", "msg"),
-    ("", "パスワードが入力されていません"),
-    ("diff", "パスワードが違います")
+    ("Password", "msg"), [
+        ("", "パスワードが入力されていません"),
+        ("diff", "パスワードが違います")
+    ]
 )
 def test_account_delete_validate(client, auth, app, Password, msg):
     auth.login()
