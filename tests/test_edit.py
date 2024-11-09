@@ -18,9 +18,10 @@ get_no_change_book_sql = """
     """
 
 @pytest.mark.parametrize(
-    ("flag", "AuthorName", "PublisherName", "SeriesName"),
-    (True, "AfterAuthor", "AfterPublisher", "AfterSeries"),
-    (False, None, None, None)
+    ("flag", "AuthorName", "PublisherName", "SeriesName"), [
+        (True, "AfterAuthor", "AfterPublisher", "AfterSeries"),
+        (False, None, None, None)
+    ]
 )
 def test_book_edit(client, auth, app, flag, AuthorName, PublisherName, SeriesName):
     """
@@ -94,9 +95,10 @@ def test_book_edit(client, auth, app, flag, AuthorName, PublisherName, SeriesNam
 
 
 @pytest.mark.parametrize(
-    ("BookID", "status_code"),
-    (2, 404),
-    (404, 404)
+    ("BookID", "status_code"), [
+        (2, 404),
+        (404, 404)
+    ]
 )
 def test_book_edit_validate(client, auth, app, BookID, status_code):
     """
@@ -134,10 +136,11 @@ def test_book_edit_validate(client, auth, app, BookID, status_code):
 
 
 @pytest.mark.parametrize(
-    ("category", "formkey", "name", "msg"),
-    ("SeriesName", "NewSeriesName", "AfterSeries", "シリーズ名を変更しました"),
-    ("Authors", "AuthorsName", "AfterAuthor", "著者を変更しました"),
-    ("Publisher", "PublisherName", "AfterPublisher", "出版社名を変更しました")
+    ("category", "formkey", "name", "msg"), [
+        ("SeriesName", "NewSeriesName", "AfterSeries", "シリーズ名を変更しました"),
+        ("Authors", "AuthorsName", "AfterAuthor", "著者を変更しました"),
+        ("Publisher", "PublisherName", "AfterPublisher", "出版社名を変更しました")
+    ]
 )
 def test_series_edit(client, auth, app, category, formkey, name, msg):
     """_summary_
@@ -184,10 +187,11 @@ def test_series_edit(client, auth, app, category, formkey, name, msg):
 
 
 @pytest.mark.parametrize(
-    ("category", "formkey", "error"),
-    ("SeriesName", "NewSeriesName", "シリーズ名が入力されていません"),
-    ("Authors", "AuthorsName", "著者名が入力されていません"),
-    ("Publisher", "PublisherName", "出版社名が入力されていません")
+    ("category", "formkey", "error"), [
+        ("SeriesName", "NewSeriesName", "シリーズ名が入力されていません"),
+        ("Authors", "AuthorsName", "著者名が入力されていません"),
+        ("Publisher", "PublisherName", "出版社名が入力されていません")
+    ]
 )
 def test_series_edit_validate(client, auth, app, category, formkey, error):
     """_summary_
