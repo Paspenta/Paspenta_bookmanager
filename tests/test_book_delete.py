@@ -47,7 +47,7 @@ def test_book_delete_remain_series(client, auth, app):
         db.execute(
             """
             INSERT INTO Books (Title, SeriesID, LocationID, UserID)
-            VALUES ('RemainBook', 3, 3, 3, 4);
+            VALUES ('RemainBook', 3, 3, 4);
             """
         )
 
