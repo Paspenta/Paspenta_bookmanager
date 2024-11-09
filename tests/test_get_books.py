@@ -2,17 +2,18 @@ import pytest
 from bookmanager.get_books import get_books, parse_book
 
 @pytest.mark.parametrize(
-    ("q", "intitle", "inauthor", "isbn", "page", "flag"),
-    ("Python", None, None, None, 0, True),
-    (None, "Python", None, None, 0, True),
-    (None, None, "Python", None, 0, True),
-    (None, None, None, "Python", 0, True),
-    (None, None, None, None, 0, False),
-    ("Python", "", "", "", 0, True),
-    ("", "Python", "", "", 0, True),
-    ("", "", "Python", "", 0, True),
-    ("", "", "", "Python", 0, True),
-    ("", "", "", "", 0, False),
+    ("q", "intitle", "inauthor", "isbn", "page", "flag"),[
+        ("Python", None, None, None, 0, True),
+        (None, "Python", None, None, 0, True),
+        (None, None, "Python", None, 0, True),
+        (None, None, None, "Python", 0, True),
+        (None, None, None, None, 0, False),
+        ("Python", "", "", "", 0, True),
+        ("", "Python", "", "", 0, True),
+        ("", "", "Python", "", 0, True),
+        ("", "", "", "Python", 0, True),
+        ("", "", "", "", 0, False),
+    ]
 )
 def test_get_books(monkeypatch, q, intitle, inauthor, isbn, page, flag):
     class Recorder(object):
