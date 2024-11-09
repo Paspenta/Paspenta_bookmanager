@@ -43,7 +43,7 @@ def test_register(client, auth, app):
         assert v in html
 
     client.get("/register_search")
-    response = client.post("/register", data=data)
+    response = client.post("/register", data=data, follow_redirects=True)
     assert response.headers["Location"] == url
     with app.app_context():
         db = get_db()
@@ -81,7 +81,7 @@ def test_register_null(client, auth, app):
         "ISBN13":"New13",
         "ISBN10":"New10"
     }
-    client.post("/register", data=data)
+    client.post("/register", data=data, follow_redirects=True)
     with app.app_context():
         db = get_db()
         BookID = db.execute(
@@ -117,7 +117,7 @@ def test_register_null(client, auth, app):
 def test_register_validate(client, auth, app, Title, Location, error):
     auth.login()
 
-    response = client.post("/register", data={"Title":Title, "Location":Location})
+    response = client.post("/register", data={"Title":Title, "Location":Location}, follow_redirects=True)
     html = response.data.decode("utf-8")
     assert error in html
 

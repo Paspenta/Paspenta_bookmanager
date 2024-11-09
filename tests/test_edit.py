@@ -54,7 +54,7 @@ def test_book_edit(client, auth, app, flag, AuthorName, PublisherName, SeriesNam
         assert book_data in html
 
     # 編集完了した後indexに遷移するか
-    response = client.post("/book_edit", data=data)
+    response = client.post("/book_edit", data=data, follow_redirects=True)
     assert response.headers["Location"] == "/"
 
     # 編集されているか確認
@@ -109,23 +109,23 @@ def test_book_edit_validate(client, auth, app, BookID, status_code):
     data = {"BookID":1}
 
     # BookIDなしでpost, get
-    assert client.post("/book_edit").status_code == 400
+    assert client.post("/book_edit", follow_redirects=True).status_code == 400
     assert client.get("/book_edit").status_code == 400
 
     # bookIDあり、タイトルなしでpost
-    response = client.post("/book_edit", data=data)
+    response = client.post("/book_edit", data=data, follow_redirects=True)
     html = response.data.decode("utf-8")
     assert "タイトルがありません" in html
 
     # BookID・TitleありLocationなしでPOST
     data["Title"] = "validate_title"
-    response = client.post("/book_edit", data=data)
+    response = client.post("/book_edit", data=data, follow_redirects=True)
     html = response.data.decode("utf-8")
     assert "本の場所が入力されていません" in html
 
     # 他ユーザーの所有するBookIDと存在しないBookIDでget, post
     data["BookID"] = BookID
-    assert client.post("/book_edit", data=data).status_code == status_code
+    assert client.post("/book_edit", data=data, follow_redirects=True).status_code == status_code
     assert client.get(f"/book_edit?BookID={BookID}").status_code == status_code
 
     # 変更されていないか
@@ -201,15 +201,15 @@ def test_series_edit_validate(client, auth, app, category, formkey, error):
 
     # SeriesIDなし
     assert client.get("/series_edit").status_code == 400
-    assert client.post("/series_edit").status_code == 400
+    assert client.post("/series_edit", follow_redirects=True).status_code == 400
 
     # 他ユーザーのシリーズを指定
-    assert client.post("/series_edit?SeriesID=2").status_code == 404
-    assert client.post("/series_edit?", data={"SeriesID":2}).status_code == 404
+    assert client.post("/series_edit?SeriesID=2", follow_redirects=True).status_code == 404
+    assert client.post("/series_edit?", data={"SeriesID":2}, follow_redirects=True).status_code == 404
 
     # 存在しないシリーズID
-    assert client.post("/series_edit?SeriesID=404").status_code == 404
-    assert client.post("/series_edit", data={"SeriesID":404}).status_code == 404
+    assert client.post("/series_edit?SeriesID=404", follow_redirects=True).status_code == 404
+    assert client.post("/series_edit", data={"SeriesID":404}, follow_redirects=True).status_code == 404
 
     # 無効なカテゴリ
     assert client.post("/series_edit", data={

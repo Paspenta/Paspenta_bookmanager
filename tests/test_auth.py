@@ -51,7 +51,7 @@ def test_password_check(app):
         assert user is not None
 
         error, user = password_check(db, "NoneUser", "None_password")
-        assert error == "ユーザー名が違います"
+        assert error == "ユーザー名が違います。"
         assert error is None
 
         error, user = password_check(db, "test", "diff_password")
@@ -116,10 +116,10 @@ def test_user_edit(client, auth, app):
 
 def test_user_edit_category(client, auth):
     auth.login()
-    response = client.post("/auth/edit")
+    response = client.post("/auth/edit", follow_redirects=True)
     assert "カテゴリーが存在しません" in response.data.decode("utf-8")
 
-    response = client.post("/auth/edit", data={"category":"diff"})
+    response = client.post("/auth/edit", data={"category":"diff"}, follow_redirects=True)
     assert "カテゴリーが存在しません" in response.data.decode("utf-8")
 
 
@@ -180,7 +180,7 @@ def test_account_delete(client, auth, app):
 
     # ログアウトされているか
     with client:
-        client.post("/auth/delete", data={"Password":password})
+        client.post("/auth/delete", data={"Password":password}, follow_redirects=True)
         assert "UserID" not in session
 
     tables = ["Users", "Series", "Authors", "Locations", "Books"]
@@ -202,7 +202,7 @@ def test_account_delete(client, auth, app):
 def test_account_delete_validate(client, auth, app, Password, msg):
     auth.login()
 
-    response = client.post("/auth/delete", data={"Password":Password})
+    response = client.post("/auth/delete", data={"Password":Password}, follow_redirects=True)
     assert msg in response.data.decode("utf-8")
 
     tables = ["Users", "Series", "Authors", "Locations", "Books"]

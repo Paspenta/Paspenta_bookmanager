@@ -9,7 +9,7 @@ def test_book_delete(client, auth, app):
     """
     auth.login("delete_validate", "delete_password")
 
-    response = client.post("/book_del?BookID=3")
+    response = client.post("/book_del?BookID=3", follow_redirects=True)
     assert response.headers["Location"] == "/"
 
     with app.app_context():
@@ -52,7 +52,7 @@ def test_book_delete_remain_series(client, auth, app):
         )
 
         # 1冊目を削除
-        response = client.post("/book_del?BookID=3")
+        response = client.post("/book_del?BookID=3", follow_redirects=True)
         assert response.headers["Location"] == "/"
 
         # シリーズが残っているか
@@ -82,13 +82,13 @@ def test_book_delete_validate(client, auth):
     auth.login()
 
     # BookIDを指定しない
-    assert client.post("/book_del?").status_code == 400
+    assert client.post("/book_del?", follow_redirects=True).status_code == 400
 
     # 他ユーザーの本を指定
-    assert client.post("/book_del?BookID=2").status_code == 404
+    assert client.post("/book_del?BookID=2", follow_redirects=True).status_code == 404
 
     # 存在しない本を指定
-    assert client.post("/book_del?BookID=404").status_code == 404
+    assert client.post("/book_del?BookID=404", follow_redirects=True).status_code == 404
 
 
 def test_sereis_del(client, auth, app):
@@ -99,7 +99,7 @@ def test_sereis_del(client, auth, app):
     auth.login("delete_validate", "delete_password")
 
     # 削除した後、indexに遷移するか
-    response = client.post("/series_del?SeriesID=3")
+    response = client.post("/series_del?SeriesID=3", follow_redirects=True)
     assert response.headers["Location"] == "/"
 
     # シリーズが削除されているか確認
@@ -117,10 +117,10 @@ def test_series_del(client, auth):
     auth.login()
 
     # seriesIDを指定しない
-    assert client.post("/series_del?").status_code == 400
+    assert client.post("/series_del?", follow_redirects=True).status_code == 400
 
     # 他ユーザーのシリーズを指定
-    assert client.post("/series_del?SeriesID=2").status_code == 404
+    assert client.post("/series_del?SeriesID=2", follow_redirects=True).status_code == 404
 
     # 存在しないシリーズを指定
-    assert client.post("/series_del?SeriesID=404").status_code == 404
+    assert client.post("/series_del?SeriesID=404", follow_redirects=True).status_code == 404
