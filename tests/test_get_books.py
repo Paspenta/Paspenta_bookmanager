@@ -38,3 +38,52 @@ def test_get_books(monkeypatch, q, intitle, inauthor, isbn, page, flag):
     monkeypatch.setattr("bookmanager.get_books.parse_book", fake_parse)
     get_books(q, intitle, inauthor, isbn, page)
     assert Recorder.called == flag == Recorder.called_parse
+
+
+@pytest.mark.parametrize("book, expected", [
+    (
+        {
+            "volumeInfo": {
+                "title": "Example Book",
+                "authors": ["Author One", "Author Two"],
+                "publisher": "Example Publisher",
+                "publishedDate": "2023-01-01",
+                "industryIdentifiers": [
+                    {"type": "ISBN_10", "identifier": "1234567890"},
+                    {"type": "ISBN_13", "identifier": "123-4567890123"}
+                ]
+            }
+        },
+        {
+            "title": "Example Book",
+            "author": "Author One,Author Two",
+            "publisher": "Example Publisher",
+            "publishe_date": "2023-01-01",
+            "isbn_10": "1234567890",
+            "isbn_13": "123-4567890123"
+        }
+    ),
+    (
+        {
+            "volumeInfo": {
+                "title": "Another Book",
+                "authors": ["Single Author"],
+                "publisher": "Another Publisher",
+                "publishedDate": "2022-12-31",
+                "industryIdentifiers": [
+                    {"type": "ISBN_13", "identifier": "987-6543210987"}
+                ]
+            }
+        },
+        {
+            "title": "Another Book",
+            "author": "Single Author",
+            "publisher": "Another Publisher",
+            "publishe_date": "2022-12-31",
+            "isbn_10": "",
+            "isbn_13": "987-6543210987"
+        }
+    )
+])
+def test_parse_book(book, expected):
+    assert parse_book(book) == expected
