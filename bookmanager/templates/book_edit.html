@@ -60,7 +60,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <form action="{{ url_for('manager.volume_del', BookID=Book.get('BookID')) }}" method="post">
+                    <form action="{{ url_for('manager.book_del', BookID=Book.get('BookID')) }}" method="post">
                         <button type="submit" class="btn btn-danger">削除</button>
                     </form>
                 </div>
