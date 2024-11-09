@@ -107,7 +107,7 @@
             <ul class="pagination justify-content-center mt-3">
                 {% if minus_parms["page"] %}
                     <li class="page-item">
-                        <a class="page-link" href="{{ url_for('manager.index', **minus_parms) }}">Previous</a>
+                        <a class="page-link" href="{{ url_for('manager.index_series', **minus_parms) }}">Previous</a>
                     </li>
                 {% else %}
                     <li class="page-item disabled">
@@ -115,7 +115,7 @@
                     </li>
                 {% endif %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('manager.index', **plus_parms) }}">Next</a>
+                    <a class="page-link" href="{{ url_for('manager.index_series', **plus_parms) }}">Next</a>
                 </li>
             </ul>
         </nav>

@@ -72,6 +72,7 @@ def get_have_books(db, UserID, parms):
         WHERE
             Books.UserID = ?
             AND Title LIKE ?
+            AND Series.SeriesName LIKE ?
             AND Locations.LocationName LIKE ?
             AND (Authors.AuthorName LIKE ? OR (Authors.AuthorName IS NULL AND ? = '%'))
             AND (Publishers.PublisherName LIKE ? OR (Publishers.PublisherName IS NULL AND ? = '%'))
@@ -80,6 +81,7 @@ def get_have_books(db, UserID, parms):
         """, (
             UserID,
             parms["Title"],
+            parms["SeriesName"],
             parms["LocationName"],
             parms["AuthorName"], parms["AuthorName"],
             parms["PublisherName"], parms["PublisherName"],

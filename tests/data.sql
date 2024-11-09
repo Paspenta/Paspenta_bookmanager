@@ -60,7 +60,7 @@ VALUES
     ("S_P_Book5", 6, 5, 4, NULL, NULL, NULL, 1),
     ("S_GL_Book6", 5, 7, NULL, NULL, NULL, NULL, 1),
     ("S_JS_Book7", 7, 6, NULL, NULL, NULL, NULL, 1),
-    ("S_FL_Book8", 9, 8, NULL, NULL, NULL, NULL, 1),
+    ("S_FL_Book8", 9, 4, NULL, NULL, NULL, NULL, 1),
     ("SearchNeoVim9", 10, 9, NULL, NULL, NULL, NULL, 1),
     ("TestBook10", 1, 1, 1, "xxxx-xx-xx", "1234567890123", "1234567890", 1);
 
