@@ -1,6 +1,5 @@
 import pytest
 from bookmanager.db import get_db
-from flask import session, url_for
 
 
 def test_register(client, auth, app):
@@ -120,3 +119,26 @@ def test_register_validate(client, auth, app, Title, Location, error):
     response = client.post("/register", data={"Title":Title, "Location":Location})
     html = response.data.decode("utf-8")
     assert error in html
+
+
+def test_register_search(client, auth, monkeypatch):
+    auth.login()
+
+    def fake_get_book():
+        ret = [
+            {"title":"SearchTitle",
+             "author":"SearchAuthor",
+             "publisher":"SearchPublisher",
+             "Publishe_date":"2000-01-01",
+             "isbn_10":"xxxxxxxxxx",
+             "isbn_13":"ooooooooooooo"
+            }
+        ]
+        return ret
+
+    monkeypatch.setattr("bookmanager.get_books.get_books", fake_get_book)
+    response = client.get("/register_search")
+    html = response.data.decode("utf-8")
+    book = fake_get_book()
+    for v in book[0].values():
+        assert v in html
