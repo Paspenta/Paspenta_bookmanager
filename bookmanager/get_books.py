@@ -23,7 +23,6 @@ def get_books(q=None, intitle=None, inauthor=None, isbn=None, page=0):
     parms["startIndex"] = MAX_RESULT * page
 
     response = requests.get(URL, params=parms)
-    print(response.url)
     books = response.json()
 
     ret = []
