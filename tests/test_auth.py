@@ -156,13 +156,13 @@ def test_username_edit_validate(client, auth, app, UserName, msg):
         ("different", "after", "パスワードが違います")
     ]
 )
-def test_password_edit_validate(client, auth, app, NewPassword, OldPasword, msg):
+def test_password_edit_validate(client, auth, app, NewPassword, OldPassword, msg):
     # 無効なパスワードを入力して、適切なメッセージが表示されるか
     auth.login()
 
     response = client.post(
         "/auth/edit",
-        data={"category":"Password", "OldPassword":OldPasword, "NewPassword":NewPassword}
+        data={"category":"Password", "OldPassword":OldPassword, "NewPassword":NewPassword}
     )
     assert msg in response.data.decode("utf-8")
 
