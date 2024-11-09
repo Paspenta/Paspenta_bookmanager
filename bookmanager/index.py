@@ -44,7 +44,7 @@ def get_url_parameters():
         "AuthorName": f(request.args.get("AuthorName", "")),
         "PublisherName": f(request.args.get("PublisherName", "")),
         "LocationName": f(request.args.get("LocationName", "")),
-        "page": get_page(request.args.get("Page", "0"))
+        "Page": get_page(request.args.get("Page", "0"))
     }
 
 
@@ -85,7 +85,7 @@ def get_have_books(db, UserID, parms):
             parms["LocationName"],
             parms["AuthorName"], parms["AuthorName"],
             parms["PublisherName"], parms["PublisherName"],
-            GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["page"]
+            GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["Page"]
         )
     ).fetchall()
 
@@ -149,7 +149,7 @@ def get_series_data(row, db, parms):
             parms["LocationName"],
             parms["AuthorName"], parms["AuthorName"],
             parms["PublisherName"], parms["PublisherName"],
-            GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["page"]
+            GET_BOOK_AMOUNT, GET_BOOK_AMOUNT * parms["Page"]
         )
     ).fetchall()
 
@@ -168,8 +168,9 @@ def get_series_data(row, db, parms):
 def get_pagenation(parms):
     plus_page = {**request.args}
     minus_page = {**request.args}
-    plus_page["Page"] = parms["page"]+1
-    minus_page["Page"] = parms["page"]-1 if parms["page"]>0 else 0
+    page = get_page(parms["Page"])
+    plus_page["Page"] = page+1
+    minus_page["Page"] = page - 1 if page > 0 else -1
     return plus_page, minus_page
 
 
@@ -203,7 +204,7 @@ def get_series(db, UserID, parms):
             parms["LocationName"],
             parms["AuthorName"], parms["AuthorName"],
             parms["PublisherName"], parms["PublisherName"],
-            GET_SERIES_AMOUNT, parms["page"] * GET_SERIES_AMOUNT
+            GET_SERIES_AMOUNT, parms["Page"] * GET_SERIES_AMOUNT
         )
     ).fetchall()
 
@@ -230,12 +231,14 @@ def index():
     parms = get_url_parameters()
 
     Books = get_have_books(db, UserID, parms)
+    next_flag = len(Books) == GET_BOOK_AMOUNT
     plus_page, minus_page = get_pagenation(parms)
 
     return render_template("index.html",
                             Books=Books,
                             plus_page=plus_page,
-                            minus_page=minus_page)
+                            minus_page=minus_page,
+                            next_flag=next_flag)
 
 @bp.route("/index_series")
 @login_required
@@ -255,10 +258,11 @@ def index_series():
 
     plus_page, minus_page = get_pagenation(parms)
 
-
     series_list = get_series(db, UserID, parms)
+    next_flag = len(series_list) == GET_SERIES_AMOUNT
 
     return render_template("index_series.html",
                             series_list=series_list,
                             plus_parms=plus_page,
-                            minus_parms=minus_page)
+                            minus_parms=minus_page,
+                            next_flag=next_flag)

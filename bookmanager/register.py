@@ -10,6 +10,7 @@ from bookmanager.get_books import get_books
 from .manager import (
     bp, get_page, get_id
 )
+MAX_RESULT = 30
 
 
 @bp.route("/register", methods=("GET", "POST"))
@@ -95,8 +96,7 @@ def register():
                         """, (BookID, AuthorID)
                     )
             db.commit()
-            previous_url = session.get('previous_url', url_for('index'))
-            return redirect(previous_url)
+            return redirect(url_for('manager.index'))
 
         else:
             flash(error, 'info')
@@ -120,20 +120,23 @@ def register_search():
     title = request.args.get("title", None)
     author = request.args.get("author", None)
     isbn = request.args.get("isbn", None)
-    page = request.args.get("page", "0")
+    page = request.args.get("Page", "0")
     parms = request.args
 
     page = get_page(page)
 
-    plus_parms = {**request.args}
-    minus_parms = {**request.args}
-    plus_parms["page"] = page+1
-    minus_parms["page"] = page-1 if page>0 else 0
+    plus_page = {**request.args}
+    minus_page = {**request.args}
+    plus_page["Page"] = page+1
+    minus_page["Page"] = page - 1 if page > 0 else -1
+
 
     books = get_books(q=keyword, intitle=title, inauthor=author, isbn=isbn)
+    next_flag = len(books) == MAX_RESULT
 
     return render_template("register_search.html",
                             Books=books,
-                            plus_parms=plus_parms,
-                            minus_parms=minus_parms,
-                            parms=parms)
+                            plus_parms=plus_page,
+                            minus_parms=minus_page,
+                            parms=parms,
+                            next_flag=next_flag)
