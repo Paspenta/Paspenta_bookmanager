@@ -63,7 +63,7 @@ def test_register(client, auth, app):
                 AND Authors.AuthorName = 'NewAuthor'
                 AND Publishers.PublisherName = 'NewPublisher'
                 AND ISBN13 = 'New13'
-                AND ISBN10 = 'New10'
+                AND ISBN10 = 'New10';
             """
         ).fetchone()
         assert register_book is not None
@@ -102,7 +102,7 @@ def test_register_null(client, auth, app):
             """
             SELECT 1
             FROM BookAuthors
-            WHERE BookID = ?
+            WHERE BookID = ?;
             """, (BookID,)
         ).fetchone() is None
 
