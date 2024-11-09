@@ -13,12 +13,13 @@ def test_index(client, auth):
     assert b"OtherBook" in response.data
 
 @pytest.mark.parametrize(
-    ("parm", "value", "HitBook"),
-    ("Title", "NeoVim", b"SearchNeoVim9"),
-    ("SeriesName", "Golang", b"S_GL_Book5"),
-    ("AuthorName", "JavaScript", b"S_JS_Book7"),
-    ("PublisherName", "Python", b"S_P_Book5"),
-    ("LocationName", "Flutter", b"S_FL_Book8"),
+    ("parm", "value", "HitBook"), [
+        ("Title", "NeoVim", b"SearchNeoVim9"),
+        ("SeriesName", "Golang", b"S_GL_Book5"),
+        ("AuthorName", "JavaScript", b"S_JS_Book7"),
+        ("PublisherName", "Python", b"S_P_Book5"),
+        ("LocationName", "Flutter", b"S_FL_Book8"),
+    ]
 )
 def test_index_search(client, auth, parm, value, HitBook):
     auth.login()
@@ -37,12 +38,13 @@ def test_index_series(client, auth):
     assert url in response.data
 
 @pytest.mark.parametrize(
-    ("parm", "value", "HitBook"),
-    ("Title", "NeoVim", b"SearchNeoVim9"),
-    ("SeriesName", "Golang", b"S_GL_Book5"),
-    ("AuthorName", "JavaScript", b"S_JS_Book7"),
-    ("PublisherName", "Python", b"S_P_Book5"),
-    ("LocationName", "Flutter", b"S_FL_Book8"),
+    ("parm", "value", "HitBook"), [
+        ("Title", "NeoVim", b"SearchNeoVim9"),
+        ("SeriesName", "Golang", b"S_GL_Book5"),
+        ("AuthorName", "JavaScript", b"S_JS_Book7"),
+        ("PublisherName", "Python", b"S_P_Book5"),
+        ("LocationName", "Flutter", b"S_FL_Book8"),
+    ]
 )
 def test_index_Series(client, auth, parm, value, HitBook):
     auth.login()
