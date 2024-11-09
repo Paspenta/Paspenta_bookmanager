@@ -43,6 +43,7 @@ def test_register(client, auth, app):
     for v in parms.values():
         assert v in html
 
+    client.get("/register_search")
     response = client.post("/register", data=data)
     assert response.headers["Location"] == url
     with app.app_context():
@@ -67,3 +68,17 @@ def test_register(client, auth, app):
             """
         ).fetchone()
         assert register_book is not None
+
+
+@pytest.mark.parametrize(
+    ("Title", "Location", "error"),
+    ("", "", "タイトルが入力されていません"),
+    ("NewTitle", "", "本の場所が入力されていません"),
+    ("TestBook1", "NewLocation", "「TestBook1」は既に登録されています")
+)
+def test_register_validate(client, auth, app, Title, Location, error):
+    auth.login()
+
+    response = client.post("/register", data={"Title":Title, "Location":Location})
+    html = response.data.decode("utf-8")
+    assert error in html
