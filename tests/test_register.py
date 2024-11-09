@@ -70,6 +70,44 @@ def test_register(client, auth, app):
         assert register_book is not None
 
 
+def test_register_null(client, auth, app):
+    auth.login()
+
+    data={
+        "Title":"NewTitle",
+        "Series":"",
+        "Location":"NewLocation",
+        "author":"",
+        "Publisher":"",
+        "ISBN13":"New13",
+        "ISBN10":"New10"
+    }
+    client.post("/register", data=data)
+    with app.app_context():
+        db = get_db()
+        BookID = db.execute(
+            """
+            SELECT Books.BookID
+            FROM Books
+            JOIN Series ON Books.SeriesID = Series.SeriesID
+            JOIN Locations ON Locations.LocationID = Books.LocationID
+            WHERE
+                Books.Title = 'NewTitle'
+                AND Series.SeriesName = 'NewTitle'
+                AND Locations.LocationName = 'NewLocation'
+                AND Books.PublisherID IS NULL;
+            """
+        ).fetchone()
+        assert BookID is not None
+        assert db.execute(
+            """
+            SELECT 1
+            FROM BookAuthors
+            WHERE BookID = ?
+            """, (BookID,)
+        ).fetchone() is None
+
+
 @pytest.mark.parametrize(
     ("Title", "Location", "error"),
     ("", "", "タイトルが入力されていません"),
