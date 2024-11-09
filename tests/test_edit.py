@@ -158,3 +158,70 @@ def test_series_edit(client, auth, app, category, formkey, name):
         assert len(after_books) == 2
         for book in after_books:
             assert book[formkey] == name
+
+
+@pytest.mark.parametrize(
+    ("category", "formkey", "error"),
+    ("SeriesName", "NewSeriesName", "シリーズ名が入力されていません"),
+    ("Authors", "AuthorsName", "著者名が入力されていません"),
+    ("Publisher", "PublisherName", "出版社名が入力されていません")
+)
+def test_series_edit_validate(client, auth, app, category, formkey, error):
+    """_summary_
+    series_editに無効なリクエストをした時適切なエラーが出力されるか
+    """
+    auth.login()
+
+    # SeriesIDなし
+    assert client.get("/series_edit").status_code == 400
+    assert client.post("/series_edit").status_code == 400
+
+    # 他ユーザーのシリーズを指定
+    assert client.post("/series_edit?SeriesID=2").status_code == 404
+    assert client.post("/series_edit?", data={"SeriesID":2}).status_code == 404
+
+    # 存在しないシリーズID
+    assert client.post("/series_edit?SeriesID=404").status_code == 404
+    assert client.post("/series_edit", data={"SeriesID":404}).status_code == 404
+
+    # 無効なカテゴリ
+    assert client.post("/series_edit", data={
+        "SeriesID":1,
+        "category":"invalid"
+    }).status_code == 400
+
+    # 各項目を検証, 空文字列
+    response = client.post("/series_edit", data={
+        "SeriesID":1,
+        "category":category,
+        formkey:""
+    })
+    html = response.data.decode("utf-8")
+    assert error in html
+    # 各項目を検証, formkeyなし
+    response = client.post("/series_edit", data={
+        "SeriesID":1,
+        "category":category
+    })
+    html = response.data.decode("utf-8")
+    assert error in html
+
+    # 変更されていないか
+    with app.app_context():
+        db = get_db()
+        exists = db.execute(
+            """
+            SELECT 1
+            FROM Books
+            JOIN Series ON Series.SeriesID = Books.SeriesID
+            LEFT JOIN Publishers ON Publishers.PublisherID = Books.PublisherID
+            LEFT JOIN BookAuthors ON BookAuthors.BookID = Books.BookID
+            LEFT JOIN Authors ON BookAuthors.AuthorID = Authors.AuthorID
+            WHERE
+                BookID = 1
+                AND Series.SeriesName = "TestSeries1"
+                AND Publishers.PublisherName = "TestPublisher"
+                AND Authors.AuthorName = "TestAuthor1";
+            """
+        ).fetchone
+        assert exists is not None
