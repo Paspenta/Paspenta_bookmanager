@@ -75,7 +75,7 @@ def test_index_pagenation(client, auth, app):
         for i in range(31, 62):
             assert f"Pagenation{i}" not in data
 
-        response = client.get("/"), query_string=({"Title":"Pagenation", "page":"2"})
+        response = client.get("/", query_string={"Title":"Pagenation", "page":"2"})
         data = response.data.decode("utf-8")
         for i in range(1, 31):
             assert f"Pagenation{i}" not in data
@@ -83,7 +83,7 @@ def test_index_pagenation(client, auth, app):
             assert f"Pagenation{i}" in data
         assert f"Pagenation61" not in data
 
-        response = client.get("/"), query_string=({"Title":"Pagenation", "page":"3"})
+        response = client.get("/", query_string={"Title":"Pagenation", "page":"3"})
         data = response.data.decode("utf-8")
         for i in range(1, 61):
             assert f"Pagenation{i}" not in data
@@ -119,7 +119,7 @@ def test_index_series_pagenation(client, auth, app):
         for i in range(16, 32):
             assert f"PagenationSeries{i}" not in data
 
-        response = client.get("/index_series"), query_string=({"SeriesName":"Pagenation", "page":"2"})
+        response = client.get("/index_series", query_string={"SeriesName":"Pagenation", "page":"2"})
         data = response.data.decode("utf-8")
         for i in range(1, 16):
             assert f"PagenationSeries{i}" not in data
@@ -127,7 +127,7 @@ def test_index_series_pagenation(client, auth, app):
             assert f"PagenationSeries{i}" in data
         assert f"PagenationSeries31" not in data
 
-        response = client.get("/index_series"), query_string=({"SeriesName":"Pagenation", "page":"3"})
+        response = client.get("/index_series", query_string={"SeriesName":"Pagenation", "page":"3"})
         data = response.data.decode("utf-8")
         for i in range(1, 61):
             assert f"PagenationSeries{i}" not in data
