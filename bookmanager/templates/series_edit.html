@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% set title = "シリーズ編集"%}
+
+{% block content %}
+    <div class="container d-flex justify-content-center mt-3">
+        <form method="post" class="w-50">
+            <input type="hidden" name="SeriesID" value="{{ SeriesData['SeriesID'] }}">
+            <input type="hidden" name="category" value="SeriesName">
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="NewSeriesName" value="{{ SeriesData['SeriesName'] }}">
+                    <label for="NewSeriesName">シリーズ名変更</label>
+                </div>
+                <button class="btn btn-primary" type="submit" id="NewSeriesNameSubmit">変更</button>
+            </div>
+        </form>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <form method="post" class="w-50">
+            <input type="hidden" name="SeriesID" value="{{ SeriesData['SeriesID'] }}">
+            <input type="hidden" name="category" value="Authors">
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control" list="AuthorList" id="AuthorsName" value="{{ SeriesData['Authors'] }}">
+                    <label for="AuthorsName">著者(カンマ区切り)</label>
+                    <datalist id="AuthorList">
+                        {% for Author_datalist in datalist["AuthorName"] %}
+                            <option value="{{ Author_datalist['data']}}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <button class="btn btn-primary" type="submit" id="AuthorsNameSubmit">変更</button>
+            </div>
+        </form>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <form method="post" class="w-50">
+            <input type="hidden" name="SeriesID" value="{{ SeriesData['SeriesID'] }}">
+            <input type="hidden" name="category" value="Publisher">
+            <div class="input-group mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control" list="PublisherList" id="PublisherName" value="{{ SeriesData['PublisherName'] }}">
+                    <label for="PublisherName">出版社名</label>
+                    <datalist id="PublisherList">
+                        {% for Publisher_datalist in datalist["PublisherName"] %}
+                            <option value="{{ Publisher_datalist['data']}}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <button class="btn btn-primary" type="submit" id="PublisherNameSubmit">変更</button>
+            </div>
+        </form>
+    </div>
+    <div class="container d-flex justify-content-center">
+        <button type="button" class="btn btn-danger w-50" data-bs-toggle="modal" data-bs-target="#DeleteConfirm">
+            シリーズ削除
+        </button>
+    </div>
+    <div class="modal fade" id="DeleteConfirm" tabindex="-1" aria-labelledby="DeleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="DeleteConfirmLabel">確認</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    本当に削除しますか?
+                    シリーズに含まれる本も全て消去されます。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="{{ url_for('manager.series_del', SeriesID=SeriesData['SeriesID']) }}" method="post">
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

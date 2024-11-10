@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% set title = "アカウント編集"%}
+
+{% block content %}
+    <div class="container d-flex justify-content-center">
+        <form method="post" class="w-50">
+            <input type="hidden" name="category" value="UserName">
+            <div class="mb-3">
+                <p>現在のユーザー名 : {{ g.user["UserName"] }}</p>
+            </div>
+            <div class="mb-3">
+                <label for="NewUserName" class="form-label">新しいユーザー名</label>
+                <input name="NewUserName" class="form-control" id="NewUserName">
+            </div>
+            <button type="submit" class="btn btn-primary">変更</button>
+        </form>
+    </div>
+    <div class="container d-flex justify-content-center mt-3">
+        <form method="post" class="w-50">
+            <input type="hidden" name="category" value="Password">
+            <div class="mb-3">
+                <label for="OldPassword" class="form-label">現在のパスワード</label>
+                <input type="password" name="OldPassword" class="form-control" id="OldPassword">
+            </div>
+            <div class="mb-3">
+                <label for="NewPassword" class="form-label">新しいパスワード</label>
+                <input type="password" name="NewPassword" class="form-control" id="NewPassword">
+            </div>
+            <button type="submit" class="btn btn-primary">変更</button>
+        </form>
+    </div>
+    <div class="container d-flex justify-content-center mt-3">
+        <a href="{{ url_for('manager.index') }}" class="btn btn-primary w-50 text-center">書籍一覧へ戻る</a>
+    </div>
+    <div class="container d-flex justify-content-center mt-3">
+        <a href="{{ url_for('auth.account_delete') }}" class="btn btn-danger w-50 text-center">アカウント削除</a>
+    </div>
+
+{% endblock %}

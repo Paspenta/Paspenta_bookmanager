@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% set title = "ログイン"%}
+
+{% block content %}
+    <div class="container d-flex justify-content-center">
+        <form method="post" class="w-50">
+            <div class="mb-3">
+                <label for="UserName" class="form-label">UserName</label>
+                <input name="UserName" id="UserName" class="form-control" required>
+            </div>
+            <div>
+                <label for="Password" class="form-label">Password</label>
+                <input type="password" name="Password" id="Password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">ログイン</button>
+        </form>
+    </div>
+{% endblock %}

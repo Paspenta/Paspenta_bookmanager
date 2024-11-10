@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<title>{{ title }} - Paspenta Book Manager</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<nav class="navbar navbar-expand-sm navbar-light bg-primary">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1 text-light">Book Manager</span>
+        {% set nav_links = {
+            "書籍一覧":url_for('manager.index'),
+            "書籍登録":url_for('manager.register'),
+            "API検索":url_for('manager.register_search')
+        } %}
+        <ul class="navbar-nav">
+            {% if g.user %}
+                {% for link_text, nav_link in nav_links.items() %}
+                    <li class="nav-item">
+                        {% if link_text == title %}
+                            <a class="nav-link text-light text-decoration-underline" href="{{ nav_link }}">{{ link_text }}</a>
+                        {% else %}
+                            <a class="nav-link text-light" href="{{ nav_link }}">{{ link_text }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor%}
+            {% endif %}
+            {% if title not in nav_links %}
+                <li class="nav-item">
+                    <a class="nav-link text-light text-decoration-underline" href="#">{{ title }}</a>
+                </li>
+            {% endif %}
+        </ul>
+        <div class="ms-auto">
+            <div class="row">
+                {% block header %}{% endblock %}
+                {% if g.user %}
+                    <a class="col-auto me-3 btn btn-info"
+                        href="{{ url_for('auth.edit') }}">
+                        {{ g.user["UserName"] }}
+                    </a>
+                    <a class="col-auto me-3 btn btn-danger" href="{{ url_for('auth.logout') }}">ログアウト</a>
+                {% else %}
+                    <a class="col-auto me-3 btn btn-success" href="{{ url_for('auth.register') }}">登録</a>
+                    <a class="col-auto me-3 btn btn-info" href="{{ url_for('auth.login') }}">ログイン</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+<section class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="container-fluid bg-{{ category }}">
+                    <p class="text-light">{{ message }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</section>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+{% block script %}
+{% endblock%}
