@@ -22,8 +22,13 @@
             <input type="hidden" name="category" value="Authors">
             <div class="input-group mb-3">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="AuthorsName" value="{{ SeriesData['Authors'] }}">
+                    <input type="text" class="form-control" list="AuthorList" id="AuthorsName" value="{{ SeriesData['Authors'] }}">
                     <label for="AuthorsName">著者(カンマ区切り)</label>
+                    <datalist id="AuthorList">
+                        {% for Author_datalist in datalist["AuthorName"] %}
+                            <option value="{{ Author_datalist['data']}}">
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <button class="btn btn-primary" type="submit" id="AuthorsNameSubmit">変更</button>
             </div>
@@ -35,8 +40,13 @@
             <input type="hidden" name="category" value="Publisher">
             <div class="input-group mb-3">
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="PublisherName" value="{{ SeriesData['PublisherName'] }}">
+                    <input type="text" class="form-control" list="PublisherList" id="PublisherName" value="{{ SeriesData['PublisherName'] }}">
                     <label for="PublisherName">出版社名</label>
+                    <datalist id="PublisherList">
+                        {% for Publisher_datalist in datalist["PublisherName"] %}
+                            <option value="{{ Publisher_datalist['data']}}">
+                        {% endfor %}
+                    </datalist>
                 </div>
                 <button class="btn btn-primary" type="submit" id="PublisherNameSubmit">変更</button>
             </div>

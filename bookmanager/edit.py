@@ -7,7 +7,7 @@ from bookmanager.auth import login_required
 from bookmanager.db import get_db
 
 from .manager import (
-    bp, get_id
+    bp, get_id, get_datalist
 )
 
 
@@ -145,7 +145,9 @@ def book_edit():
     else:
         Book = dict(Book)
 
-    return render_template("book_edit.html", Book=Book)
+    datalist = get_datalist(db, UserID)
+
+    return render_template("book_edit.html", Book=Book, datalist=datalist)
 
 def change_seriesname(SeriesName, UserID, SeriesID):
     db = get_db()
@@ -308,4 +310,6 @@ def series_edit():
     if SeriesData is None:
         abort(404)
 
-    return render_template("series_edit.html", SeriesData=SeriesData)
+    datalist = get_datalist(db, UserID)
+
+    return render_template("series_edit.html", SeriesData=SeriesData, datalist=datalist)
