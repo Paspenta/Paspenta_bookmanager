@@ -114,3 +114,26 @@ def get_page(page_str):
         ret = 0
     
     return ret
+
+
+def get_datalist(db, UserID, Series=True, Location=True, Author=True, Publisher=True):
+    ret = dict()
+    Tables = []
+    if Series:
+        Tables.append(["SeriesName", "Series"])
+    if Location:
+        Tables.append(["LocationName", "Locations"])
+    if Author:
+        Tables.append(["AuthorName", "Authors"])
+    if Publisher:
+        Tables.append(["PublisherName", "Publishers"])
+
+    for table in Tables:
+        ret[table[0]] = db.execute(
+            f"""
+            SELECT {table[0]}
+            FROM {table[1]}
+            WHERE UserID = ?
+            """, (UserID,)
+        ).fetchall()
+    return ret
