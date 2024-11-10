@@ -118,20 +118,20 @@ def test_index_series_pagenation(client, auth, app):
         response = client.get("/index_series", query_string={"SeriesName":"Pagenation"})
         data = response.data.decode("utf-8")
         for i in range(1, 16):
-            assert f"PagenationSeries{i:02}" in data
+            assert f"seriesName=PagenationSeries{i:02}" in data
         for i in range(16, 32):
-            assert f"PagenationSeries{i:02}" not in data
+            assert f"seriesName=PagenationSeries{i:02}" not in data
 
         response = client.get("/index_series", query_string={"SeriesName":"Pagenation", "Page":"1"})
         data = response.data.decode("utf-8")
         for i in range(1, 16):
-            assert f"PagenationSeries{i:02}" not in data
+            assert f"seriesName=PagenationSeries{i:02}" not in data
         for i in range(16, 31):
-            assert f"PagenationSeries{i:02}" in data
-        assert f"PagenationSeries31" not in data
+            assert f"seriesName=PagenationSeries{i:02}" in data
+        assert f"seriesName=PagenationSeries31" not in data
 
         response = client.get("/index_series", query_string={"SeriesName":"Pagenation", "Page":"2"})
         data = response.data.decode("utf-8")
         for i in range(1, 31):
-            assert f"PagenationSeries{i:02}" not in data
-        assert f"PagenationSeries31" in data
+            assert f"seriesName=PagenationSeries{i:02}" not in data
+        assert f"seriesName=PagenationSeries31" in data

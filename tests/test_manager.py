@@ -1,6 +1,6 @@
 import pytest
 from bookmanager.db import get_db
-from bookmanager.manager import get_id, get_page
+from bookmanager.manager import get_id, get_page, get_datalist
 
 def test_get_id(app):
     with app.app_context():
@@ -61,3 +61,10 @@ def test_login_required(client, path):
 def test_login_required_post(client, path):
     response = client.post(path)
     assert response.headers["Location"] == "/auth/login"
+
+def test_get_id(app):
+    with app.app_context():
+        db = get_db()
+        UserID = 1
+        assert get_datalist(db, UserID)
+        assert not get_datalist(db, UserID, False, False, False, False)
