@@ -234,7 +234,7 @@ def index():
     next_flag = len(Books) == GET_BOOK_AMOUNT
     plus_page, minus_page = get_pagenation(parms)
 
-    datalist = get_datalist()
+    datalist = get_datalist(db, UserID)
 
     return render_template("index.html",
                             Books=Books,

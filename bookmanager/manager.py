@@ -131,7 +131,7 @@ def get_datalist(db, UserID, Series=True, Location=True, Author=True, Publisher=
     for table in Tables:
         ret[table[0]] = db.execute(
             f"""
-            SELECT {table[0]}
+            SELECT {table[0]} AS data
             FROM {table[1]}
             WHERE UserID = ?
             """, (UserID,)

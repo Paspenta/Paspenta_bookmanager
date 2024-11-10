@@ -19,20 +19,40 @@
                         <label for="SearchTitle">タイトル</label>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="SearchSeries" name="SeriesName">
+                        <input type="text" class="form-control" list="SeriesList" id="SearchSeries" name="SeriesName">
                         <label for="SearchSeries">シリーズ名</label>
+                        <datalist id="SeriesList">
+                            {% for Series_datalist in datalist["SeriesName"] %}
+                                <option value="{{ Series_datalist['data']}}">
+                            {% endfor %}
+                        </datalist>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="SearchAuthor" name="AuthorName">
+                        <input type="text" class="form-control" list="AuthorList" id="SearchAuthor" name="AuthorName">
                         <label for="SearchAuthor">著者名</label>
+                        <datalist id="AuthorList">
+                            {% for Author_datalist in datalist["AuthorName"] %}
+                                <option value="{{ Author_datalist['data']}}">
+                            {% endfor %}
+                        </datalist>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="SearchPublisher" name="PublisherName">
+                        <input type="text" class="form-control" list="PublisherList" id="SearchPublisher" name="PublisherName">
                         <label for="SearchPublisher">出版社名</label>
+                        <datalist id="PublisherList">
+                            {% for Publisher_datalist in datalist["PublisherName"] %}
+                                <option value="{{ Publisher_datalist['data']}}">
+                            {% endfor %}
+                        </datalist>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="SearchLocation" name="LocationName">
+                        <input type="text" class="form-control" list="LocationList" id="SearchLocation" name="LocationName">
                         <label for="SearchLocation">本の場所</label>
+                        <datalist id="LocationList">
+                            {% for Location_datalist in datalist["LocationName"] %}
+                                <option value="{{ Location_datalist['data']}}">
+                            {% endfor %}
+                        </datalist>
                     </div>
                     <button type="submit" class="btn btn-primary">検索</button>
                 </div>
