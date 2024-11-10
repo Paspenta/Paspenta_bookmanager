@@ -1,4 +1,4 @@
-# プロジェクト名
+# Paspenta Book Manager
 
 蔵書管理をするWEBアプリです。
 
