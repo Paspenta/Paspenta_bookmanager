@@ -7,7 +7,7 @@ from bookmanager.auth import login_required
 from bookmanager.db import get_db
 
 from .manager import (
-    bp, get_page
+    bp, get_page, get_datalist
 )
 
 GET_BOOK_AMOUNT = 30
@@ -234,11 +234,14 @@ def index():
     next_flag = len(Books) == GET_BOOK_AMOUNT
     plus_page, minus_page = get_pagenation(parms)
 
+    datalist = get_datalist()
+
     return render_template("index.html",
                             Books=Books,
                             plus_page=plus_page,
                             minus_page=minus_page,
-                            next_flag=next_flag)
+                            next_flag=next_flag,
+                            datalist=datalist)
 
 @bp.route("/index_series")
 @login_required
@@ -261,8 +264,11 @@ def index_series():
     series_list = get_series(db, UserID, parms)
     next_flag = len(series_list) == GET_SERIES_AMOUNT
 
+    datalist = get_datalist(db, UserID)
+
     return render_template("index_series.html",
                             series_list=series_list,
                             plus_parms=plus_page,
                             minus_parms=minus_page,
-                            next_flag=next_flag)
+                            next_flag=next_flag,
+                            datalist=datalist)
