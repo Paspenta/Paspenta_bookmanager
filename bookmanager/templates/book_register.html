@@ -11,19 +11,39 @@
             </div>
             <div class="mb-3">
                 <label for="Series" class="form-label">シリーズ</label>
-                <input name="Series" id="Series" class="form-control" value="{{ Book.get('Series') }}" >
+                <input name="Series" id="Series" list="SeriesList" class="form-control" value="{{ Book.get('Series') }}" >
+                <datalist id="SeriesList">
+                    {% for Series_datalist in datalist["SeriesName"] %}
+                        <option value="{{ Series_datalist['data']}}">
+                    {% endfor %}
+                </datalist>
             </div>
             <div class="mb-3">
                 <label for="Location" class="form-label">本の場所</label>
-                <input name="Location" id="Location" class="form-control" value="{{ Book.get('Location') }}"required>
+                <input name="Location" id="Location" list="LocationList" class="form-control" value="{{ Book.get('Location') }}"required>
+                <datalist id="LocationList">
+                    {% for Location_datalist in datalist["LocationName"] %}
+                        <option value="{{ Location_datalist['data']}}">
+                    {% endfor %}
+                </datalist>
             </div>
             <div class="mb-3">
                 <label for="author" class="form-label">著者(コンマ区切り)</label>
-                <input name="author" id="author" class="form-control" value="{{ Book.get('author') }}">
+                <input name="author" id="author" list="AuthorList"class="form-control" value="{{ Book.get('author') }}">
+                <datalist id="AuthorList">
+                    {% for Author_datalist in datalist["AuthorName"] %}
+                        <option value="{{ Author_datalist['data']}}">
+                    {% endfor %}
+                </datalist>
             </div>
             <div class="mb-3">
                 <label for="Publisher" class="form-label">出版社</label>
-                <input name="Publisher" id="Publisher" class="form-control" value="{{ Book.get('Publisher') }}">
+                <input name="Publisher" id="Publisher" list="PublisherList" class="form-control" value="{{ Book.get('Publisher') }}">
+                <datalist id="PublisherList">
+                    {% for Publisher_datalist in datalist["PublisherName"] %}
+                        <option value="{{ Publisher_datalist['data']}}">
+                    {% endfor %}
+                </datalist>
             </div>
             <div class="mb-3">
                 <label for="PublicationDate" class="form-label">出版日</label>

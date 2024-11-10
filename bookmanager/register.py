@@ -8,7 +8,7 @@ from bookmanager.db import get_db
 from bookmanager.get_books import get_books
 
 from .manager import (
-    bp, get_page, get_id
+    bp, get_page, get_id, get_datalist
 )
 MAX_RESULT = 30
 
@@ -110,7 +110,10 @@ def register():
     Book["ISBN13"] = request.args.get("ISBN13", "")
     Book["ISBN10"] = request.args.get("ISBN10", "")
 
-    return render_template("book_register.html", Book=Book)
+    UserID = g.user["UserID"]
+    datalist = get_datalist(get_db(), UserID)
+
+    return render_template("book_register.html", Book=Book, datalist=datalist)
 
 
 @bp.route("/register_search")
