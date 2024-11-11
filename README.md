@@ -56,3 +56,9 @@ flask --app bookmanager init-db
 - jinja2
 - Bootstrap5
 - requests(Google Books APIからデータを取得するため)
+
+## images
+![スクリーンショット 2024-11-10 195500](https://github.com/user-attachments/assets/d07f9d93-424f-4145-b11e-7a75bc0fb7ae)
+![スクリーンショット 2024-11-10 195539](https://github.com/user-attachments/assets/032b01de-16d7-44ca-bc16-db8bb84e2645)
+![スクリーンショット 2024-11-10 195607](https://github.com/user-attachments/assets/aadebb36-bfa7-4d35-b5a1-ad6dcc981795)
+
