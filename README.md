@@ -58,7 +58,20 @@ flask --app bookmanager init-db
 - requests(Google Books APIからデータを取得するため)
 
 ## images
+
+### index
 ![スクリーンショット 2024-11-10 195500](https://github.com/user-attachments/assets/d07f9d93-424f-4145-b11e-7a75bc0fb7ae)
+
+### index(シリーズをまとめて表示)
+![image](https://github.com/user-attachments/assets/bf62688c-bb29-4085-ab25-387630ce822f)
+![image](https://github.com/user-attachments/assets/29c34b08-dfbf-420c-af61-365a179b58e1)
+
+### API検索画面
 ![スクリーンショット 2024-11-10 195539](https://github.com/user-attachments/assets/032b01de-16d7-44ca-bc16-db8bb84e2645)
+
+### 登録画面
 ![スクリーンショット 2024-11-10 195607](https://github.com/user-attachments/assets/aadebb36-bfa7-4d35-b5a1-ad6dcc981795)
+
+### 登録書籍の編集画面
+![image](https://github.com/user-attachments/assets/ff9ccb55-4c26-4f62-ac9a-83fed080b5db)
 
