@@ -1,6 +1,6 @@
 # Paspenta Book Manager
 
-蔵書管理をするWEBアプリです。
+蔵書管理をするアプリです。
 
 ## Getting Started
 
